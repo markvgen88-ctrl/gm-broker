@@ -1,0 +1,94 @@
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { HiPlus } from "react-icons/hi";
+import { Reveal } from "@/components/ui/Reveal";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { cn } from "@/lib/utils";
+
+const FAQ_ITEMS = [
+  {
+    question: "Сколько стоят ваши услуги?",
+    answer:
+      "Комиссия составляет 15% и удерживается только после фактического поступления денежных средств клиенту. Предоплата не требуется.",
+  },
+  {
+    question: "Работаете ли вы с клиентами, у которых есть просрочки?",
+    answer:
+      "Да. Клиентам с текущей или недавней просрочкой доступно залоговое кредитование от 21% годовых — реальные условия зависят от суммы, залога и общей картины по доходам.",
+  },
+  {
+    question: "В каких регионах России вы работаете?",
+    answer:
+      "Работаю удалённо по всей России, за исключением Республики Крым и Северного Кавказа. Личное присутствие не требуется — все этапы проходят онлайн.",
+  },
+  {
+    question: "Что если банки уже отказали мне несколько раз?",
+    answer:
+      "Это самая частая ситуация среди моих клиентов. Провожу детальный анализ, объясняю причины отказов и подбираю банк и продукт, где ваши шансы будут выше. Если перспектив нет — скажу об этом честно и дам бесплатную рекомендацию.",
+  },
+  {
+    question: "Какие документы нужны для начала работы?",
+    answer:
+      "На старте достаточно пройти короткий опрос на сайте. После анализа ситуации я сообщу точный список документов, необходимых именно для вашего случая и выбранного банка.",
+  },
+  {
+    question: "Заключается ли договор?",
+    answer:
+      "Да, сотрудничество оформляется договором. Это защищает интересы обеих сторон и фиксирует условия работы, включая размер комиссии и порядок оплаты.",
+  },
+];
+
+export function FAQ() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  return (
+    <section id="faq" className="relative py-24 md:py-32">
+      <div className="container-page">
+        <SectionHeading eyebrow="FAQ" title="Вопросы, которые задают чаще всего" className="mb-14" />
+
+        <div className="mx-auto flex max-w-3xl flex-col gap-3">
+          {FAQ_ITEMS.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <Reveal key={item.question} delay={index * 0.04}>
+                <div className={cn("overflow-hidden rounded-2xl border transition-colors duration-300", isOpen ? "border-gold/35 bg-graphite/50" : "border-white/8 bg-graphite/25")}>
+                  <button
+                    className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left"
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                    aria-expanded={isOpen}
+                  >
+                    <span className="font-display text-base font-semibold text-silver md:text-lg">
+                      {item.question}
+                    </span>
+                    <span
+                      className={cn(
+                        "grid h-8 w-8 shrink-0 place-items-center rounded-full metal-border text-gold transition-transform duration-300",
+                        isOpen && "rotate-45"
+                      )}
+                    >
+                      <HiPlus size={16} />
+                    </span>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      >
+                        <p className="px-6 pb-6 text-sm leading-relaxed text-metal md:text-base">
+                          {item.answer}
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
