@@ -57,7 +57,7 @@ const ADVANTAGES: Advantage[] = [
 
 export function Advantages() {
   return (
-    <section id="advantages" className="relative py-24 md:py-32">
+    <section id="advantages" className="relative overflow-hidden py-24 md:py-32">
       <div className="pointer-events-none absolute left-1/2 top-1/3 -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-gold/5 blur-[160px]" />
       <div className="container-page">
         <SectionHeading

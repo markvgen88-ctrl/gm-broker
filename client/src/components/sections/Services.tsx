@@ -36,7 +36,7 @@ const SERVICES: Service[] = [
 
 export function Services() {
   return (
-    <section id="services" className="relative py-24 md:py-32">
+    <section id="services" className="relative overflow-hidden py-24 md:py-32">
       <div className="pointer-events-none absolute right-0 top-0 -z-10 h-[380px] w-[380px] rounded-full bg-gold-deep/10 blur-[130px]" />
       <div className="container-page">
         <SectionHeading
