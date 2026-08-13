@@ -108,8 +108,10 @@ export function buildReport(input: SubmissionInput): BuiltReport {
                           <td style="font-size:14px;color:${INK};font-weight:700;padding-bottom:6px;">${escapeHtml(name)}</td>
                         </tr>
                         <tr>
-                          <td style="font-size:13px;color:${MUTED};">Контакт</td>
-                          <td style="font-size:14px;color:${INK};font-weight:700;">${escapeHtml(contactInfo)}</td>
+                          <td style="font-size:13px;color:${MUTED};">E-mail</td>
+                          <td style="font-size:14px;color:${INK};font-weight:700;">
+                            <a href="mailto:${escapeHtml(contactInfo)}" style="color:${INK};text-decoration:none;">${escapeHtml(contactInfo)}</a>
+                          </td>
                         </tr>
                       </table>
                     </td>
@@ -178,7 +180,7 @@ export function buildReport(input: SubmissionInput): BuiltReport {
     `📅 ${escapeHtml(date)}, ${escapeHtml(time)}`,
     `👤 <b>Тип клиента:</b> ${escapeHtml(clientTypeLabel)}`,
     `🙋 <b>Имя:</b> ${escapeHtml(name)}`,
-    `📞 <b>Контакт:</b> ${escapeHtml(contactInfo)}`,
+    `📧 <b>E-mail:</b> ${escapeHtml(contactInfo)}`,
     "",
     `💰 <b>Сумма:</b> ${escapeHtml(loanAmount)}`,
     `🎯 <b>Цель:</b> ${escapeHtml(loanPurpose)}`,

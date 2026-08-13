@@ -17,10 +17,9 @@ export function SuccessScreen({ onReset }: SuccessScreenProps) {
       <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-gold/10 text-gold">
         <HiOutlineCheckCircle size={44} />
       </div>
-      <h3 className="font-display text-2xl font-bold text-silver md:text-3xl">Спасибо!</h3>
+      <h3 className="font-display text-2xl font-bold text-silver md:text-3xl">Ваша анкета отправлена!</h3>
       <p className="mt-4 max-w-md text-base leading-relaxed text-metal">
-        Ваша анкета успешно отправлена. В ближайшее время я проведу анализ
-        вашей ситуации и свяжусь с вами.
+        Ожидайте, пожалуйста, ответ в течение 24 часов. Спасибо, что обратились!
       </p>
       <Button variant="secondary" className="mt-8" onClick={onReset}>
         Пройти опрос заново

@@ -39,7 +39,7 @@ export const FIELD_LABELS: Record<string, string> = {
   llcConsentToCollateral: "Согласие на кредитование под залог",
   orgTurnover: "Оборот по счету в месяц",
   name: "Имя",
-  contactInfo: "Контакт для связи",
+  contactInfo: "E-mail",
 };
 
 /** Порядок полей при выводе полной анкеты в отчёте. */

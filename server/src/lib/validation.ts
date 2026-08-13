@@ -8,8 +8,8 @@ export const submissionSchema = z.object({
     .refine((a) => typeof a.name === "string" && a.name.trim().length >= 2, {
       message: "Укажите имя (не менее 2 символов)",
     })
-    .refine((a) => typeof a.contactInfo === "string" && a.contactInfo.trim().length >= 5, {
-      message: "Укажите корректный способ связи",
+    .refine((a) => typeof a.contactInfo === "string" && z.string().email().safeParse(a.contactInfo.trim()).success, {
+      message: "Укажите корректный e-mail",
     }),
 });
 

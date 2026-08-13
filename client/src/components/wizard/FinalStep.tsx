@@ -8,7 +8,7 @@ import type { FinalNode } from "@/types/questionnaire";
 
 const finalSchema = z.object({
   name: z.string().trim().min(2, "Укажите, как к вам обращаться"),
-  contactInfo: z.string().trim().min(5, "Укажите телефон, e-mail или Telegram"),
+  contactInfo: z.string().trim().email("Укажите корректный e-mail"),
   consent: z.boolean().refine((v) => v === true, {
     message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
   }),
@@ -58,12 +58,14 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
 
         <div>
           <label htmlFor="contactInfo" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
-            Телефон, e-mail или Telegram
+            E-mail
           </label>
           <input
             id="contactInfo"
-            autoComplete="tel"
-            placeholder="+7 900 000-00-00 / @username / mail@example.com"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="Укажите ваш актуальный адрес эл. почты"
             className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
             {...register("contactInfo")}
           />
