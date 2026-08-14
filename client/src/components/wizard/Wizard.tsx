@@ -11,6 +11,7 @@ import { DeclineStep } from "@/components/wizard/DeclineStep";
 import { SuccessScreen } from "@/components/wizard/SuccessScreen";
 import { useWizard } from "@/hooks/useWizard";
 import { submitApplication } from "@/lib/api";
+import { reachGoal, WIZARD_GOALS } from "@/lib/metrika";
 import type { AnswersState } from "@/types/questionnaire";
 
 const slideVariants = {
@@ -43,6 +44,7 @@ export function Wizard() {
       });
       wizard.setFinalAnswers({ name: values.name, contactInfo: values.contactInfo });
       setSubmitted(true);
+      reachGoal(WIZARD_GOALS.LEAD_SUBMITTED, { clientType: finalAnswers.clientType ?? "individual" });
     } catch (error) {
       setSubmitError(
         error instanceof Error ? error.message : "Не удалось отправить заявку. Попробуйте ещё раз."

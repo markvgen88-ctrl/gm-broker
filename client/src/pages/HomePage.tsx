@@ -8,7 +8,21 @@ import { Audience } from "@/components/sections/Audience";
 import { Services } from "@/components/sections/Services";
 import { Wizard } from "@/components/wizard/Wizard";
 import { FAQ } from "@/components/sections/FAQ";
+import { FAQ_ITEMS } from "@/data/faq";
 import { useSeo } from "@/hooks/useSeo";
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: item.answer,
+    },
+  })),
+};
 
 export function HomePage() {
   const location = useLocation();
@@ -18,6 +32,7 @@ export function HomePage() {
     description:
       "Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 100 000 ₽ до 1,5 млрд ₽. Индивидуальный подбор банка, работа по договору, оплата только после результата.",
     canonicalPath: "/",
+    jsonLd: faqJsonLd,
   });
 
   useEffect(() => {

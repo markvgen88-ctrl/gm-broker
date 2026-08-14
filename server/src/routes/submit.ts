@@ -4,6 +4,7 @@ import { submissionSchema } from "../lib/validation.js";
 import { buildReport } from "../lib/reportTemplate.js";
 import { sendTelegramMessage } from "../services/telegram.js";
 import { sendEmailReport } from "../services/email.js";
+import { sendSheetsBackup } from "../services/sheets.js";
 import { submitRateLimiter } from "../middleware/rateLimit.js";
 import { withTimeout } from "../lib/withTimeout.js";
 
@@ -19,24 +20,37 @@ submitRouter.post("/submit", submitRateLimiter, async (req: Request, res: Respon
 
   const report = buildReport(parsed.data);
 
-  sendTelegramMessage(report.telegramText)
-    .then((result) => {
-      if (!result.ok) {
-        console.error("[submit] Telegram delivery failed:", result.error);
-      }
-    })
-    .catch((error) => {
-      console.error("[submit] Telegram delivery threw unexpectedly:", error);
-    });
+  // Заявка одновременно уходит в три независимых канала (Telegram, Email,
+  // резервная Google-таблица). Каналы не блокируют друг друга: если, например,
+  // временно недоступен SMTP, заявка всё равно попадёт в Telegram и в таблицу.
+  // Успехом считаем ситуацию, когда сработал хотя бы один канал — так заявка
+  // почти никогда не теряется целиком из-за сбоя одного конкретного сервиса.
+  const [telegramResult, emailResult, sheetsResult] = await Promise.all([
+    withTimeout(sendTelegramMessage(report.telegramText), 8000, {
+      ok: false,
+      error: "Telegram: таймаут запроса",
+    }),
+    withTimeout(sendEmailReport({ subject: report.subject, html: report.html }), 11000, {
+      ok: false,
+      error: "Email: таймаут запроса",
+    }),
+    withTimeout(sendSheetsBackup(parsed.data), 6500, {
+      ok: false,
+      error: "Sheets: таймаут запроса",
+    }),
+  ]);
 
-  const emailResult = await withTimeout(
-    sendEmailReport({ subject: report.subject, html: report.html }),
-    11000,
-    { ok: false, error: "Email delivery timed out (safety net)" }
-  );
+  const results = { telegram: telegramResult, email: emailResult, sheets: sheetsResult };
+  const anySucceeded = telegramResult.ok || emailResult.ok || sheetsResult.ok;
 
-  if (!emailResult.ok) {
-    console.error("[submit] Email delivery failed:", emailResult.error);
+  for (const [channel, result] of Object.entries(results)) {
+    if (!result.ok) {
+      console.error(`[submit] ${channel} delivery failed:`, result.error);
+    }
+  }
+
+  if (!anySucceeded) {
+    console.error("[submit] All delivery channels failed — lead was not saved anywhere.");
     return res.status(502).json({
       success: false,
       message: "Не удалось доставить заявку. Пожалуйста, попробуйте ещё раз чуть позже.",

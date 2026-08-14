@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gmbroker.ru/sitemap.xml
+Sitemap: https://gm-broker.ru/sitemap.xml
