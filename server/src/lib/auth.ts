@@ -18,16 +18,14 @@ function timingSafeEqualStr(a: string, b: string): boolean {
   return crypto.timingSafeEqual(bufA, bufB);
 }
 
-// Запасной пароль "на крайний случай" — используется только если переменная
-// окружения ADMIN_PASSWORD не задана или не читается сервером (например,
-// .env не подхватился при запуске). ВАЖНО: держать пароль прямо в коде
-// небезопасно — как только разберётесь, почему .env не читается, задайте
-// ADMIN_PASSWORD в server/.env и поменяйте/уберите значение ниже.
-const FALLBACK_ADMIN_PASSWORD = "123456789";
+// ==================== ПАРОЛЬ ДЛЯ ВХОДА В /admin ====================
+// Чтобы поменять пароль — просто отредактируйте строку ниже и пересоберите
+// сервер (npm run build). Никаких .env для этого не требуется.
+export const ADMIN_PASSWORD = "123456789";
+// =====================================================================
 
 export function checkAdminPassword(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD || FALLBACK_ADMIN_PASSWORD;
-  return timingSafeEqualStr(candidate, expected);
+  return timingSafeEqualStr(candidate, ADMIN_PASSWORD);
 }
 
 function cookieOptions() {

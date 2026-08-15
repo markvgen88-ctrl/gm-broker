@@ -47,9 +47,4 @@ app.listen(PORT, () => {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn("⚠️  SMTP не настроен — отправка на почту не будет работать.");
   }
-  if (!process.env.ADMIN_PASSWORD) {
-    console.warn(
-      "⚠️  ADMIN_PASSWORD не задан — для /admin действует запасной пароль 123456789 из кода (server/src/lib/auth.ts). Задайте свой пароль в .env и смените запасной."
-    );
-  }
 });

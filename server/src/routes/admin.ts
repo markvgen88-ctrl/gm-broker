@@ -17,14 +17,6 @@ const loginRateLimiter = rateLimit({
 });
 
 adminRouter.post("/login", loginRateLimiter, (req: Request, res: Response) => {
-  if (!process.env.ADMIN_PASSWORD) {
-    // ADMIN_PASSWORD не читается из .env — используем запасной пароль из
-    // lib/auth.ts, но обязательно предупреждаем в логах сервера.
-    console.warn(
-      "[admin] ADMIN_PASSWORD не задан — используется запасной пароль из кода (lib/auth.ts). Настройте .env как можно скорее."
-    );
-  }
-
   const password = typeof req.body?.password === "string" ? req.body.password : "";
   if (!password || !checkAdminPassword(password)) {
     return res.status(401).json({ success: false, message: "Неверный пароль" });
