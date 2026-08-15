@@ -6,8 +6,17 @@ import { HiArrowLeft } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import type { FinalNode } from "@/types/questionnaire";
 
+// Достаточно гибкий формат российского номера: допускает +7/8/7, пробелы,
+// скобки и дефисы — например «+7 (926) 123-45-67», «89261234567», «7 926 1234567».
+const PHONE_REGEX = /^(\+7|8|7)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
+
 const finalSchema = z.object({
   name: z.string().trim().min(2, "Укажите, как к вам обращаться"),
+  phone: z
+    .string()
+    .trim()
+    .min(10, "Укажите номер телефона для связи")
+    .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
   contactInfo: z.string().trim().email("Укажите корректный e-mail"),
   consent: z.boolean().refine((v) => v === true, {
     message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
@@ -31,7 +40,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
     formState: { errors },
   } = useForm<FinalFormValues>({
     resolver: zodResolver(finalSchema),
-    defaultValues: { name: "", contactInfo: "", consent: false },
+    defaultValues: { name: "", phone: "", contactInfo: "", consent: false },
   });
 
   return (
@@ -54,6 +63,22 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
             {...register("name")}
           />
           {errors.name && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.name.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="phone" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
+            Номер телефона
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder="+7 (___) ___-__-__"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
+            {...register("phone")}
+          />
+          {errors.phone && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.phone.message}</p>}
         </div>
 
         <div>
