@@ -18,8 +18,11 @@ const loginRateLimiter = rateLimit({
 
 adminRouter.post("/login", loginRateLimiter, (req: Request, res: Response) => {
   if (!process.env.ADMIN_PASSWORD) {
-    console.error("[admin] ADMIN_PASSWORD не задан в .env — вход в /admin невозможен.");
-    return res.status(500).json({ success: false, message: "Админ-панель не настроена на сервере" });
+    // ADMIN_PASSWORD не читается из .env — используем запасной пароль из
+    // lib/auth.ts, но обязательно предупреждаем в логах сервера.
+    console.warn(
+      "[admin] ADMIN_PASSWORD не задан — используется запасной пароль из кода (lib/auth.ts). Настройте .env как можно скорее."
+    );
   }
 
   const password = typeof req.body?.password === "string" ? req.body.password : "";
