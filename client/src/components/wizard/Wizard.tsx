@@ -1,150 +1,144 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { HiOutlineClock, HiOutlineLockClosed } from "react-icons/hi";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
-import { ProgressBar } from "@/components/wizard/ProgressBar";
-import { ChoiceStep } from "@/components/wizard/ChoiceStep";
-import { InputStep } from "@/components/wizard/InputStep";
-import { FinalStep, type FinalFormValues } from "@/components/wizard/FinalStep";
-import { DeclineStep } from "@/components/wizard/DeclineStep";
-import { SuccessScreen } from "@/components/wizard/SuccessScreen";
-import { useWizard } from "@/hooks/useWizard";
-import { submitApplication } from "@/lib/api";
-import { reachGoal, WIZARD_GOALS } from "@/lib/metrika";
-import type { AnswersState } from "@/types/questionnaire";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Link } from "react-router-dom";
+import { HiArrowLeft } from "react-icons/hi";
+import { Button } from "@/components/ui/Button";
+import type { FinalNode } from "@/types/questionnaire";
 
-const slideVariants = {
-  enter: (direction: 1 | -1) => ({ opacity: 0, x: direction * 32 }),
-  center: { opacity: 1, x: 0 },
-  exit: (direction: 1 | -1) => ({ opacity: 0, x: direction * -32 }),
-};
+// Достаточно гибкий формат российского номера: допускает +7/8/7, пробелы,
+// скобки и дефисы — например «+7 (926) 123-45-67», «89261234567», «7 926 1234567».
+const PHONE_REGEX = /^(\+7|8|7)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
 
-export function Wizard() {
-  const wizard = useWizard();
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
+const finalSchema = z.object({
+  name: z.string().trim().min(2, "Укажите, как к вам обращаться"),
+  phone: z
+    .string()
+    .trim()
+    .min(10, "Укажите номер телефона для связи")
+    .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
+  contactInfo: z.string().trim().email("Укажите корректный e-mail"),
+  consent: z.boolean().refine((v) => v === true, {
+    message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
+  }),
+});
 
-  const handleFinalSubmit = async (values: FinalFormValues) => {
-    setSubmitting(true);
-    setSubmitError(null);
+export type FinalFormValues = z.infer<typeof finalSchema>;
 
-    const finalAnswers: AnswersState = {
-      ...wizard.answers,
-      name: values.name,
-      contactInfo: values.contactInfo,
-    };
+interface FinalStepProps {
+  node: FinalNode;
+  onSubmit: (values: FinalFormValues) => void;
+  onBack: () => void;
+  isSubmitting: boolean;
+  submitError: string | null;
+}
 
-    try {
-      await submitApplication({
-        clientType: (finalAnswers.clientType as "individual" | "entrepreneur" | "legal_entity") ?? "individual",
-        answers: finalAnswers,
-        submittedAt: new Date().toISOString(),
-      });
-      wizard.setFinalAnswers({ name: values.name, contactInfo: values.contactInfo });
-      setSubmitted(true);
-      reachGoal(WIZARD_GOALS.LEAD_SUBMITTED, { clientType: finalAnswers.clientType ?? "individual" });
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Не удалось отправить заявку. Попробуйте ещё раз."
-      );
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleReset = () => {
-    wizard.reset();
-    setSubmitted(false);
-    setSubmitError(null);
-  };
+export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }: FinalStepProps) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FinalFormValues>({
+    resolver: zodResolver(finalSchema),
+    defaultValues: { name: "", phone: "", contactInfo: "", consent: false },
+  });
 
   return (
-    <section id="wizard" className="relative py-24 md:py-32">
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gold/[0.06] blur-[160px]" />
-      <div className="container-page">
-        <SectionHeading
-          eyebrow="Проверка шансов на кредит"
-          title="Узнайте свои шансы за пару минут"
-          description="Отвечайте честно — это короткий пошаговый опрос, а не длинная анкета. Данные используются только для оценки вашей ситуации."
-          className="mb-14"
-        />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
+        {node.question}
+      </h3>
+      {node.hint && <p className="mt-3 text-sm leading-relaxed text-metal md:text-base">{node.hint}</p>}
 
-        <Reveal className="mx-auto max-w-2xl">
-          <div className="metal-border rounded-3xl bg-graphite/40 p-6 shadow-soft backdrop-blur-sm md:p-10">
-            {submitted ? (
-              <SuccessScreen onReset={handleReset} />
-            ) : (
-              <>
-                <ProgressBar progress={wizard.progress} stepIndex={wizard.stepIndex} />
-                <AnimatePresence mode="wait" custom={wizard.direction} initial={false}>
-                  {(() => {
-                    const currentNode = wizard.currentNode;
-                    return (
-                      <motion.div
-                        key={currentNode.id}
-                        custom={wizard.direction}
-                        variants={slideVariants}
-                        initial="enter"
-                        animate="center"
-                        exit="exit"
-                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-                      >
-                        {currentNode.kind === "choice" && (
-                          <ChoiceStep
-                            node={currentNode}
-                            onAnswer={(value, next) => wizard.goNext(currentNode.field, value, next)}
-                            onBack={wizard.goBack}
-                            canGoBack={wizard.canGoBack}
-                          />
-                        )}
-                        {currentNode.kind === "input" && (
-                          <InputStep
-                            node={currentNode}
-                            defaultValue={wizard.answers[currentNode.field]}
-                            onAnswer={(value, next) => wizard.goNext(currentNode.field, value, next)}
-                            onBack={wizard.goBack}
-                            canGoBack={wizard.canGoBack}
-                          />
-                        )}
-                        {currentNode.kind === "final" && (
-                          <FinalStep
-                            node={currentNode}
-                            onSubmit={handleFinalSubmit}
-                            onBack={wizard.goBack}
-                            isSubmitting={submitting}
-                            submitError={submitError}
-                          />
-                        )}
-                        {currentNode.kind === "decline" && (
-                          <DeclineStep
-                            node={currentNode}
-                            onBack={wizard.goBack}
-                            onReset={handleReset}
-                            canGoBack={wizard.canGoBack}
-                          />
-                        )}
-                      </motion.div>
-                    );
-                  })()}
-                </AnimatePresence>
-              </>
-            )}
-          </div>
-        </Reveal>
+      <div className="mt-8 grid gap-5">
+        <div>
+          <label htmlFor="name" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
+            Имя
+          </label>
+          <input
+            id="name"
+            autoComplete="name"
+            placeholder="Как к вам обращаться"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
+            {...register("name")}
+          />
+          {errors.name && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.name.message}</p>}
+        </div>
 
-        {!submitted && (
-          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-metal/70">
-            <span className="inline-flex items-center gap-1.5">
-              <HiOutlineClock className="text-gold" /> Займёт около 2 минут
+        <div>
+          <label htmlFor="phone" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
+            Номер телефона
+          </label>
+          <input
+            id="phone"
+            type="tel"
+            autoComplete="tel"
+            inputMode="tel"
+            placeholder="+7 (___) ___-__-__"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
+            {...register("phone")}
+          />
+          {errors.phone && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.phone.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="contactInfo" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
+            E-mail
+          </label>
+          <input
+            id="contactInfo"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="Укажите ваш актуальный адрес эл. почты"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
+            {...register("contactInfo")}
+          />
+          {errors.contactInfo && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.contactInfo.message}</p>}
+        </div>
+
+        <div>
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-metal">
+            <input
+              type="checkbox"
+              className="mt-0.5 h-4 w-4 shrink-0 accent-gold"
+              {...register("consent")}
+            />
+            <span>
+              Я даю согласие на обработку персональных данных в соответствии с{" "}
+              <Link
+                to="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold underline underline-offset-2 hover:text-gold-deep"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Политикой конфиденциальности
+              </Link>
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <HiOutlineLockClosed className="text-gold" /> Данные передаются конфиденциально
-            </span>
-          </div>
-        )}
+          </label>
+          {errors.consent && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.consent.message}</p>}
+        </div>
       </div>
-    </section>
+
+      {submitError && (
+        <p className="mt-5 rounded-lg border border-[#e5a3a3]/30 bg-[#e5a3a3]/10 px-4 py-3 text-sm text-[#e5a3a3]">
+          {submitError}
+        </p>
+      )}
+
+      <div className="mt-8 flex items-center justify-between gap-4">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-2 text-sm font-medium text-metal transition-colors hover:text-gold"
+        >
+          <HiArrowLeft /> Назад
+        </button>
+        <Button type="submit" size="lg" disabled={isSubmitting}>
+          {isSubmitting ? "Отправляем…" : "Отправить заявку"}
+        </Button>
+      </div>
+    </form>
   );
 }

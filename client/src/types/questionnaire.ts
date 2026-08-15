@@ -43,6 +43,7 @@ export type FieldKey =
   | "llcConsentToCollateral"
   | "orgTurnover"
   | "name"
+  | "phone"
   | "contactInfo";
 
 export type AnswerValue = string | number;

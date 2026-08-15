@@ -34,6 +34,7 @@ export function buildReport(input: SubmissionInput): BuiltReport {
   const { date, time } = formatDateTime(submittedAt);
 
   const name = String(answers.name ?? "—");
+  const phone = String(answers.phone ?? "—");
   const contactInfo = String(answers.contactInfo ?? "—");
   const loanAmount = answers.loanAmount !== undefined ? formatFieldValue("loanAmount", answers.loanAmount) : "—";
   const loanPurpose = answers.loanPurpose !== undefined ? String(answers.loanPurpose) : "—";
@@ -108,6 +109,12 @@ export function buildReport(input: SubmissionInput): BuiltReport {
                           <td style="font-size:14px;color:${INK};font-weight:700;padding-bottom:6px;">${escapeHtml(name)}</td>
                         </tr>
                         <tr>
+                          <td style="font-size:13px;color:${MUTED};padding-bottom:6px;">Телефон</td>
+                          <td style="font-size:14px;color:${INK};font-weight:700;padding-bottom:6px;">
+                            <a href="tel:${escapeHtml(phone.replace(/[^\d+]/g, ""))}" style="color:${INK};text-decoration:none;">${escapeHtml(phone)}</a>
+                          </td>
+                        </tr>
+                        <tr>
                           <td style="font-size:13px;color:${MUTED};">E-mail</td>
                           <td style="font-size:14px;color:${INK};font-weight:700;">
                             <a href="mailto:${escapeHtml(contactInfo)}" style="color:${INK};text-decoration:none;">${escapeHtml(contactInfo)}</a>
@@ -180,6 +187,7 @@ export function buildReport(input: SubmissionInput): BuiltReport {
     `📅 ${escapeHtml(date)}, ${escapeHtml(time)}`,
     `👤 <b>Тип клиента:</b> ${escapeHtml(clientTypeLabel)}`,
     `🙋 <b>Имя:</b> ${escapeHtml(name)}`,
+    `📞 <b>Телефон:</b> ${escapeHtml(phone)}`,
     `📧 <b>E-mail:</b> ${escapeHtml(contactInfo)}`,
     "",
     `💰 <b>Сумма:</b> ${escapeHtml(loanAmount)}`,

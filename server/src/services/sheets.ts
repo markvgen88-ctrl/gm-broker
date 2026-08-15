@@ -37,6 +37,7 @@ export async function sendSheetsBackup(input: SubmissionInput): Promise<SheetsSe
     submittedAt,
     clientType,
     name: String(answers.name ?? ""),
+    phone: String(answers.phone ?? ""),
     contactInfo: String(answers.contactInfo ?? ""),
     loanAmount: answers.loanAmount !== undefined ? String(answers.loanAmount) : "",
     loanPurpose: answers.loanPurpose !== undefined ? String(answers.loanPurpose) : "",
