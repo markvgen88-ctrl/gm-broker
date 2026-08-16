@@ -29,12 +29,12 @@ adminRouter.post("/login", adminLoginRateLimiter, (req: Request, res: Response) 
     res.status(401).json({ success: false, message: "Неверный пароль" });
     return;
   }
-  issueSessionCookie(res);
+  issueSessionCookie(req, res);
   res.json({ success: true });
 });
 
-adminRouter.post("/logout", (_req: Request, res: Response) => {
-  clearSessionCookie(res);
+adminRouter.post("/logout", (req: Request, res: Response) => {
+  clearSessionCookie(req, res);
   res.json({ success: true });
 });
 

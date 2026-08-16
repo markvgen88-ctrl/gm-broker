@@ -24,19 +24,38 @@ export function verifyAdminPassword(candidate: unknown): boolean {
   return timingSafeEqual(a, b);
 }
 
-export function issueSessionCookie(res: Response): void {
-  const token = jwt.sign({ role: "admin" }, getSessionSecret(), { expiresIn: SESSION_TTL_SECONDS });
-  res.cookie(COOKIE_NAME, token, {
+/**
+ * Атрибуты куки подбираются по фактическому запросу (HTTPS или нет), а не по
+ * NODE_ENV — так надёжнее: на некоторых хостингах (например, если фронтенд
+ * и сервер задеплоены как два разных приложения на разных доменах, как на
+ * Timeweb App Platform) NODE_ENV может быть не выставлен, а куке всё равно
+ * нужен правильный набор атрибутов.
+ *
+ * Если сайт и API на одном домене — достаточно SameSite=Lax. Если это два
+ * разных домена (два отдельных приложения) — браузер отправит куку в
+ * кросс-доменном запросе, только если SameSite=None и одновременно Secure
+ * (это требование самих браузеров, не наша прихоть). req.secure корректно
+ * определяет HTTPS благодаря "trust proxy" в index.ts.
+ */
+function cookieAttributes(req: Request) {
+  const isHttps = req.secure;
+  return {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: isHttps,
+    sameSite: (isHttps ? "none" : "lax") as "none" | "lax",
     maxAge: SESSION_TTL_SECONDS * 1000,
     path: "/",
-  });
+  };
 }
 
-export function clearSessionCookie(res: Response): void {
-  res.clearCookie(COOKIE_NAME, { path: "/" });
+export function issueSessionCookie(req: Request, res: Response): void {
+  const token = jwt.sign({ role: "admin" }, getSessionSecret(), { expiresIn: SESSION_TTL_SECONDS });
+  res.cookie(COOKIE_NAME, token, cookieAttributes(req));
+}
+
+export function clearSessionCookie(req: Request, res: Response): void {
+  const { path, secure, sameSite } = cookieAttributes(req);
+  res.clearCookie(COOKIE_NAME, { path, secure, sameSite });
 }
 
 /** Пропускает дальше только запросы с валидной сессионной кукой. */
