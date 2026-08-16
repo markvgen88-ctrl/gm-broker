@@ -10,7 +10,7 @@ import { Pool } from "pg";
  * Если DATABASE_URL не задан, пул создаётся, но подключение произойдёт
  * только при первом реальном запросе — тогда и появится понятная ошибка
  * в логах. Это сделано намеренно: сайт должен продолжать работать (приём
- * анкет через Telegram/Email/Sheets) даже если CRM ещё не настроена.
+ * анкет через Telegram/Email) даже если CRM ещё не настроена.
  */
 export const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
