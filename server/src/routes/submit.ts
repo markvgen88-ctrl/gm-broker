@@ -5,6 +5,7 @@ import { buildReport } from "../lib/reportTemplate.js";
 import { sendTelegramMessage } from "../services/telegram.js";
 import { sendEmailReport } from "../services/email.js";
 import { sendSheetsBackup } from "../services/sheets.js";
+import { saveApplicationForCrm } from "../db/applications.js";
 import { submitRateLimiter } from "../middleware/rateLimit.js";
 import { withTimeout } from "../lib/withTimeout.js";
 
@@ -20,12 +21,14 @@ submitRouter.post("/submit", submitRateLimiter, async (req: Request, res: Respon
 
   const report = buildReport(parsed.data);
 
-  // Заявка одновременно уходит в три независимых канала (Telegram, Email,
-  // резервная Google-таблица). Каналы не блокируют друг друга: если, например,
-  // временно недоступен SMTP, заявка всё равно попадёт в Telegram и в таблицу.
-  // Успехом считаем ситуацию, когда сработал хотя бы один канал — так заявка
-  // почти никогда не теряется целиком из-за сбоя одного конкретного сервиса.
-  const [telegramResult, emailResult, sheetsResult] = await Promise.all([
+  // Заявка одновременно уходит в четыре независимых канала (Telegram, Email,
+  // резервная Google-таблица и CRM-база). Каналы не блокируют друг друга: если,
+  // например, временно недоступен SMTP, заявка всё равно попадёт в Telegram,
+  // в таблицу и в CRM. Успехом считаем ситуацию, когда сработал хотя бы один
+  // канал — так заявка почти никогда не теряется целиком из-за сбоя одного
+  // конкретного сервиса. CRM — единственный канал, который даёт заявке
+  // постоянный id для дальнейшей работы в /admin; остальные три — уведомления.
+  const [telegramResult, emailResult, sheetsResult, crmResult] = await Promise.all([
     withTimeout(sendTelegramMessage(report.telegramText), 8000, {
       ok: false,
       error: "Telegram: таймаут запроса",
@@ -38,10 +41,14 @@ submitRouter.post("/submit", submitRateLimiter, async (req: Request, res: Respon
       ok: false,
       error: "Sheets: таймаут запроса",
     }),
+    withTimeout(saveApplicationForCrm(parsed.data), 6500, {
+      ok: false,
+      error: "CRM: таймаут запроса",
+    }),
   ]);
 
-  const results = { telegram: telegramResult, email: emailResult, sheets: sheetsResult };
-  const anySucceeded = telegramResult.ok || emailResult.ok || sheetsResult.ok;
+  const results = { telegram: telegramResult, email: emailResult, sheets: sheetsResult, crm: crmResult };
+  const anySucceeded = telegramResult.ok || emailResult.ok || sheetsResult.ok || crmResult.ok;
 
   for (const [channel, result] of Object.entries(results)) {
     if (!result.ok) {
