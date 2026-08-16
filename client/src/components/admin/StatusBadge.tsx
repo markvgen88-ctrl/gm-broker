@@ -1,8 +1,7 @@
-import { getAdminStatus } from "@/data/adminStatuses";
+import { getStatusDot } from "@/data/adminStatuses";
 import { cn } from "@/lib/utils";
 
 export function StatusBadge({ status, className }: { status: string; className?: string }) {
-  const { label, dotClassName } = getAdminStatus(status);
   return (
     <span
       className={cn(
@@ -10,8 +9,8 @@ export function StatusBadge({ status, className }: { status: string; className?:
         className
       )}
     >
-      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", dotClassName)} />
-      {label}
+      <span className={cn("h-1.5 w-1.5 shrink-0 rounded-full", getStatusDot(status))} />
+      {status}
     </span>
   );
 }

@@ -1,26 +1,26 @@
 /**
- * Этапы воронки заявок в CRM. Это источник истины для валидации на сервере —
- * человекочитаемые подписи и цвета для админ-панели продублированы на клиенте
- * в client/src/data/adminStatuses.ts (по аналогии с FIELD_LABELS/questionnaire.ts:
- * при изменении списка статусов обновите оба файла).
+ * Статусы заявки в CRM — обычный текст, без фиксированного перечня значений.
+ * Список ниже — только подсказки для выпадающего списка на панели; можно
+ * выбрать один из них или вписать свой текст, он тоже сохранится и станет
+ * доступен как фильтр. Подписи совпадают 1:1 с client/src/data/adminStatuses.ts
+ * (при изменении набора по умолчанию обновите оба файла).
  */
-export const STATUSES = [
-  { id: "new", label: "Новая заявка" },
-  { id: "in_progress", label: "В работе" },
-  { id: "docs_collected", label: "Документы собраны" },
-  { id: "sent_to_bank", label: "Отправлено в банк" },
-  { id: "approved", label: "Одобрено" },
-  { id: "declined", label: "Отказ банка" },
-  { id: "client_lost", label: "Клиент отказался" },
-  { id: "deal_closed", label: "Сделка закрыта" },
+export const DEFAULT_STATUS_SUGGESTIONS = [
+  "Новая заявка",
+  "В работе",
+  "Документы собраны",
+  "Отправлено в банк",
+  "Одобрено",
+  "Отказ банка",
+  "Клиент отказался",
+  "Сделка закрыта",
 ] as const;
 
-export type StatusId = (typeof STATUSES)[number]["id"];
+export const DEFAULT_STATUS: string = DEFAULT_STATUS_SUGGESTIONS[0];
 
-const STATUS_ID_SET = new Set<string>(STATUSES.map((s) => s.id));
+const MAX_STATUS_LENGTH = 60;
 
-export function isValidStatus(value: unknown): value is StatusId {
-  return typeof value === "string" && STATUS_ID_SET.has(value);
+/** Статус — произвольный текст, но не пустой и разумной длины. */
+export function isValidStatusText(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0 && value.trim().length <= MAX_STATUS_LENGTH;
 }
-
-export const DEFAULT_STATUS: StatusId = "new";

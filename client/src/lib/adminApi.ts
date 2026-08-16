@@ -87,3 +87,7 @@ export async function addApplicationComment(id: number, text: string): Promise<A
   });
   return data.comment;
 }
+
+export async function deleteApplication(id: number): Promise<void> {
+  await adminFetch(`/applications/${id}`, { method: "DELETE" });
+}

@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ADMIN_STATUSES } from "@/data/adminStatuses";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { Button } from "@/components/ui/Button";
-import { addApplicationComment, fetchApplication, updateApplicationStatus } from "@/lib/adminApi";
+import {
+  addApplicationComment,
+  deleteApplication,
+  fetchApplication,
+  updateApplicationStatus,
+} from "@/lib/adminApi";
 import type { ApplicationDetail } from "@/lib/adminApi";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
@@ -16,16 +21,22 @@ const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
 export function AdminApplicationPage() {
   const { id } = useParams<{ id: string }>();
   const applicationId = Number(id);
+  const navigate = useNavigate();
 
   const [item, setItem] = useState<ApplicationDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [statusInput, setStatusInput] = useState("");
   const [statusSaving, setStatusSaving] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentSaving, setCommentSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const load = () => {
     fetchApplication(applicationId)
-      .then(setItem)
+      .then((data) => {
+        setItem(data);
+        setStatusInput(data.status);
+      })
       .catch((err) => setError(err instanceof Error ? err.message : "Не удалось загрузить заявку"));
   };
 
@@ -36,17 +47,33 @@ export function AdminApplicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId]);
 
-  const handleStatusChange = async (status: string) => {
+  const handleStatusSave = async () => {
     if (!item) return;
+    const trimmed = statusInput.trim();
+    if (!trimmed || trimmed === item.status) return;
     setStatusSaving(true);
-    setItem({ ...item, status }); // оптимистично, чтобы селект не «дёргался»
     try {
-      await updateApplicationStatus(item.id, status);
+      await updateApplicationStatus(item.id, trimmed);
+      setItem({ ...item, status: trimmed });
+      setStatusInput(trimmed);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сохранить статус");
-      load(); // откатываем к тому, что реально в базе
     } finally {
       setStatusSaving(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!item) return;
+    const sure = window.confirm(`Удалить заявку «${item.name}» без возможности восстановить?`);
+    if (!sure) return;
+    setDeleting(true);
+    try {
+      await deleteApplication(item.id);
+      navigate("/admin", { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось удалить заявку");
+      setDeleting(false);
     }
   };
 
@@ -97,21 +124,43 @@ export function AdminApplicationPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <StatusBadge status={item.status} />
-          <select
-            value={item.status}
+          <input
+            list="status-suggestions"
+            value={statusInput}
             disabled={statusSaving}
-            onChange={(e) => handleStatusChange(e.target.value)}
-            className="rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-silver outline-none focus:border-gold/60"
-          >
-            {ADMIN_STATUSES.map((s) => (
-              <option key={s.id} value={s.id} className="bg-graphite">
-                {s.label}
-              </option>
+            onChange={(e) => setStatusInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleStatusSave()}
+            placeholder="Свой статус или выберите из списка"
+            className="w-56 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-silver outline-none focus:border-gold/60"
+          />
+          <datalist id="status-suggestions">
+            {ADMIN_STATUS_SUGGESTIONS.map((s) => (
+              <option key={s.label} value={s.label} />
             ))}
-          </select>
+          </datalist>
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={handleStatusSave}
+            disabled={statusSaving || !statusInput.trim() || statusInput.trim() === item.status}
+          >
+            {statusSaving ? "…" : "Сохранить"}
+          </Button>
         </div>
+      </div>
+
+      <div className="mb-6 flex justify-end">
+        <Button
+          variant="ghost"
+          size="md"
+          onClick={handleDelete}
+          disabled={deleting}
+          className="text-rose-400 hover:text-rose-300"
+        >
+          {deleting ? "Удаляем…" : "Удалить заявку"}
+        </Button>
       </div>
 
       {error && <p className="mb-4 text-sm text-rose-400">{error}</p>}

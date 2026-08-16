@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { ADMIN_STATUSES } from "@/data/adminStatuses";
+import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { fetchApplications } from "@/lib/adminApi";
 import type { ApplicationListItem } from "@/lib/adminApi";
@@ -19,9 +19,10 @@ export function AdminDashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    setItems(null);
-    setError(null);
-    fetchApplications(filter)
+    // Загружаем сразу всё (без фильтра на сервере) — так вкладки фильтров
+    // могут включать и статусы по умолчанию, и любые свои, которые реально
+    // встречаются в заявках, а переключение вкладок происходит мгновенно.
+    fetchApplications()
       .then((data) => {
         if (!cancelled) setItems(data);
       })
@@ -31,7 +32,15 @@ export function AdminDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [filter]);
+  }, []);
+
+  const tabs = useMemo(() => {
+    const defaults = ADMIN_STATUS_SUGGESTIONS.map((s) => s.label);
+    const extra = Array.from(new Set((items ?? []).map((i) => i.status))).filter((s) => !defaults.includes(s));
+    return [...defaults, ...extra];
+  }, [items]);
+
+  const visibleItems = items?.filter((i) => filter === "all" || i.status === filter) ?? null;
 
   return (
     <div>
@@ -39,20 +48,20 @@ export function AdminDashboardPage() {
 
       <div className="mb-6 flex flex-wrap gap-2">
         <FilterTab active={filter === "all"} onClick={() => setFilter("all")} label="Все" />
-        {ADMIN_STATUSES.map((s) => (
-          <FilterTab key={s.id} active={filter === s.id} onClick={() => setFilter(s.id)} label={s.label} />
+        {tabs.map((label) => (
+          <FilterTab key={label} active={filter === label} onClick={() => setFilter(label)} label={label} />
         ))}
       </div>
 
       {error && <p className="text-rose-400">{error}</p>}
 
-      {!error && items === null && <p className="text-metal">Загружаем…</p>}
+      {!error && visibleItems === null && <p className="text-metal">Загружаем…</p>}
 
-      {items !== null && items.length === 0 && (
+      {visibleItems !== null && visibleItems.length === 0 && (
         <p className="text-metal">Заявок с таким статусом пока нет.</p>
       )}
 
-      {items !== null && items.length > 0 && (
+      {visibleItems !== null && visibleItems.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-white/10">
           <table className="w-full text-left text-sm">
             <thead className="bg-white/[0.03] text-xs uppercase tracking-wide text-metal">
@@ -65,7 +74,7 @@ export function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
+              {visibleItems.map((item) => (
                 <tr
                   key={item.id}
                   className="border-t border-white/5 transition-colors hover:bg-white/[0.03]"

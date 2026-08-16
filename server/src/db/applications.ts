@@ -133,6 +133,12 @@ export async function updateApplicationStatus(id: number, status: string): Promi
   return (result.rowCount ?? 0) > 0;
 }
 
+/** Удаляет заявку целиком (вместе с комментариями — они удалятся каскадно). */
+export async function deleteApplication(id: number): Promise<boolean> {
+  const result = await pool.query(`DELETE FROM applications WHERE id = $1`, [id]);
+  return (result.rowCount ?? 0) > 0;
+}
+
 /** Добавляет комментарий к заявке. Возвращает null, если заявка не найдена. */
 export async function addComment(id: number, text: string): Promise<ApplicationComment | null> {
   try {

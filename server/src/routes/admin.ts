@@ -3,9 +3,10 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { adminLoginRateLimiter } from "../middleware/rateLimit.js";
 import { clearSessionCookie, issueSessionCookie, requireAdminAuth, verifyAdminPassword } from "../middleware/adminAuth.js";
-import { isValidStatus } from "../lib/statuses.js";
+import { isValidStatusText } from "../lib/statuses.js";
 import {
   addComment,
+  deleteApplication,
   getApplicationById,
   listApplications,
   updateApplicationStatus,
@@ -47,10 +48,6 @@ adminRouter.get("/session", (_req: Request, res: Response) => {
 
 adminRouter.get("/applications", async (req: Request, res: Response) => {
   const statusParam = typeof req.query.status === "string" ? req.query.status : undefined;
-  if (statusParam && !isValidStatus(statusParam)) {
-    res.status(400).json({ success: false, message: "Неизвестный статус" });
-    return;
-  }
   const items = await listApplications(statusParam);
   res.json({ success: true, items });
 });
@@ -69,16 +66,30 @@ adminRouter.get("/applications/:id", async (req: Request, res: Response) => {
   res.json({ success: true, item });
 });
 
+adminRouter.delete("/applications/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id заявки" });
+    return;
+  }
+  const deleted = await deleteApplication(id);
+  if (!deleted) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true });
+});
+
 const statusSchema = z.object({ status: z.string() });
 
 adminRouter.patch("/applications/:id/status", async (req: Request, res: Response) => {
   const id = Number(req.params.id);
   const parsed = statusSchema.safeParse(req.body);
-  if (!Number.isInteger(id) || !parsed.success || !isValidStatus(parsed.data.status)) {
-    res.status(400).json({ success: false, message: "Некорректные данные" });
+  if (!Number.isInteger(id) || !parsed.success || !isValidStatusText(parsed.data.status)) {
+    res.status(400).json({ success: false, message: "Статус не может быть пустым или слишком длинным" });
     return;
   }
-  const updated = await updateApplicationStatus(id, parsed.data.status);
+  const updated = await updateApplicationStatus(id, parsed.data.status.trim());
   if (!updated) {
     res.status(404).json({ success: false, message: "Заявка не найдена" });
     return;
