@@ -10,6 +10,14 @@ build/
 .env.local
 .env.*.local
 
+# Мини-CRM: локальная база лидов (содержит персональные данные клиентов —
+# никогда не должна попадать в git)
+server/data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
 # Logs
 *.log
 npm-debug.log*
