@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { fetchApplications } from "@/lib/adminApi";
 import type { ApplicationListItem } from "@/lib/adminApi";
 import { cn } from "@/lib/utils";
@@ -71,6 +72,9 @@ export function AdminDashboardPage() {
                 <th className="px-4 py-3 font-medium">Контакты</th>
                 <th className="px-4 py-3 font-medium">Дата</th>
                 <th className="px-4 py-3 font-medium">Статус</th>
+                <th className="px-4 py-3 font-medium">
+                  <span className="sr-only">Последний комментарий</span>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -97,6 +101,9 @@ export function AdminDashboardPage() {
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={item.status} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <LastCommentIndicator comment={item.lastComment} />
                   </td>
                 </tr>
               ))}

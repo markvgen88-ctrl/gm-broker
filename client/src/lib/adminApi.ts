@@ -10,6 +10,7 @@ export interface ApplicationListItem {
   email: string;
   loanAmount: string | null;
   status: string;
+  lastComment: { text: string; createdAt: string } | null;
 }
 
 export interface ApplicationComment {

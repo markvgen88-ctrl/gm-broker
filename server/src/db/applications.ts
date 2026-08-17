@@ -37,6 +37,7 @@ export interface ApplicationListItem {
   email: string;
   loanAmount: string | null;
   status: string;
+  lastComment: { text: string; createdAt: string } | null;
 }
 
 export interface ApplicationComment {
@@ -78,21 +79,33 @@ function toListItem(row: any): ApplicationListItem {
     email: row.email,
     loanAmount: row.loan_amount,
     status: row.status,
+    lastComment:
+      row.last_comment_text !== undefined && row.last_comment_text !== null
+        ? { text: row.last_comment_text, createdAt: row.last_comment_created_at }
+        : null,
   };
 }
+
+// LATERAL-подзапрос подтягивает только самый свежий комментарий на заявку —
+// нужен для маленькой иконки с последним комментарием в списке на панели.
+const LIST_QUERY_BASE = `
+  SELECT a.id, a.created_at, a.client_type, a.name, a.phone, a.email, a.loan_amount, a.status,
+         c.text AS last_comment_text, c.created_at AS last_comment_created_at
+  FROM applications a
+  LEFT JOIN LATERAL (
+    SELECT text, created_at
+    FROM application_comments
+    WHERE application_id = a.id
+    ORDER BY created_at DESC
+    LIMIT 1
+  ) c ON true
+`;
 
 /** Список заявок для панели, свежие сверху. Можно отфильтровать по статусу. */
 export async function listApplications(status?: string): Promise<ApplicationListItem[]> {
   const result = status
-    ? await pool.query(
-        `SELECT id, created_at, client_type, name, phone, email, loan_amount, status
-         FROM applications WHERE status = $1 ORDER BY created_at DESC LIMIT 500`,
-        [status]
-      )
-    : await pool.query(
-        `SELECT id, created_at, client_type, name, phone, email, loan_amount, status
-         FROM applications ORDER BY created_at DESC LIMIT 500`
-      );
+    ? await pool.query(`${LIST_QUERY_BASE} WHERE a.status = $1 ORDER BY a.created_at DESC LIMIT 500`, [status])
+    : await pool.query(`${LIST_QUERY_BASE} ORDER BY a.created_at DESC LIMIT 500`);
   return result.rows.map(toListItem);
 }
 
@@ -116,11 +129,15 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
     `SELECT id, text, created_at FROM application_comments WHERE application_id = $1 ORDER BY created_at ASC`,
     [id]
   );
+  const comments = commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at }));
 
   return {
     ...toListItem(row),
     fields,
-    comments: commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at })),
+    comments,
+    // row из запроса выше не содержит last_comment_*, поэтому берём последний
+    // комментарий из уже загруженного списка (он отсортирован по возрастанию даты).
+    lastComment: comments.length > 0 ? comments[comments.length - 1] : null,
   };
 }
 
