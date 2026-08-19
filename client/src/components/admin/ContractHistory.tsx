@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { downloadContract } from "@/lib/adminApi";
+import { FiTrash2 } from "react-icons/fi";
+import { deleteContract, downloadContract } from "@/lib/adminApi";
 import type { ContractSummary } from "@/lib/adminApi";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
@@ -8,8 +9,14 @@ const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
   timeZone: "Europe/Moscow",
 });
 
-export function ContractHistory({ contracts }: { contracts: ContractSummary[] }) {
+interface ContractHistoryProps {
+  contracts: ContractSummary[];
+  onDeleted: (id: number) => void;
+}
+
+export function ContractHistory({ contracts, onDeleted }: ContractHistoryProps) {
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (contracts.length === 0) {
@@ -25,6 +32,21 @@ export function ContractHistory({ contracts }: { contracts: ContractSummary[] })
       setError(err instanceof Error ? err.message : "Не удалось скачать договор");
     } finally {
       setDownloadingId(null);
+    }
+  };
+
+  const handleDelete = async (c: ContractSummary) => {
+    const sure = window.confirm(`Удалить договор №${c.contractNum} без возможности восстановить?`);
+    if (!sure) return;
+    setDeletingId(c.id);
+    setError(null);
+    try {
+      await deleteContract(c.id);
+      onDeleted(c.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось удалить договор");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -44,14 +66,26 @@ export function ContractHistory({ contracts }: { contracts: ContractSummary[] })
               {c.clientName} · {dateTimeFormatter.format(new Date(c.createdAt))}
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => handleDownload(c.id)}
-            disabled={downloadingId === c.id}
-            className="shrink-0 text-sm text-metal hover:text-gold disabled:opacity-50"
-          >
-            {downloadingId === c.id ? "Скачиваем…" : "Скачать"}
-          </button>
+          <div className="flex shrink-0 items-center gap-3">
+            <button
+              type="button"
+              onClick={() => handleDownload(c.id)}
+              disabled={downloadingId === c.id || deletingId === c.id}
+              className="text-sm text-metal hover:text-gold disabled:opacity-50"
+            >
+              {downloadingId === c.id ? "Скачиваем…" : "Скачать"}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(c)}
+              disabled={deletingId === c.id || downloadingId === c.id}
+              aria-label="Удалить договор"
+              title="Удалить договор"
+              className="text-metal hover:text-rose-400 disabled:opacity-50"
+            >
+              <FiTrash2 size={16} />
+            </button>
+          </div>
         </div>
       ))}
     </div>

@@ -80,3 +80,9 @@ export async function getContractById(id: number): Promise<ContractRecord | null
   if (!row) return null;
   return { ...toSummary(row), input: row.data as ContractInput };
 }
+
+/** Удаляет договор из истории. Возвращает true, если запись существовала и была удалена. */
+export async function deleteContract(id: number): Promise<boolean> {
+  const result = await pool.query(`DELETE FROM contracts WHERE id = $1`, [id]);
+  return (result.rowCount ?? 0) > 0;
+}

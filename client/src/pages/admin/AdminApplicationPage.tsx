@@ -99,6 +99,10 @@ export function AdminApplicationPage() {
     setItem((prev) => (prev ? { ...prev, contracts: [contract, ...prev.contracts] } : prev));
   };
 
+  const handleContractDeleted = (contractId: number) => {
+    setItem((prev) => (prev ? { ...prev, contracts: prev.contracts.filter((c) => c.id !== contractId) } : prev));
+  };
+
   if (error && !item) {
     return (
       <div>
@@ -222,7 +226,7 @@ export function AdminApplicationPage() {
 
         <section className="rounded-2xl border border-white/10 bg-graphite/40 p-6 lg:col-span-2">
           <h2 className="mb-4 font-display text-lg font-semibold">Договоры</h2>
-          <ContractHistory contracts={item.contracts} />
+          <ContractHistory contracts={item.contracts} onDeleted={handleContractDeleted} />
         </section>
       </div>
 

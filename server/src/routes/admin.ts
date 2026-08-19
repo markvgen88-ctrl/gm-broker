@@ -12,7 +12,7 @@ import {
   updateApplicationStatus,
 } from "../db/applications.js";
 import { isDatabaseConfigured } from "../db/pool.js";
-import { createContract, getContractById } from "../db/contracts.js";
+import { createContract, deleteContract, getContractById } from "../db/contracts.js";
 import { contractInputSchema } from "../lib/contractValidation.js";
 import { generateContractDocx } from "../lib/contractTemplate.js";
 
@@ -184,4 +184,18 @@ adminRouter.get("/contracts/:id/download", async (req: Request, res: Response) =
     console.error("[admin] Не удалось сгенерировать файл договора:", err);
     res.status(500).json({ success: false, message: "Не удалось сформировать файл договора" });
   }
+});
+
+adminRouter.delete("/contracts/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id договора" });
+    return;
+  }
+  const deleted = await deleteContract(id);
+  if (!deleted) {
+    res.status(404).json({ success: false, message: "Договор не найден" });
+    return;
+  }
+  res.json({ success: true });
 });

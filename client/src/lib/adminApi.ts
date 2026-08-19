@@ -150,3 +150,7 @@ export async function downloadContract(contractId: number): Promise<void> {
   a.remove();
   URL.revokeObjectURL(url);
 }
+
+export async function deleteContract(contractId: number): Promise<void> {
+  await adminFetch(`/contracts/${contractId}`, { method: "DELETE" });
+}
