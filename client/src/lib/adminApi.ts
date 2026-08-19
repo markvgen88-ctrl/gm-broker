@@ -19,9 +19,19 @@ export interface ApplicationComment {
   createdAt: string;
 }
 
+export interface ContractSummary {
+  id: number;
+  applicationId: number;
+  contractNum: number;
+  clientType: string;
+  clientName: string;
+  createdAt: string;
+}
+
 export interface ApplicationDetail extends ApplicationListItem {
   fields: { label: string; value: string }[];
   comments: ApplicationComment[];
+  contracts: ContractSummary[];
 }
 
 class AdminApiError extends Error {}
@@ -91,4 +101,52 @@ export async function addApplicationComment(id: number, text: string): Promise<A
 
 export async function deleteApplication(id: number): Promise<void> {
   await adminFetch(`/applications/${id}`, { method: "DELETE" });
+}
+
+export async function createContract(
+  applicationId: number,
+  clientType: string,
+  data: Record<string, string>
+): Promise<ContractSummary> {
+  const result = await adminFetch<{ contract: ContractSummary }>(`/applications/${applicationId}/contracts`, {
+    method: "POST",
+    body: JSON.stringify({ clientType, data }),
+  });
+  return result.contract;
+}
+
+/**
+ * Скачивает договор (сервер каждый раз генерирует файл заново из
+ * сохранённых данных анкеты — сам файл в базе не хранится) и запускает
+ * сохранение в браузере.
+ */
+export async function downloadContract(contractId: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/admin/contracts/${contractId}/download`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    let message = `Не удалось скачать договор (${response.status})`;
+    try {
+      const data = await response.json();
+      if (data?.message) message = data.message;
+    } catch {
+      // тело ответа не JSON — оставляем сообщение по умолчанию
+    }
+    throw new AdminApiError(message);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filenameMatch = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+  const filename = filenameMatch ? decodeURIComponent(filenameMatch[1]) : "Договор.docx";
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }

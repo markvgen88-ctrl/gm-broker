@@ -23,6 +23,10 @@ app.use(
     // доменом, а не "*" — иначе браузер не отдаст куку авторизации.
     origin: ALLOWED_ORIGIN === "*" ? true : ALLOWED_ORIGIN.split(",").map((s) => s.trim()),
     credentials: true,
+    // Без этого браузер не отдаст JS доступ к Content-Disposition при
+    // междоменном запросе (клиент и сервер — разные домены на Timeweb),
+    // и скачивание договора получит только имя файла по умолчанию.
+    exposedHeaders: ["Content-Disposition"],
   })
 );
 app.use(express.json({ limit: "100kb" }));

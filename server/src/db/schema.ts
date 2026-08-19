@@ -38,6 +38,29 @@ export async function ensureSchema(): Promise<void> {
       );
 
       CREATE INDEX IF NOT EXISTS idx_comments_application_id ON application_comments (application_id);
+
+      -- Сквозной счётчик номеров договора. Стартовое значение 1492 — это
+      -- последний номер, реально выданный старым Telegram-ботом (до
+      -- переноса генерации договоров на сайт), следующий выданный здесь
+      -- будет 1493. Если этот счётчик когда-нибудь понадобится сдвинуть
+      -- вручную — просто обновите last_num напрямую в базе.
+      CREATE TABLE IF NOT EXISTS contract_counter (
+        id INTEGER PRIMARY KEY,
+        last_num INTEGER NOT NULL
+      );
+      INSERT INTO contract_counter (id, last_num) VALUES (1, 1492) ON CONFLICT (id) DO NOTHING;
+
+      CREATE TABLE IF NOT EXISTS contracts (
+        id SERIAL PRIMARY KEY,
+        application_id INTEGER NOT NULL REFERENCES applications (id) ON DELETE CASCADE,
+        contract_num INTEGER NOT NULL,
+        client_type TEXT NOT NULL,
+        client_name TEXT NOT NULL,
+        data JSONB NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_contracts_application_id ON contracts (application_id);
     `);
     console.log("[db] Схема CRM проверена/создана.");
   } catch (err) {

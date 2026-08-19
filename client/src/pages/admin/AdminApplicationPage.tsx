@@ -3,6 +3,8 @@ import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { ContractHistory } from "@/components/admin/ContractHistory";
+import { ContractWizardModal } from "@/components/admin/ContractWizardModal";
 import { Button } from "@/components/ui/Button";
 import {
   addApplicationComment,
@@ -10,7 +12,7 @@ import {
   fetchApplication,
   updateApplicationStatus,
 } from "@/lib/adminApi";
-import type { ApplicationDetail } from "@/lib/adminApi";
+import type { ApplicationDetail, ContractSummary } from "@/lib/adminApi";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
   dateStyle: "long",
@@ -30,6 +32,7 @@ export function AdminApplicationPage() {
   const [commentText, setCommentText] = useState("");
   const [commentSaving, setCommentSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [contractWizardOpen, setContractWizardOpen] = useState(false);
 
   const load = () => {
     fetchApplication(applicationId)
@@ -92,6 +95,10 @@ export function AdminApplicationPage() {
     }
   };
 
+  const handleContractCreated = (contract: ContractSummary) => {
+    setItem((prev) => (prev ? { ...prev, contracts: [contract, ...prev.contracts] } : prev));
+  };
+
   if (error && !item) {
     return (
       <div>
@@ -151,7 +158,10 @@ export function AdminApplicationPage() {
         </div>
       </div>
 
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex items-center justify-between">
+        <Button variant="secondary" size="md" onClick={() => setContractWizardOpen(true)}>
+          Заполнить договор
+        </Button>
         <Button
           variant="ghost"
           size="md"
@@ -209,7 +219,20 @@ export function AdminApplicationPage() {
             </Button>
           </form>
         </section>
+
+        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-6 lg:col-span-2">
+          <h2 className="mb-4 font-display text-lg font-semibold">Договоры</h2>
+          <ContractHistory contracts={item.contracts} />
+        </section>
       </div>
+
+      {contractWizardOpen && (
+        <ContractWizardModal
+          applicationId={item.id}
+          onClose={() => setContractWizardOpen(false)}
+          onCreated={handleContractCreated}
+        />
+      )}
     </div>
   );
 }

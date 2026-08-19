@@ -12,6 +12,9 @@ import {
   updateApplicationStatus,
 } from "../db/applications.js";
 import { isDatabaseConfigured } from "../db/pool.js";
+import { createContract, getContractById } from "../db/contracts.js";
+import { contractInputSchema } from "../lib/contractValidation.js";
+import { generateContractDocx } from "../lib/contractTemplate.js";
 
 export const adminRouter = Router();
 
@@ -112,4 +115,73 @@ adminRouter.post("/applications/:id/comments", async (req: Request, res: Respons
     return;
   }
   res.json({ success: true, comment });
+});
+
+adminRouter.post("/applications/:id/contracts", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id заявки" });
+    return;
+  }
+  const parsed = contractInputSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({
+      success: false,
+      message: parsed.error.issues[0]?.message ?? "Некорректные данные договора",
+    });
+    return;
+  }
+  const contract = await createContract(id, parsed.data);
+  if (!contract) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({
+    success: true,
+    contract: {
+      id: contract.id,
+      applicationId: contract.applicationId,
+      contractNum: contract.contractNum,
+      clientType: contract.clientType,
+      clientName: contract.clientName,
+      createdAt: contract.createdAt,
+    },
+  });
+});
+
+/**
+ * Файл в базе отдельно не хранится — при каждом скачивании (в том числе
+ * повторном, из истории на карточке заявки) договор перегенерируется
+ * заново из сохранённых данных анкеты. Это гарантирует, что скачанный
+ * файл всегда соответствует актуальному шаблону.
+ */
+adminRouter.get("/contracts/:id/download", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id договора" });
+    return;
+  }
+  const contract = await getContractById(id);
+  if (!contract) {
+    res.status(404).json({ success: false, message: "Договор не найден" });
+    return;
+  }
+  try {
+    const buffer = generateContractDocx(contract.contractNum, contract.input);
+    const firstWord = contract.clientName.split(/\s+/)[0] ?? "Договор";
+    const niceFilename = `Договор_${contract.contractNum}_${firstWord}.docx`;
+    const asciiFallback = `contract_${contract.contractNum}.docx`;
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodeURIComponent(niceFilename)}`
+    );
+    res.send(buffer);
+  } catch (err) {
+    console.error("[admin] Не удалось сгенерировать файл договора:", err);
+    res.status(500).json({ success: false, message: "Не удалось сформировать файл договора" });
+  }
 });

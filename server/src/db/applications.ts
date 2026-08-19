@@ -2,6 +2,8 @@ import { pool, isDatabaseConfigured } from "./pool.js";
 import type { SubmissionInput } from "../lib/validation.js";
 import { FIELD_LABELS, FIELD_ORDER, formatFieldValue } from "../lib/fields.js";
 import { DEFAULT_STATUS } from "../lib/statuses.js";
+import { listContractsForApplication } from "./contracts.js";
+import type { ContractSummary } from "./contracts.js";
 
 interface CrmSaveResult {
   ok: boolean;
@@ -49,6 +51,7 @@ export interface ApplicationComment {
 export interface ApplicationDetail extends ApplicationListItem {
   fields: { label: string; value: string }[];
   comments: ApplicationComment[];
+  contracts: ContractSummary[];
 }
 
 /** Сохраняет присланную анкету в базу как новую заявку CRM. */
@@ -130,11 +133,13 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
     [id]
   );
   const comments = commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at }));
+  const contracts = await listContractsForApplication(id);
 
   return {
     ...toListItem(row),
     fields,
     comments,
+    contracts,
     // row из запроса выше не содержит last_comment_*, поэтому берём последний
     // комментарий из уже загруженного списка (он отсортирован по возрастанию даты).
     lastComment: comments.length > 0 ? comments[comments.length - 1] : null,
