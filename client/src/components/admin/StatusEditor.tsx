@@ -48,21 +48,21 @@ export function StatusEditor({ status, saving, onChange }: StatusEditorProps) {
 
   useEffect(() => {
     if (!open) return;
-    const handlePointerDown = (e: globalThis.MouseEvent) => {
+    const handleOutside = (e: globalThis.PointerEvent) => {
       const target = e.target as Node;
       if (triggerRef.current?.contains(target)) return;
       if (panelRef.current?.contains(target)) return;
       setOpen(false);
       setAdding(false);
     };
-    const handleReflow = () => setOpen(false);
-    document.addEventListener("mousedown", handlePointerDown);
-    window.addEventListener("resize", handleReflow);
-    window.addEventListener("scroll", handleReflow, true);
+    // pointerdown, а не click/mousedown — надёжно ловит и мышь, и тач одним
+    // обработчиком. Закрытие по resize/scroll намеренно убрано: на мобильных
+    // браузерах открытие меню само может спровоцировать resize/scroll
+    // (например, сворачивается адресная строка) в первую же миллисекунду,
+    // и меню закрывалось само, едва открывшись.
+    document.addEventListener("pointerdown", handleOutside);
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      window.removeEventListener("resize", handleReflow);
-      window.removeEventListener("scroll", handleReflow, true);
+      document.removeEventListener("pointerdown", handleOutside);
     };
   }, [open]);
 
