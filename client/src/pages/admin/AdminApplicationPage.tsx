@@ -133,12 +133,12 @@ export function AdminApplicationPage() {
       </div>
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <Button variant="secondary" size="md" onClick={() => setContractWizardOpen(true)}>
+        <Button variant="secondary" size="sm" onClick={() => setContractWizardOpen(true)}>
           Заполнить договор
         </Button>
         <Button
           variant="ghost"
-          size="md"
+          size="sm"
           onClick={handleDelete}
           disabled={deleting}
           className="text-rose-400 hover:text-rose-300"

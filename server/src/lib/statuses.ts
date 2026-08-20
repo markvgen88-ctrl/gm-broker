@@ -5,16 +5,7 @@
  * доступен как фильтр. Подписи совпадают 1:1 с client/src/data/adminStatuses.ts
  * (при изменении набора по умолчанию обновите оба файла).
  */
-export const DEFAULT_STATUS_SUGGESTIONS = [
-  "Новая заявка",
-  "В работе",
-  "Документы собраны",
-  "Отправлено в банк",
-  "Одобрено",
-  "Отказ банка",
-  "Клиент отказался",
-  "Сделка закрыта",
-] as const;
+export const DEFAULT_STATUS_SUGGESTIONS = ["Новая заявка"] as const;
 
 export const DEFAULT_STATUS: string = DEFAULT_STATUS_SUGGESTIONS[0];
 

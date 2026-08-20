@@ -6,6 +6,14 @@
  * свой статус — он просто не попадёт в эту цветовую карту и отобразится
  * серым бейджем со своим текстом.
  */
+/**
+ * Статусы заявки — обычный текст (без фиксированного перечня id). Список
+ * ниже — «стандартный» статус, задаваемый заявке по умолчанию; синхронизирован
+ * вручную с server/src/lib/statuses.ts (при изменении набора по умолчанию
+ * обновите оба файла). Любой другой статус — «свой», пользователь вписывает
+ * его текстом в редакторе статуса, он не попадает в эту цветовую карту и
+ * отображается серым бейджем со своим текстом.
+ */
 export interface AdminStatusSuggestion {
   label: string;
   dotClassName: string;
@@ -13,13 +21,6 @@ export interface AdminStatusSuggestion {
 
 export const ADMIN_STATUS_SUGGESTIONS: AdminStatusSuggestion[] = [
   { label: "Новая заявка", dotClassName: "bg-sky-400" },
-  { label: "В работе", dotClassName: "bg-amber-400" },
-  { label: "Документы собраны", dotClassName: "bg-amber-300" },
-  { label: "Отправлено в банк", dotClassName: "bg-violet-400" },
-  { label: "Одобрено", dotClassName: "bg-emerald-400" },
-  { label: "Отказ банка", dotClassName: "bg-rose-500" },
-  { label: "Клиент отказался", dotClassName: "bg-neutral-500" },
-  { label: "Сделка закрыта", dotClassName: "bg-[var(--color-gold)]" },
 ];
 
 const DOT_BY_LABEL: Record<string, string> = Object.fromEntries(

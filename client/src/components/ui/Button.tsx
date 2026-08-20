@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "ghost";
-  size?: "md" | "lg";
+  size?: "sm" | "md" | "lg";
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
@@ -14,6 +14,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         ref={ref}
         className={cn(
           "group relative inline-flex items-center justify-center gap-2 rounded-full font-display font-semibold transition-all duration-300 ease-out disabled:cursor-not-allowed disabled:opacity-50",
+          size === "sm" && "px-4 py-2 text-xs",
           size === "md" && "px-7 py-3.5 text-sm",
           size === "lg" && "px-9 py-4.5 text-base",
           variant === "primary" &&
