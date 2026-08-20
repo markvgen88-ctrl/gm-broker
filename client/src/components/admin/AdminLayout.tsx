@@ -37,16 +37,16 @@ export function AdminLayout() {
   return (
     <div className="min-h-screen bg-bg text-silver">
       <header className="sticky top-0 z-20 border-b border-white/10 bg-bg/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/admin" className="font-display text-lg font-semibold tracking-tight">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
+          <Link to="/admin" className="font-display text-base font-semibold tracking-tight sm:text-lg">
             G.M. Broker <span className="text-gold">· CRM</span>
           </Link>
-          <Button variant="ghost" size="md" onClick={handleLogout}>
+          <Button variant="ghost" size="md" onClick={handleLogout} className="px-0 py-0 sm:px-2">
             Выйти
           </Button>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
         <Outlet />
       </main>
     </div>

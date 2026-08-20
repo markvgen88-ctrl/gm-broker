@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
-import { StatusBadge } from "@/components/admin/StatusBadge";
+import { StatusEditor } from "@/components/admin/StatusEditor";
 import { ContractHistory } from "@/components/admin/ContractHistory";
 import { ContractWizardModal } from "@/components/admin/ContractWizardModal";
 import { Button } from "@/components/ui/Button";
@@ -27,7 +26,6 @@ export function AdminApplicationPage() {
 
   const [item, setItem] = useState<ApplicationDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [statusInput, setStatusInput] = useState("");
   const [statusSaving, setStatusSaving] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [commentSaving, setCommentSaving] = useState(false);
@@ -38,7 +36,6 @@ export function AdminApplicationPage() {
     fetchApplication(applicationId)
       .then((data) => {
         setItem(data);
-        setStatusInput(data.status);
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Не удалось загрузить заявку"));
   };
@@ -50,15 +47,12 @@ export function AdminApplicationPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [applicationId]);
 
-  const handleStatusSave = async () => {
+  const handleStatusChange = async (nextStatus: string) => {
     if (!item) return;
-    const trimmed = statusInput.trim();
-    if (!trimmed || trimmed === item.status) return;
     setStatusSaving(true);
     try {
-      await updateApplicationStatus(item.id, trimmed);
-      setItem({ ...item, status: trimmed });
-      setStatusInput(trimmed);
+      await updateApplicationStatus(item.id, nextStatus);
+      setItem({ ...item, status: nextStatus });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось сохранить статус");
     } finally {
@@ -124,10 +118,10 @@ export function AdminApplicationPage() {
         ← Ко всем заявкам
       </Link>
 
-      <div className="mt-4 mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="font-display text-2xl font-semibold">{item.name}</h1>
-          <p className="mt-1 text-metal">
+      <div className="mt-4 mb-5 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="font-display text-xl font-semibold sm:text-2xl">{item.name}</h1>
+          <p className="mt-1 break-words text-sm text-metal sm:text-base">
             {item.phone} · {item.email}
           </p>
           <p className="mt-1 text-xs text-metal">
@@ -135,34 +129,10 @@ export function AdminApplicationPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <StatusBadge status={item.status} />
-          <input
-            list="status-suggestions"
-            value={statusInput}
-            disabled={statusSaving}
-            onChange={(e) => setStatusInput(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleStatusSave()}
-            placeholder="Свой статус или выберите из списка"
-            className="w-56 rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-silver outline-none focus:border-gold/60"
-          />
-          <datalist id="status-suggestions">
-            {ADMIN_STATUS_SUGGESTIONS.map((s) => (
-              <option key={s.label} value={s.label} />
-            ))}
-          </datalist>
-          <Button
-            variant="secondary"
-            size="md"
-            onClick={handleStatusSave}
-            disabled={statusSaving || !statusInput.trim() || statusInput.trim() === item.status}
-          >
-            {statusSaving ? "…" : "Сохранить"}
-          </Button>
-        </div>
+        <StatusEditor status={item.status} saving={statusSaving} onChange={handleStatusChange} />
       </div>
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <Button variant="secondary" size="md" onClick={() => setContractWizardOpen(true)}>
           Заполнить договор
         </Button>
@@ -179,23 +149,23 @@ export function AdminApplicationPage() {
 
       {error && <p className="mb-4 text-sm text-rose-400">{error}</p>}
 
-      <div className="grid gap-6 lg:grid-cols-[1.3fr_1fr]">
-        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">Анкета</h2>
-          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.3fr_1fr]">
+        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-6">
+          <h2 className="mb-3 font-display text-base font-semibold sm:mb-4 sm:text-lg">Анкета</h2>
+          <dl className="grid grid-cols-1 gap-x-6 gap-y-2.5 sm:grid-cols-2 sm:gap-y-3">
             {item.fields.map((f) => (
               <div key={f.label}>
                 <dt className="text-xs text-metal">{f.label}</dt>
-                <dd className="text-silver">{f.value}</dd>
+                <dd className="text-sm text-silver sm:text-base">{f.value}</dd>
               </div>
             ))}
           </dl>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-6">
-          <h2 className="mb-4 font-display text-lg font-semibold">Комментарии</h2>
+        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-6">
+          <h2 className="mb-3 font-display text-base font-semibold sm:mb-4 sm:text-lg">Комментарии</h2>
 
-          <div className="mb-4 space-y-3">
+          <div className="mb-4 space-y-2.5">
             {item.comments.length === 0 && <p className="text-sm text-metal">Пока нет комментариев.</p>}
             {item.comments.map((c) => (
               <div key={c.id} className="rounded-lg border border-white/10 bg-black/20 p-3">
@@ -224,8 +194,8 @@ export function AdminApplicationPage() {
           </form>
         </section>
 
-        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-6 lg:col-span-2">
-          <h2 className="mb-4 font-display text-lg font-semibold">Договоры</h2>
+        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-6 lg:col-span-2">
+          <h2 className="mb-3 font-display text-base font-semibold sm:mb-4 sm:text-lg">Договоры</h2>
           <ContractHistory contracts={item.contracts} onDeleted={handleContractDeleted} />
         </section>
       </div>
