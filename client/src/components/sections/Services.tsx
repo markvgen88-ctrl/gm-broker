@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
 import { HiArrowRight } from "react-icons/hi";
+import { ServiceLink } from "@/components/ui/ServiceLink";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
-const GROUPS: ServiceGroup[] = ["person", "business"];
+const GROUPS: ServiceGroup[] = ["person", "business", "extra"];
 
 export function Services() {
   return (
@@ -21,9 +21,9 @@ export function Services() {
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {servicesByGroup(g).map((s) => (
                   <li key={s.slug}>
-                    <Link
-                      to={`/services/${s.slug}`}
-                      className="group flex h-full flex-col rounded-2xl border border-line bg-paper p-6 transition-colors hover:border-pine hover:bg-mint"
+                    <ServiceLink
+                      service={s}
+                      className="group flex h-full w-full flex-col rounded-2xl text-left border border-line bg-paper p-6 transition-colors hover:border-pine hover:bg-mint"
                     >
                       <span className="grid h-11 w-11 place-items-center rounded-xl bg-white text-pine ring-1 ring-line group-hover:ring-pine/30">
                         <s.icon size={22} />
@@ -31,9 +31,10 @@ export function Services() {
                       <span className="mt-5 font-display text-lg font-semibold leading-snug text-ink">{s.title}</span>
                       <span className="mt-2 flex-1 text-[0.95rem] leading-relaxed text-muted">{s.short}</span>
                       <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-pine">
-                        Подробнее <HiArrowRight className="transition-transform group-hover:translate-x-1" />
+                        {s.comingSoon ? "Скоро" : "Подробнее"}{" "}
+                        <HiArrowRight className="transition-transform group-hover:translate-x-1" />
                       </span>
-                    </Link>
+                    </ServiceLink>
                   </li>
                 ))}
               </ul>

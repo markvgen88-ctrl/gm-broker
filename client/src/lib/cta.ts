@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 type Variant = "solid" | "ink" | "outline" | "bright" | "ghost-light";
-type Size = "md" | "lg";
+type Size = "sm" | "md" | "lg";
 
 /**
  * Классы кнопок публичного сайта. Применяются и к <button>, и к <a>/<Link>,
@@ -10,6 +10,7 @@ type Size = "md" | "lg";
 export function cta(variant: Variant = "solid", size: Size = "md", className?: string) {
   return cn(
     "inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50",
+    size === "sm" && "px-4 py-2.5 text-sm",
     size === "md" && "px-6 py-3 text-[0.95rem]",
     size === "lg" && "px-8 py-4 text-base",
     variant === "solid" && "bg-pine text-white hover:bg-pine-deep",

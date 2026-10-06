@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
 import { HiArrowRight, HiOutlineCheckCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
+import { ServiceLink } from "@/components/ui/ServiceLink";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
 const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия 15% только после поступления денег"];
-const GROUPS: ServiceGroup[] = ["person", "business"];
+const GROUPS: ServiceGroup[] = ["person", "business", "extra"];
 
 export function Hero() {
   return (
@@ -56,12 +56,13 @@ export function Hero() {
                 <ul className="flex flex-wrap gap-2">
                   {servicesByGroup(g).map((s) => (
                     <li key={s.slug}>
-                      <Link
-                        to={`/services/${s.slug}`}
-                        className="inline-flex items-center rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-pine-bright hover:bg-pine-bright hover:text-ink"
+                      <ServiceLink
+                        service={s}
+                        className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-pine-bright hover:bg-pine-bright hover:text-ink"
                       >
                         {s.title}
-                      </Link>
+                        {s.comingSoon && <span className="text-xs opacity-70">скоро</span>}
+                      </ServiceLink>
                     </li>
                   ))}
                 </ul>

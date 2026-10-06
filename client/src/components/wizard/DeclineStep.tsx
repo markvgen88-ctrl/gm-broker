@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { HiArrowLeft, HiOutlineInformationCircle } from "react-icons/hi";
+import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 import { Button } from "@/components/ui/Button";
 import type { DeclineNode } from "@/types/questionnaire";
 
@@ -11,6 +12,7 @@ interface DeclineStepProps {
 }
 
 export function DeclineStep({ node, onBack, onReset, canGoBack }: DeclineStepProps) {
+  const goToSection = useSectionNavigate();
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}
@@ -42,6 +44,13 @@ export function DeclineStep({ node, onBack, onReset, canGoBack }: DeclineStepPro
           Пройти опрос заново
         </Button>
       </div>
+      <button
+        type="button"
+        onClick={() => goToSection("debts")}
+        className="mt-6 text-sm font-medium text-silver underline underline-offset-4 hover:text-gold"
+      >
+        Если нужна юридическая помощь, смотрите раздел ниже
+      </button>
     </motion.div>
   );
 }

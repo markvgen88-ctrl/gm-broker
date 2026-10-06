@@ -1,11 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { HiOutlineMail } from "react-icons/hi";
 import logo from "@/assets/logo.webp";
+import { CONTACT_EMAIL as EMAIL } from "@/data/contact";
+import { ServiceLink } from "@/components/ui/ServiceLink";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
-const EMAIL = "info-gm-broker@bk.ru";
-const GROUPS: ServiceGroup[] = ["person", "business"];
+const GROUPS: ServiceGroup[] = ["person", "business", "extra"];
 const linkCls = "text-sm text-white/65 transition-colors hover:text-white";
 
 export function Footer() {
@@ -15,7 +16,7 @@ export function Footer() {
 
   return (
     <footer className="bg-ink text-white">
-      <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+      <div className="container-page grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr_1fr]">
         <div>
           <Link
             to="/"
@@ -40,9 +41,10 @@ export function Footer() {
             <ul className="flex flex-col gap-2.5">
               {servicesByGroup(g).map((s) => (
                 <li key={s.slug}>
-                  <Link to={`/services/${s.slug}`} className={linkCls}>
+                  <ServiceLink service={s} className={linkCls}>
                     {s.title}
-                  </Link>
+                    {s.comingSoon && <span className="ml-2 text-xs text-pine-bright">скоро</span>}
+                  </ServiceLink>
                 </li>
               ))}
             </ul>
@@ -53,13 +55,18 @@ export function Footer() {
           <h3 className="mb-4 text-sm font-semibold text-white">Сайт</h3>
           <ul className="flex flex-col gap-2.5">
             <li>
+              <button type="button" onClick={() => goToSection("debts")} className={linkCls}>
+                Юридическая помощь
+              </button>
+            </li>
+            <li>
               <button type="button" onClick={() => goToSection("wizard")} className={linkCls}>
                 Пройти опрос
               </button>
             </li>
             <li>
               <button type="button" onClick={() => goToSection("process")} className={linkCls}>
-                Как проходит работа
+                Процесс работы
               </button>
             </li>
             <li>

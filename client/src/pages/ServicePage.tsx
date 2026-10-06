@@ -43,7 +43,7 @@ export function ServicePage() {
 
   if (!service) return <Navigate to="/#services" replace />;
 
-  const others = SERVICES.filter((s) => s.slug !== service.slug);
+  const others = SERVICES.filter((s) => s.slug !== service.slug && !s.comingSoon);
 
   return (
     <main className="pt-[4.25rem]">

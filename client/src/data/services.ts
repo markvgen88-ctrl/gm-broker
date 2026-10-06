@@ -9,6 +9,7 @@ import {
   HiOutlineLibrary,
   HiOutlineOfficeBuilding,
   HiOutlineRefresh,
+  HiOutlineShieldCheck,
   HiOutlineSwitchHorizontal,
   HiOutlineTruck,
 } from "react-icons/hi";
@@ -18,7 +19,7 @@ import {
  * в первом экране), меню «Услуги» в шапке, подвала и страниц /services/:slug.
  * Чтобы добавить или переименовать услугу — правьте только этот файл.
  */
-export type ServiceGroup = "person" | "business";
+export type ServiceGroup = "person" | "business" | "extra";
 
 export interface Service {
   slug: string;
@@ -34,6 +35,8 @@ export interface Service {
   prepare: string[];
   /** Важная оговорка, показывается отдельной плашкой (необязательно). */
   note?: string;
+  /** Раздел ещё не готов: вместо страницы показывается окно «в разработке». */
+  comingSoon?: boolean;
   /** Статья сайта по теме (необязательно). */
   article?: { slug: string; label: string };
 }
@@ -41,6 +44,7 @@ export interface Service {
 export const GROUP_TITLES: Record<ServiceGroup, string> = {
   person: "Для частных лиц",
   business: "Для бизнеса",
+  extra: "Дополнительные услуги",
 };
 
 export const SERVICES: Service[] = [
@@ -329,10 +333,22 @@ export const SERVICES: Service[] = [
       "Сведения об обеспечении",
     ],
   },
+  {
+    slug: "reshenie-problem-115-fz",
+    title: "Решение проблем по 115-ФЗ",
+    group: "extra",
+    icon: HiOutlineShieldCheck,
+    short: "Блокировка счетов и карт, ограничения банка по 115-ФЗ",
+    lead: "",
+    forWhom: [],
+    whatIDo: [],
+    prepare: [],
+    comingSoon: true,
+  },
 ];
 
 export function getServiceBySlug(slug: string): Service | undefined {
-  return SERVICES.find((s) => s.slug === slug);
+  return SERVICES.find((s) => s.slug === slug && !s.comingSoon);
 }
 
 export function servicesByGroup(group: ServiceGroup): Service[] {

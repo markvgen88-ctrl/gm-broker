@@ -15,6 +15,7 @@ export function DebtHelp() {
     <section id="debts" className="section-y scroll-mt-16">
       <div className="container-page grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
         <SectionHeading
+          eyebrow="Юридическая помощь"
           title="Есть долги, суд или приставы?"
           description="Если в кредитной истории зависшие долги или непосильная нагрузка, кредит может быть не лучшим первым шагом. Рассказываю о вариантах решения в статьях."
         />

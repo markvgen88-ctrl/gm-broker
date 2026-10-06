@@ -4,17 +4,18 @@ import { HiChevronDown, HiMenu, HiX } from "react-icons/hi";
 import logo from "@/assets/logo.webp";
 import { cn } from "@/lib/utils";
 import { cta } from "@/lib/cta";
+import { ServiceLink } from "@/components/ui/ServiceLink";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
 const NAV_LINKS = [
-  { id: "process", label: "Как проходит работа" },
-  { id: "advantages", label: "Условия" },
-  { id: "faq", label: "Вопросы" },
+  { id: "process", label: "Процесс работы", desktop: true },
+  { id: "advantages", label: "Условия", desktop: true },
+  { id: "faq", label: "Вопросы", desktop: true },
 ];
 
-const GROUPS: ServiceGroup[] = ["person", "business"];
+const GROUPS: ServiceGroup[] = ["person", "business", "extra"];
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -68,7 +69,7 @@ export function Header() {
     goToSection(id);
   };
 
-  const linkCls = "text-[0.95rem] font-medium text-ink/75 transition-colors hover:text-pine";
+  const linkCls = "whitespace-nowrap text-[0.85rem] font-medium text-ink/75 transition-colors hover:text-pine";
 
   return (
     <header
@@ -79,11 +80,11 @@ export function Header() {
     >
       <div className="container-page flex h-[4.25rem] items-center justify-between gap-6">
         <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5" aria-label="G.M. Broker — на главную">
-          <img src={logo} alt="" className="h-10 w-10" width={40} height={40} />
-          <span className="font-display text-lg font-bold tracking-tight text-ink">G.M. Broker</span>
+          <img src={logo} alt="" className="h-9 w-9" width={36} height={36} />
+          <span className="whitespace-nowrap font-display text-base font-bold tracking-tight text-ink">G.M. Broker</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Основное меню">
+        <nav className="hidden items-center gap-5 xl:flex" aria-label="Основное меню">
           <div className="relative" ref={dropdownRef}>
             <button
               type="button"
@@ -96,21 +97,22 @@ export function Header() {
               <HiChevronDown className={cn("transition-transform", servicesOpen && "rotate-180")} />
             </button>
             {servicesOpen && (
-              <div className="absolute left-1/2 top-full mt-4 w-[40rem] -translate-x-1/2 rounded-2xl border border-line bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,30,25,0.35)]">
-                <div className="grid grid-cols-2 gap-8">
+              <div className="absolute left-1/2 top-full mt-4 w-[52rem] -translate-x-1/2 rounded-2xl border border-line bg-white p-6 shadow-[0_24px_60px_-24px_rgba(15,30,25,0.35)]">
+                <div className="grid grid-cols-3 gap-8">
                   {GROUPS.map((g) => (
                     <div key={g}>
                       <p className="mb-3 text-sm font-semibold text-muted">{GROUP_TITLES[g]}</p>
                       <ul className="flex flex-col">
                         {servicesByGroup(g).map((s) => (
                           <li key={s.slug}>
-                            <Link
-                              to={`/services/${s.slug}`}
-                              className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-[0.95rem] text-ink transition-colors hover:bg-mint"
+                            <ServiceLink
+                              service={s}
+                              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-2 text-left text-sm text-ink transition-colors hover:bg-mint"
                             >
                               <s.icon className="shrink-0 text-pine" size={18} />
                               {s.title}
-                            </Link>
+                              {s.comingSoon && <span className="text-xs font-semibold text-pine">скоро</span>}
+                            </ServiceLink>
                           </li>
                         ))}
                       </ul>
@@ -120,7 +122,7 @@ export function Header() {
               </div>
             )}
           </div>
-          {NAV_LINKS.map((l) => (
+          {NAV_LINKS.filter((l) => l.desktop).map((l) => (
             <button key={l.id} type="button" onClick={() => handleNav(l.id)} className={linkCls}>
               {l.label}
             </button>
@@ -130,13 +132,16 @@ export function Header() {
           </Link>
         </nav>
 
-        <div className="hidden lg:block">
-          <SurveyLink className={cta("solid")}>Пройти опрос</SurveyLink>
+        <div className="ml-auto hidden items-center gap-3 lg:flex xl:ml-0">
+          <button type="button" onClick={() => handleNav("debts")} className={cta("outline", "sm", "whitespace-nowrap")}>
+            Юридическая помощь
+          </button>
+          <SurveyLink className={cta("solid", "sm", "whitespace-nowrap")}>Пройти опрос</SurveyLink>
         </div>
 
         <button
           type="button"
-          className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white text-ink lg:hidden"
+          className="grid h-11 w-11 place-items-center rounded-full border border-line bg-white text-ink xl:hidden"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
           aria-expanded={menuOpen}
@@ -146,24 +151,28 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <div className="max-h-[calc(100svh-4.25rem)] overflow-y-auto border-t border-line bg-paper lg:hidden">
+        <div className="max-h-[calc(100svh-4.25rem)] overflow-y-auto border-t border-line bg-paper xl:hidden">
           <nav className="container-page flex flex-col gap-6 pb-8 pt-5" aria-label="Мобильное меню">
             <SurveyLink className={cta("solid", "lg", "w-full")} onNavigate={() => setMenuOpen(false)}>
               Пройти опрос
             </SurveyLink>
+            <button type="button" onClick={() => handleNav("debts")} className={cta("outline", "lg", "w-full")}>
+              Юридическая помощь
+            </button>
             {GROUPS.map((g) => (
               <div key={g}>
                 <p className="mb-2 text-sm font-semibold text-muted">{GROUP_TITLES[g]}</p>
                 <ul className="flex flex-col">
                   {servicesByGroup(g).map((s) => (
                     <li key={s.slug}>
-                      <Link
-                        to={`/services/${s.slug}`}
-                        className="flex items-center gap-3 border-b border-line py-3 text-base text-ink"
+                      <ServiceLink
+                        service={s}
+                        className="flex w-full items-center gap-3 border-b border-line py-3 text-left text-base text-ink"
                       >
                         <s.icon className="shrink-0 text-pine" size={20} />
                         {s.title}
-                      </Link>
+                        {s.comingSoon && <span className="text-xs font-semibold text-pine">скоро</span>}
+                      </ServiceLink>
                     </li>
                   ))}
                 </ul>
