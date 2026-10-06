@@ -2,7 +2,6 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiOutlineClock, HiOutlineLockClosed } from "react-icons/hi";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
 import { ChoiceStep } from "@/components/wizard/ChoiceStep";
 import { InputStep } from "@/components/wizard/InputStep";
@@ -63,18 +62,17 @@ export function Wizard() {
   };
 
   return (
-    <section id="wizard" className="relative py-24 md:py-32">
-      <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-gold/[0.06] blur-[160px]" />
+    <section id="wizard" className="wizard-skin section-y scroll-mt-16 bg-ink">
       <div className="container-page">
         <SectionHeading
-          eyebrow="Проверка шансов на кредит"
-          title="Узнайте свои шансы за пару минут"
-          description="Отвечайте честно — это короткий пошаговый опрос, а не длинная анкета. Данные используются только для оценки вашей ситуации."
-          className="mb-14"
+          tone="dark"
+          title="Пройдите опрос: узнайте свои шансы за 2 минуты"
+          description="Это короткий пошаговый опрос, а не длинная анкета. Отвечайте честно: данные используются только для оценки вашей ситуации."
+          className="mx-auto mb-12 text-center [&_p]:mx-auto"
         />
 
-        <Reveal className="mx-auto max-w-2xl">
-          <div className="metal-border rounded-3xl bg-graphite/40 p-6 shadow-soft backdrop-blur-sm md:p-10">
+        <div className="mx-auto max-w-2xl">
+          <div className="rounded-3xl border border-white/10 bg-graphite p-6 md:p-10">
             {submitted ? (
               <SuccessScreen onReset={handleReset} />
             ) : (
@@ -142,15 +140,15 @@ export function Wizard() {
               </>
             )}
           </div>
-        </Reveal>
+        </div>
 
         {!submitted && (
-          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 text-xs text-metal/70">
+          <div className="mx-auto mt-6 flex max-w-2xl flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-white/60">
             <span className="inline-flex items-center gap-1.5">
-              <HiOutlineClock className="text-gold" /> Займёт около 2 минут
+              <HiOutlineClock className="text-pine-bright" /> Займёт около 2 минут
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <HiOutlineLockClosed className="text-gold" /> Данные передаются конфиденциально
+              <HiOutlineLockClosed className="text-pine-bright" /> Данные передаются конфиденциально
             </span>
           </div>
         )}

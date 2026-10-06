@@ -1,45 +1,34 @@
 import type { ReactNode } from "react";
-import { Reveal } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 
 interface SectionHeadingProps {
-  eyebrow: string;
   title: ReactNode;
   description?: ReactNode;
-  align?: "left" | "center";
+  /** Малая подпись над заголовком (необязательно). */
+  eyebrow?: string;
+  tone?: "light" | "dark";
   className?: string;
 }
 
-export function SectionHeading({
-  eyebrow,
-  title,
-  description,
-  align = "center",
-  className,
-}: SectionHeadingProps) {
+export function SectionHeading({ title, description, eyebrow, tone = "light", className }: SectionHeadingProps) {
+  const dark = tone === "dark";
   return (
-    <div
-      className={cn(
-        "flex flex-col gap-4",
-        align === "center" && "items-center text-center",
-        align === "left" && "items-start text-left",
-        className
+    <div className={cn("max-w-3xl", className)}>
+      {eyebrow && (
+        <p className={cn("mb-3 text-sm font-semibold", dark ? "text-pine-bright" : "text-pine")}>{eyebrow}</p>
       )}
-    >
-      <Reveal>
-        <span className="eyebrow">{eyebrow}</span>
-      </Reveal>
-      <Reveal delay={0.08}>
-        <h2 className="max-w-3xl text-3xl font-bold leading-[1.15] text-silver sm:text-4xl md:text-5xl">
-          {title}
-        </h2>
-      </Reveal>
+      <h2
+        className={cn(
+          "font-display text-[1.9rem] font-bold leading-[1.12] tracking-[-0.025em] sm:text-4xl md:text-[2.7rem]",
+          dark ? "text-white" : "text-ink"
+        )}
+      >
+        {title}
+      </h2>
       {description && (
-        <Reveal delay={0.16}>
-          <p className="max-w-2xl text-base leading-relaxed text-metal md:text-lg">
-            {description}
-          </p>
-        </Reveal>
+        <p className={cn("measure mt-4 text-base leading-relaxed md:text-lg", dark ? "text-white/70" : "text-muted")}>
+          {description}
+        </p>
       )}
     </div>
   );

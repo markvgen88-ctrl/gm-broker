@@ -18,7 +18,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           size === "md" && "px-7 py-3.5 text-sm",
           size === "lg" && "px-9 py-4.5 text-base",
           variant === "primary" &&
-            "bg-gradient-to-r from-[#f4e5b3] via-gold to-gold-deep bg-[length:200%_auto] bg-left text-[#1a1400] shadow-[0_10px_40px_-10px_rgba(212,175,55,0.5)] hover:bg-right hover:shadow-[0_14px_48px_-8px_rgba(212,175,55,0.65)] active:scale-[0.98]",
+            "bg-gradient-to-r from-gold via-gold to-gold-deep bg-[length:200%_auto] bg-left text-[#1a1400] shadow-[0_10px_40px_-10px_rgba(212,175,55,0.5)] hover:bg-right hover:shadow-[0_14px_48px_-8px_rgba(212,175,55,0.65)] active:scale-[0.98]",
           variant === "secondary" &&
             "metal-border text-silver hover:border-gold/60 hover:text-gold active:scale-[0.98]",
           variant === "ghost" &&

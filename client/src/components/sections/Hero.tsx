@@ -1,202 +1,82 @@
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { HiArrowDown, HiOutlineShieldCheck } from "react-icons/hi";
-import { Button } from "@/components/ui/Button";
-import brokerPhoto from "@/assets/broker-photo.webp";
-import heroBg from "@/assets/hero-bg.webp";
-import heroBgMobile from "@/assets/hero-bg-mobile.webp";
+import { HiArrowRight, HiOutlineCheckCircle } from "react-icons/hi";
+import { cta } from "@/lib/cta";
+import { SurveyLink } from "@/components/ui/SurveyLink";
+import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
-const INFO_POINTS = [
-  "Клиентам с просрочкой доступно только залоговое кредитование от 21% годовых",
-  "Работаю удалённо по всей России, кроме Республики Крым и Северного Кавказа",
-  "Без предоплаты",
-  "Заключается договор",
-  "Комиссия — 15%, только после поступления денежных средств клиенту",
-];
+const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия 15% только после поступления денег"];
+const GROUPS: ServiceGroup[] = ["person", "business"];
 
 export function Hero() {
-  const scrollToForm = () => {
-    document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <section id="top" className="relative flex min-h-[100svh] items-center overflow-hidden pt-28 pb-20">
-      {/* Background */}
-      <div className="absolute inset-0 -z-20">
-        <picture>
-          <source media="(max-width: 767px)" srcSet={heroBgMobile} />
-          <img
-            src={heroBg}
-            alt=""
-            className="h-full w-full object-cover opacity-45"
-            fetchPriority="high"
-          />
-        </picture>
-        <div className="absolute inset-0 bg-gradient-to-b from-bg/60 via-bg/80 to-bg" />
-        <div className="absolute inset-0 bg-gradient-to-r from-bg via-bg/40 to-bg" />
-      </div>
-
-      {/* Ambient glow */}
-      <div className="pointer-events-none absolute -top-40 right-[-10%] -z-10 h-[520px] w-[520px] rounded-full bg-gold/10 blur-[140px]" />
-      <div className="pointer-events-none absolute bottom-[-15%] left-[-10%] -z-10 h-[420px] w-[420px] rounded-full bg-gold-deep/10 blur-[130px]" />
-
-      <div className="container-page grid items-center gap-16 lg:grid-cols-[1.15fr_0.85fr]">
+    <section id="top" className="pt-[4.25rem]">
+      <div className="container-page grid gap-12 pb-16 pt-12 md:pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-start lg:gap-16 lg:pb-24 lg:pt-20">
         <div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-6 inline-flex items-center gap-2 rounded-full glass-panel px-4 py-2"
-          >
-            <HiOutlineShieldCheck className="text-gold" />
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-metal">
-              Кредитный брокер · Работа по договору
-            </span>
-          </motion.div>
+          <h1 className="font-display text-[2.35rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.6rem]">
+            Кредит, когда банки отказывают или одобряют мало
+          </h1>
+          <p className="measure mt-6 text-lg leading-relaxed text-muted">
+            Подбираю банк, готовлю заявку и довожу сделку до денег на счёте. Для физлиц, ИП и ООО по всей России, от
+            100 000 ₽ до 1,5 млрд ₽.
+          </p>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className="max-w-2xl font-display text-4xl font-extrabold leading-[1.1] text-silver sm:text-5xl lg:text-[3.4rem]"
-          >
-            Профессиональные{" "}
-            <span className="text-gold-gradient animate-shimmer">кредитно-правовые решения</span>{" "}
-            для частных лиц и бизнеса
-          </motion.h1>
+          <ul className="mt-7 flex flex-col gap-2.5">
+            {FACTS.map((f) => (
+              <li key={f} className="flex items-center gap-2.5 text-base text-ink">
+                <HiOutlineCheckCircle className="shrink-0 text-pine" size={22} />
+                {f}
+              </li>
+            ))}
+          </ul>
 
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 max-w-xl text-base leading-relaxed text-metal md:text-lg"
-          >
-            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России —
-            от 100 000 ₽ до 1,5 млрд ₽. Финансирование для тех, кому «должны
-            одобрять», но банки отказывают или дают меньшую сумму.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.34, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-8 metal-border rounded-2xl p-5 md:p-6"
-          >
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {INFO_POINTS.map((point) => (
-                <li key={point} className="flex items-start gap-2.5 text-sm leading-snug text-metal">
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-5"
-          >
-            <p className="text-sm leading-relaxed text-metal md:text-base">
-              Если есть зависшие долги в кредитной истории, непосильная нагрузка, суд или приставы?
-              <br />
-              Рассказываю о вариантах решения проблемы в статьях:
-            </p>
-            <ul className="mt-4 flex flex-col gap-2">
-              <li>
-                <Link
-                  to="/articles/bankrotstvo-fizicheskogo-litsa-kak-spisat-dolgi"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold underline-offset-4 transition-colors hover:text-gold-deep hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  О банкротстве через суд
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/articles/vnesudebnoe-bankrotstvo-cherez-mfts"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold underline-offset-4 transition-colors hover:text-gold-deep hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  О внесудебном банкротстве
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/articles/restrukturizatsiya-sudebnogo-dolga"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold underline-offset-4 transition-colors hover:text-gold-deep hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  О реструктуризации долга
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/articles/ispravlenie-kreditnoy-istorii-oshibki"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold underline-offset-4 transition-colors hover:text-gold-deep hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  О том, как исправить кредитную историю
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/articles/vykup-dolga-cherez-tretye-litso"
-                  className="inline-flex items-center gap-2 text-sm font-medium text-gold underline-offset-4 transition-colors hover:text-gold-deep hover:underline"
-                >
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                  О выкупе долга через третье лицо
-                </Link>
-              </li>
-            </ul>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.46, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-9 flex flex-wrap items-center gap-5"
-          >
-            <Button size="lg" onClick={scrollToForm}>
-              Проверить шансы
-              <HiArrowDown className="transition-transform duration-300 group-hover:translate-y-0.5" />
-            </Button>
-            <a
-              href="#about"
-              className="text-sm font-medium text-metal underline-offset-4 transition-colors hover:text-gold hover:underline"
-            >
-              Узнать подробнее
+          <div className="mt-9 flex flex-wrap items-center gap-4">
+            <SurveyLink className={cta("solid", "lg")}>
+              Пройти опрос за 2 минуты <HiArrowRight />
+            </SurveyLink>
+            <a href="#services" className="text-base font-semibold text-ink underline decoration-ink/25 underline-offset-4 hover:decoration-ink">
+              Выбрать вид кредита
             </a>
-          </motion.div>
+          </div>
+
+          <p className="mt-6 max-w-md text-sm leading-relaxed text-muted">
+            Клиентам с просрочкой доступно только залоговое кредитование от 21% годовых. Если получить кредит
+            невозможно, скажу об этом сразу и дам бесплатную рекомендацию.
+          </p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="relative hidden justify-self-center lg:block"
-        >
-          <div className="animate-float">
-            <div className="absolute inset-0 -z-10 rounded-full bg-gold/15 blur-[110px]" />
+        {/* Выбор вида кредитования: главный элемент страницы */}
+        <div className="rounded-3xl bg-ink p-6 text-white shadow-[0_30px_70px_-30px_rgba(15,30,25,0.6)] md:p-8">
+          <h2 className="font-display text-xl font-bold tracking-tight md:text-2xl">Что вам нужно?</h2>
+          <p className="mt-1.5 text-sm text-white/60">Выберите вид кредитования — покажу, как это работает.</p>
 
-            <div className="relative w-full max-w-xs overflow-hidden rounded-[2rem] metal-border shadow-soft">
-              <img
-                src={brokerPhoto}
-                alt="Основатель G.M. Broker"
-                className="aspect-[2/3] w-full object-cover"
-                width={360}
-                height={540}
-                fetchPriority="high"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg/70 via-transparent to-transparent" />
-            </div>
-
-            <p className="mt-4 text-center font-display text-sm font-semibold tracking-wide text-silver">
-              ИП Марков Геннадий Владимирович
-            </p>
+          <div className="mt-6 flex flex-col gap-6">
+            {GROUPS.map((g) => (
+              <div key={g}>
+                <p className="mb-2.5 text-sm font-semibold text-pine-bright">{GROUP_TITLES[g]}</p>
+                <ul className="flex flex-wrap gap-2">
+                  {servicesByGroup(g).map((s) => (
+                    <li key={s.slug}>
+                      <Link
+                        to={`/services/${s.slug}`}
+                        className="inline-flex items-center rounded-full border border-white/20 px-4 py-2 text-sm font-medium text-white transition-colors hover:border-pine-bright hover:bg-pine-bright hover:text-ink"
+                      >
+                        {s.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-        </motion.div>
+
+          <div className="mt-7 border-t border-white/10 pt-5 text-sm text-white/65">
+            Не знаете, что выбрать?{" "}
+            <SurveyLink className="font-semibold text-white underline underline-offset-4 hover:text-pine-bright">
+              Пройдите опрос
+            </SurveyLink>
+            , и я подскажу.
+          </div>
+        </div>
       </div>
     </section>
   );

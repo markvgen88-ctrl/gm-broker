@@ -11,8 +11,21 @@
   --color-gold-deep: #b98a20;
   --color-accent: #ffffff;
 
-  --font-display: "Manrope", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  /* ---- Новая публичная палитра (v2) ---- */
+  --color-paper: #f5f6f2;
+  --color-ink: #0f1e19;
+  --color-ink-soft: #173029;
+  --color-pine: #0f6b54;
+  --color-pine-deep: #0b5845;
+  --color-pine-bright: #34c49a;
+  --color-mint: #e4f0e9;
+  --color-brass: #b8923a;
+  --color-line: #d9e0da;
+  --color-muted: #52625b;
+
+  --font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
 
   --shadow-soft: 0 20px 60px -20px rgb(0 0 0 / 0.7);
   --shadow-gold: 0 10px 40px -10px rgb(212 175 55 / 0.35);
@@ -161,4 +174,56 @@
     text-transform: uppercase;
     color: var(--color-gold);
   }
+}
+
+
+/* =========================================================
+   Публичный сайт (v2): светлая тема. Админка остаётся тёмной.
+   ========================================================= */
+body.is-public {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+}
+body.is-public ::selection {
+  background: var(--color-pine);
+  color: #fff;
+}
+body.is-public :focus-visible {
+  outline: 2px solid var(--color-pine);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+body.is-public ::-webkit-scrollbar-track {
+  background: var(--color-paper);
+}
+body.is-public ::-webkit-scrollbar-thumb {
+  background: #b9c4bd;
+  border: 2px solid var(--color-paper);
+}
+
+/* Тёмные зоны на светлом сайте (опрос, футер): включают прежние
+   «тёмные» токены, чтобы шаги анкеты выглядели без переделки. */
+.wizard-skin {
+  --color-graphite: #12261f;
+  --color-graphite-soft: #183128;
+  --color-metal: #b9c8c0;
+  --color-silver: #f2f6f3;
+  --color-gold: #34c49a;
+  --color-gold-deep: #1fa07c;
+}
+.wizard-skin :focus-visible {
+  outline-color: var(--color-pine-bright);
+}
+
+.section-y {
+  padding-block: 4.5rem;
+}
+@media (min-width: 1024px) {
+  .section-y {
+    padding-block: 7rem;
+  }
+}
+
+.measure {
+  max-width: 62ch;
 }

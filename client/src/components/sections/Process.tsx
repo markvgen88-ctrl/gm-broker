@@ -1,103 +1,32 @@
-import {
-  HiOutlineSearch,
-  HiOutlineClipboardCheck,
-  HiOutlineLightBulb,
-  HiOutlineOfficeBuilding,
-  HiOutlineCash,
-} from "react-icons/hi";
-import type { IconType } from "react-icons";
-import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-interface Step {
-  icon: IconType;
-  title: string;
-  description: string;
-}
-
-const STEPS: Step[] = [
-  {
-    icon: HiOutlineSearch,
-    title: "Анализ ситуации",
-    description: "Изучаю доходы, кредитную историю и цель финансирования, оцениваю реальные шансы.",
-  },
-  {
-    icon: HiOutlineClipboardCheck,
-    title: "Проверка документов",
-    description: "Проверяю полноту и корректность документов, устраняю слабые места заранее.",
-  },
-  {
-    icon: HiOutlineLightBulb,
-    title: "Подбор решения",
-    description: "Определяю банк и продукт, которые дадут максимальный шанс на одобрение.",
-  },
-  {
-    icon: HiOutlineOfficeBuilding,
-    title: "Работа с банками",
-    description: "Готовлю и сопровождаю заявку, представляю сильные стороны клиента банку.",
-  },
-  {
-    icon: HiOutlineCash,
-    title: "Получение финансирования",
-    description: "Довожу сделку до перечисления средств на максимально выгодных условиях.",
-  },
+const STEPS = [
+  { title: "Опрос", text: "Вы отвечаете на несколько вопросов о себе и цели кредита. Это занимает около 2 минут." },
+  { title: "Звонок в течение суток", text: "Связываюсь с вами в течение 24 часов, объясняю, как проходит работа." },
+  { title: "Анализ и ответ", text: "Изучаю доходы и кредитную историю, оцениваю реальные шансы. Если помочь не смогу, скажу честно и дам рекомендации." },
+  { title: "Договор и подбор банка", text: "При положительном решении заключаем договор. Определяю банк и продукт с максимальным шансом одобрения." },
+  { title: "Заявка и деньги", text: "Готовлю и сопровождаю заявку, довожу сделку до перечисления средств." },
 ];
 
 export function Process() {
   return (
-    <section id="process" className="relative py-24 md:py-32">
+    <section id="process" className="section-y scroll-mt-16 bg-white">
       <div className="container-page">
         <SectionHeading
-          eyebrow="Как проходит работа"
-          title="Пять шагов от заявки до денег на счёте"
-          className="mb-20"
+          title="Как проходит работа: пять шагов от заявки до денег"
+          description="Работа по подбору кредита начинается только после подписания договора."
         />
-
-        <div className="relative">
-          {/* connecting line */}
-          <div className="absolute left-6 top-2 bottom-2 w-px bg-gradient-to-b from-gold/60 via-gold/25 to-transparent md:left-1/2 md:-translate-x-1/2" />
-
-          <ol className="flex flex-col gap-10 md:gap-14">
-            {STEPS.map((step, i) => (
-              <li key={step.title} className="relative">
-                <div
-                  className={`flex flex-col gap-6 md:flex-row md:items-center ${
-                    i % 2 === 1 ? "md:flex-row-reverse" : ""
-                  }`}
-                >
-                  <Reveal
-                    className="relative flex flex-1 items-start gap-5 pl-16 md:pl-0"
-                    delay={0.05}
-                  >
-                    <div
-                      className={`hidden md:block md:flex-1 ${i % 2 === 1 ? "md:text-left" : "md:text-right"}`}
-                    >
-                      <span className="eyebrow">{`0${i + 1}`}</span>
-                      <h3 className="mt-2 font-display text-xl font-semibold text-silver md:text-2xl">
-                        {step.title}
-                      </h3>
-                      <p className="mt-2 text-sm leading-relaxed text-metal md:text-base">
-                        {step.description}
-                      </p>
-                    </div>
-
-                    <div className="absolute left-0 top-0 grid h-12 w-12 shrink-0 place-items-center rounded-full metal-border bg-graphite text-gold shadow-gold md:static md:order-none">
-                      <step.icon size={22} />
-                    </div>
-
-                    <div className="md:hidden">
-                      <span className="eyebrow">{`0${i + 1}`}</span>
-                      <h3 className="mt-2 font-display text-lg font-semibold text-silver">{step.title}</h3>
-                      <p className="mt-2 text-sm leading-relaxed text-metal">{step.description}</p>
-                    </div>
-                  </Reveal>
-
-                  <div className="hidden flex-1 md:block" />
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
+        <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
+          {STEPS.map((s, i) => (
+            <li key={s.title} className="bg-paper p-6">
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-sm font-bold text-white">
+                {i + 1}
+              </span>
+              <h3 className="mt-5 font-display text-lg font-bold leading-snug tracking-tight text-ink">{s.title}</h3>
+              <p className="mt-2 text-[0.95rem] leading-relaxed text-muted">{s.text}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );

@@ -20,40 +20,40 @@ export function PrivacyPolicyPage() {
           <Reveal>
             <Link
               to="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-metal transition-colors hover:text-gold"
+              className="inline-flex items-center gap-2 text-sm font-medium text-muted transition-colors hover:text-pine"
             >
               <HiArrowLeft /> На главную
             </Link>
           </Reveal>
 
           <Reveal delay={0.06}>
-            <span className="eyebrow mt-8 block">Юридическая информация</span>
-            <h1 className="mt-3 font-display text-3xl font-bold leading-[1.15] text-silver sm:text-4xl md:text-[2.6rem]">
+            <span className="mt-8 block text-sm font-semibold text-pine">Юридическая информация</span>
+            <h1 className="mt-3 font-display text-3xl font-bold leading-[1.15] text-ink sm:text-4xl md:text-[2.6rem]">
               Политика конфиденциальности
             </h1>
-            <p className="mt-5 text-sm text-metal/70">Обновлено: {UPDATED_AT}</p>
+            <p className="mt-5 text-sm text-muted">Обновлено: {UPDATED_AT}</p>
           </Reveal>
 
-          <div className="hairline my-10" />
+          <div className="my-10 h-px bg-line" />
 
           <Reveal delay={0.1}>
-            <div className="prose-policy flex flex-col gap-8 text-metal">
+            <div className="prose-policy flex flex-col gap-8 text-muted">
               <section>
                 <p className="leading-relaxed">
                   Настоящая политика определяет порядок обработки персональных данных
                   посетителей сайта{" "}
-                  <a href="https://gm-broker.ru" className="text-gold hover:text-gold-deep">
+                  <a href="https://gm-broker.ru" className="text-pine hover:text-pine-deep">
                     gm-broker.ru
                   </a>{" "}
                   (далее — «Сайт»). Оператором персональных данных является{" "}
-                  <strong className="text-silver">ИП Марков Геннадий Владимирович</strong>{" "}
+                  <strong className="text-ink">ИП Марков Геннадий Владимирович</strong>{" "}
                   (ИНН 380602950496, ОГРНИП 326385000064002), далее — «Оператор». Используя
                   Сайт и заполняя анкету, вы соглашаетесь с условиями, изложенными ниже.
                 </p>
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   1. Какие данные собираются
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -72,7 +72,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   2. Зачем нужны эти данные
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -86,7 +86,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   3. Как обрабатываются и хранятся данные
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -94,7 +94,7 @@ export function PrivacyPolicyPage() {
                   Данные, которые вы указываете в анкете, передаются с вашего браузера на
                   сервер по защищённому зашифрованному соединению (HTTPS) и сразу
                   пересылаются Оператору — на электронную почту и, если доступно, в
-                  Telegram. <strong className="text-silver">
+                  Telegram. <strong className="text-ink">
                     Сервер Сайта не сохраняет анкеты в базе данных
                   </strong>{" "}
                   — после отправки письма и уведомления сами данные на сервере не
@@ -104,7 +104,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   4. Кому передаются данные
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -117,7 +117,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   5. Файлы cookie и аналитика
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -131,7 +131,7 @@ export function PrivacyPolicyPage() {
                     href="https://yandex.ru/legal/confidential/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gold hover:text-gold-deep"
+                    className="text-pine hover:text-pine-deep"
                   >
                     политике конфиденциальности Яндекса
                   </a>
@@ -140,14 +140,14 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   6. Ваши права
                 </h2>
                 <p className="mt-3 leading-relaxed">
                   Вы вправе в любой момент запросить у Оператора информацию о том, какие
                   ваши данные обрабатывались, потребовать их удаления или отозвать согласие
                   на обработку. Для этого достаточно написать на{" "}
-                  <a href="mailto:info-gm-broker@bk.ru" className="text-gold hover:text-gold-deep">
+                  <a href="mailto:info-gm-broker@bk.ru" className="text-pine hover:text-pine-deep">
                     info-gm-broker@bk.ru
                   </a>
                   .
@@ -155,7 +155,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   7. Изменения политики
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -166,7 +166,7 @@ export function PrivacyPolicyPage() {
               </section>
 
               <section>
-                <h2 className="font-display text-xl font-semibold text-silver">
+                <h2 className="font-display text-xl font-semibold text-ink">
                   8. Контакты Оператора
                 </h2>
                 <p className="mt-3 leading-relaxed">
@@ -177,7 +177,7 @@ export function PrivacyPolicyPage() {
                   ОГРНИП 326385000064002
                   <br />
                   E-mail:{" "}
-                  <a href="mailto:info-gm-broker@bk.ru" className="text-gold hover:text-gold-deep">
+                  <a href="mailto:info-gm-broker@bk.ru" className="text-pine hover:text-pine-deep">
                     info-gm-broker@bk.ru
                   </a>
                 </p>

@@ -8,13 +8,13 @@ export function ArticleContent({ sections }: { sections: ArticleSection[] }) {
         <Reveal key={section.heading ?? i} delay={Math.min(i * 0.04, 0.2)}>
           <div>
             {section.heading && (
-              <h2 className="mb-4 font-display text-2xl font-bold text-silver md:text-[1.7rem]">
+              <h2 className="mb-4 font-display text-2xl font-bold text-ink md:text-[1.7rem]">
                 {section.heading}
               </h2>
             )}
             <div className="flex flex-col gap-4">
               {section.paragraphs.map((p, j) => (
-                <p key={j} className="text-base leading-relaxed text-metal md:text-lg">
+                <p key={j} className="text-base leading-relaxed text-muted md:text-lg">
                   {p}
                 </p>
               ))}
@@ -22,8 +22,8 @@ export function ArticleContent({ sections }: { sections: ArticleSection[] }) {
             {section.list && (
               <ul className="mt-4 flex flex-col gap-3">
                 {section.list.map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-base leading-relaxed text-metal md:text-lg">
-                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
+                  <li key={item} className="flex items-start gap-3 text-base leading-relaxed text-muted md:text-lg">
+                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
                     {item}
                   </li>
                 ))}

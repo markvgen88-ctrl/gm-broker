@@ -1,84 +1,46 @@
-import {
-  HiOutlineDocumentText,
-  HiOutlineCreditCard,
-  HiOutlineGlobeAlt,
-  HiOutlineChartBar,
-  HiOutlineUserGroup,
-  HiOutlineShieldCheck,
-  HiOutlineBadgeCheck,
-} from "react-icons/hi";
-import type { IconType } from "react-icons";
-import { Reveal } from "@/components/ui/Reveal";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-interface Advantage {
-  icon: IconType;
-  title: string;
-  description: string;
-}
+const TERMS = [
+  { title: "Без предоплаты", text: "Работа начинается без авансовых платежей с вашей стороны." },
+  { title: "Комиссия 15%", text: "Удерживается только после того, как деньги поступили вам на счёт." },
+  { title: "Договор с первого дня", text: "Обязательства сторон, размер комиссии и порядок оплаты закреплены письменно." },
+  { title: "Весь процесс онлайн", text: "Работаю по всей России, кроме Крыма и Северного Кавказа. Приезжать никуда не нужно." },
+];
 
-const ADVANTAGES: Advantage[] = [
-  {
-    icon: HiOutlineCreditCard,
-    title: "Без предоплаты",
-    description: "Работа начинается без каких-либо авансовых платежей с вашей стороны.",
-  },
-  {
-    icon: HiOutlineDocumentText,
-    title: "Работа по договору",
-    description: "Все обязательства сторон юридически закреплены с первого дня сотрудничества.",
-  },
-  {
-    icon: HiOutlineChartBar,
-    title: "Индивидуальный анализ",
-    description: "Детально разбираю именно вашу ситуацию — без шаблонов и массовых заявок.",
-  },
-  {
-    icon: HiOutlineBadgeCheck,
-    title: "Подбор банка",
-    description: "Определяю банк и продукт, где ваши шансы на одобрение максимальны.",
-  },
-  {
-    icon: HiOutlineUserGroup,
-    title: "Сопровождение",
-    description: "Провожу клиента через все этапы сделки — от подачи до получения средств.",
-  },
-  {
-    icon: HiOutlineGlobeAlt,
-    title: "Удалённая работа",
-    description: "Работаю онлайн по всей России — личное присутствие не требуется.",
-  },
-  {
-    icon: HiOutlineShieldCheck,
-    title: "Оплата только после результата",
-    description: "Комиссия удерживается лишь после фактического поступления средств клиенту.",
-  },
+const APPROACH = [
+  "Разбираю именно вашу ситуацию, без шаблонов и массовых заявок во все банки.",
+  "Определяю банк и продукт, где шансы на одобрение максимальны.",
+  "Объясняю причины отказов простым языком.",
+  "Сопровождаю от подачи заявки до получения средств.",
 ];
 
 export function Advantages() {
   return (
-    <section id="advantages" className="relative overflow-hidden py-24 md:py-32">
-      <div className="pointer-events-none absolute left-1/2 top-1/3 -z-10 h-[400px] w-[700px] -translate-x-1/2 rounded-full bg-gold/5 blur-[160px]" />
+    <section id="advantages" className="section-y scroll-mt-16">
       <div className="container-page">
-        <SectionHeading
-          eyebrow="Преимущества"
-          title="Работа, построенная на доверии и результате"
-          className="mb-16"
-        />
+        <SectionHeading title="Условия работы понятны заранее" />
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {ADVANTAGES.map((item, i) => (
-            <Reveal key={item.title} delay={(i % 3) * 0.08}>
-              <div className="group relative h-full overflow-hidden rounded-2xl glass-panel p-7 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-soft">
-                <div className="absolute inset-0 -z-10 bg-gradient-to-br from-gold/0 via-gold/0 to-gold/0 transition-all duration-500 group-hover:from-gold/[0.06] group-hover:to-transparent" />
-                <div className="mb-5 grid h-12 w-12 place-items-center rounded-xl metal-border text-gold transition-transform duration-500 group-hover:scale-110">
-                  <item.icon size={22} />
-                </div>
-                <h3 className="mb-2 font-display text-lg font-semibold text-silver">{item.title}</h3>
-                <p className="text-sm leading-relaxed text-metal">{item.description}</p>
-              </div>
-            </Reveal>
+        <dl className="mt-12 grid gap-x-10 gap-y-9 sm:grid-cols-2 lg:grid-cols-4">
+          {TERMS.map((t) => (
+            <div key={t.title} className="border-t-2 border-ink pt-4">
+              <dt className="font-display text-xl font-bold tracking-tight text-ink">{t.title}</dt>
+              <dd className="mt-2 text-[0.95rem] leading-relaxed text-muted">{t.text}</dd>
+            </div>
           ))}
+        </dl>
+
+        <div className="mt-16 grid gap-8 rounded-3xl bg-mint p-7 md:grid-cols-[0.8fr_1.2fr] md:p-10">
+          <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-ink">
+            Работаю на результат, а не на количество заявок
+          </h3>
+          <ul className="flex flex-col gap-3">
+            {APPROACH.map((a) => (
+              <li key={a} className="flex gap-3 text-base leading-relaxed text-ink">
+                <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
+                {a}
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </section>

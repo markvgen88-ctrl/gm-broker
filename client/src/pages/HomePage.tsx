@@ -5,6 +5,7 @@ import { About } from "@/components/sections/About";
 import { Advantages } from "@/components/sections/Advantages";
 import { Process } from "@/components/sections/Process";
 import { Audience } from "@/components/sections/Audience";
+import { DebtHelp } from "@/components/sections/DebtHelp";
 import { Services } from "@/components/sections/Services";
 import { Wizard } from "@/components/wizard/Wizard";
 import { FAQ } from "@/components/sections/FAQ";
@@ -49,12 +50,13 @@ export function HomePage() {
   return (
     <main>
       <Hero />
-      <About />
-      <Advantages />
-      <Process />
-      <Audience />
       <Services />
+      <Process />
+      <Advantages />
+      <About />
+      <Audience />
       <Wizard />
+      <DebtHelp />
       <FAQ />
     </main>
   );

@@ -15,10 +15,9 @@ export function ArticlesIndexPage() {
     <main className="pt-32 pb-24 md:pt-40 md:pb-32">
       <div className="container-page">
         <SectionHeading
-          eyebrow="Блог"
           title="Статьи о кредитах и финансовой безопасности"
           description="Разбираю реальные ситуации из практики — чтобы вы могли принимать решения осознанно."
-          className="mb-16"
+          className="mb-14"
         />
 
         {articles.length > 0 ? (
