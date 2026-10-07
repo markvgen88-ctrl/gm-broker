@@ -151,6 +151,43 @@ export async function downloadContract(contractId: number): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Скачивает все заявки одним листом Excel. Файл собирается на сервере в
+ * момент нажатия, поэтому всегда содержит свежие заявки и комментарии.
+ * Если передан статус, в файл попадают только заявки с этим статусом.
+ */
+export async function downloadApplicationsExcel(status?: string): Promise<void> {
+  const qs = status && status !== "all" ? `?status=${encodeURIComponent(status)}` : "";
+  const response = await fetch(`${API_BASE_URL}/admin/applications/export.xlsx${qs}`, {
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    let message = `Не удалось скачать Excel (${response.status})`;
+    try {
+      const data = await response.json();
+      if (data?.message) message = data.message;
+    } catch {
+      // тело ответа не JSON — оставляем сообщение по умолчанию
+    }
+    throw new AdminApiError(message);
+  }
+
+  const blob = await response.blob();
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filenameMatch = /filename\*=UTF-8''([^;]+)/i.exec(disposition);
+  const filename = filenameMatch ? decodeURIComponent(filenameMatch[1]) : "Заявки.xlsx";
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
 export async function deleteContract(contractId: number): Promise<void> {
   await adminFetch(`/contracts/${contractId}`, { method: "DELETE" });
 }

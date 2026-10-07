@@ -4,7 +4,7 @@ import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
-import { fetchApplications } from "@/lib/adminApi";
+import { downloadApplicationsExcel, fetchApplications } from "@/lib/adminApi";
 import type { ApplicationListItem } from "@/lib/adminApi";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +18,20 @@ export function AdminDashboardPage() {
   const [filter, setFilter] = useState<string>("all");
   const [items, setItems] = useState<ApplicationListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  async function handleExport() {
+    setExporting(true);
+    setExportError(null);
+    try {
+      await downloadApplicationsExcel(filter);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "Не удалось скачать Excel");
+    } finally {
+      setExporting(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -59,7 +73,19 @@ export function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-5 font-display text-xl font-semibold sm:mb-6 sm:text-2xl">Заявки</h1>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
+        <h1 className="font-display text-xl font-semibold sm:text-2xl">Заявки</h1>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={exporting || (items !== null && items.length === 0)}
+          className="rounded-full border border-gold/60 px-4 py-1.5 text-sm text-gold transition-colors hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-50"
+          title="Все заявки с ответами анкеты, договорами и комментариями — одним листом Excel"
+        >
+          {exporting ? "Готовим файл…" : filter === "all" ? "Скачать Excel" : `Скачать Excel · ${filter}`}
+        </button>
+      </div>
+      {exportError && <p className="mb-4 text-sm text-rose-400">{exportError}</p>}
 
       <div className="mb-5 flex flex-wrap gap-1.5 sm:mb-6 sm:gap-2">
         <FilterTab active={filter === "all"} onClick={() => setFilter("all")} label="Все" count={items?.length} />

@@ -9,11 +9,13 @@ import {
   deleteApplication,
   getApplicationById,
   listApplications,
+  listApplicationsForExport,
   updateApplicationStatus,
 } from "../db/applications.js";
 import { isDatabaseConfigured } from "../db/pool.js";
 import { createContract, deleteContract, getContractById } from "../db/contracts.js";
 import { contractInputSchema } from "../lib/contractValidation.js";
+import { buildApplicationsWorkbook, moscowDateStamp } from "../lib/applicationsExport.js";
 import { generateContractDocx } from "../lib/contractTemplate.js";
 
 export const adminRouter = Router();
@@ -53,6 +55,34 @@ adminRouter.get("/applications", async (req: Request, res: Response) => {
   const statusParam = typeof req.query.status === "string" ? req.query.status : undefined;
   const items = await listApplications(statusParam);
   res.json({ success: true, items });
+});
+
+/**
+ * Выгрузка всех заявок в один лист Excel. Файл не хранится — собирается из
+ * базы в момент нажатия кнопки, поэтому всегда содержит свежие заявки и
+ * комментарии. Объявлен выше «/applications/:id», иначе «export.xlsx»
+ * был бы принят за id заявки. Необязательный ?status= оставляет только
+ * заявки с этим статусом.
+ */
+adminRouter.get("/applications/export.xlsx", async (req: Request, res: Response) => {
+  const status = typeof req.query.status === "string" && req.query.status !== "" ? req.query.status : undefined;
+  try {
+    const rows = await listApplicationsForExport(status);
+    const buffer = await buildApplicationsWorkbook(rows);
+    const niceFilename = `Заявки_GM-Broker_${moscowDateStamp()}.xlsx`;
+    const asciiFallback = `applications_${moscowDateStamp()}.xlsx`;
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${asciiFallback}"; filename*=UTF-8''${encodeURIComponent(niceFilename)}`
+    );
+    // В файле персональные данные клиентов — не даём кэшировать.
+    res.setHeader("Cache-Control", "no-store");
+    res.send(buffer);
+  } catch (err) {
+    console.error("[admin] Не удалось сформировать выгрузку в Excel:", err);
+    res.status(500).json({ success: false, message: "Не удалось сформировать файл Excel" });
+  }
 });
 
 adminRouter.get("/applications/:id", async (req: Request, res: Response) => {

@@ -4,6 +4,7 @@ import { FIELD_LABELS, FIELD_ORDER, formatFieldValue } from "../lib/fields.js";
 import { DEFAULT_STATUS } from "../lib/statuses.js";
 import { listContractsForApplication } from "./contracts.js";
 import type { ContractSummary } from "./contracts.js";
+import type { ExportRow } from "../lib/applicationsExport.js";
 
 interface CrmSaveResult {
   ok: boolean;
@@ -175,4 +176,38 @@ export async function addComment(id: number, text: string): Promise<ApplicationC
     if (err?.code === "23503") return null;
     throw err;
   }
+}
+
+/**
+ * Все заявки (без лимита списка в панели) вместе со всеми комментариями и
+ * договорами — для выгрузки в Excel. Один запрос, агрегаты считает база.
+ */
+export async function listApplicationsForExport(status?: string): Promise<ExportRow[]> {
+  const result = await pool.query(
+    `SELECT a.id, a.created_at, a.client_type, a.name, a.phone, a.email, a.status, a.answers,
+            COALESCE((
+              SELECT json_agg(json_build_object('text', c.text, 'at', c.created_at) ORDER BY c.created_at)
+              FROM application_comments c WHERE c.application_id = a.id
+            ), '[]'::json) AS comments,
+            COALESCE((
+              SELECT json_agg(json_build_object('num', k.contract_num, 'at', k.created_at) ORDER BY k.created_at)
+              FROM contracts k WHERE k.application_id = a.id
+            ), '[]'::json) AS contracts
+     FROM applications a
+     ${status ? "WHERE a.status = $1" : ""}
+     ORDER BY a.created_at DESC`,
+    status ? [status] : []
+  );
+  return result.rows.map((row) => ({
+    id: row.id,
+    createdAt: new Date(row.created_at),
+    status: row.status,
+    clientType: row.client_type,
+    name: row.name,
+    phone: row.phone,
+    email: row.email,
+    answers: row.answers as Record<string, string | number>,
+    comments: (row.comments as { text: string; at: string }[]).map((c) => ({ text: c.text, at: new Date(c.at) })),
+    contracts: (row.contracts as { num: number; at: string }[]).map((k) => ({ num: k.num, at: new Date(k.at) })),
+  }));
 }
