@@ -12,12 +12,12 @@ export function Hero() {
     <section id="top" className="pt-[4.25rem]">
       <div className="container-page grid gap-12 pb-16 pt-12 md:pt-16 lg:grid-cols-[1.05fr_1fr] lg:items-start lg:gap-16 lg:pb-24 lg:pt-20">
         <div>
-          <h1 className="font-display text-[2.35rem] font-extrabold leading-[1.04] tracking-[-0.035em] text-ink sm:text-5xl lg:text-[3.6rem]">
-            Кредит, когда банки отказывают или одобряют мало
+          <h1 className="font-display text-[2rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-ink sm:text-5xl lg:text-[3.2rem]">
+            Профессиональные <span className="text-pine">кредитно-правовые решения</span> для частных лиц и бизнеса
           </h1>
           <p className="measure mt-6 text-lg leading-relaxed text-muted">
-            Подбираю банк, готовлю заявку и довожу сделку до денег на счёте. Для физлиц, ИП и ООО по всей России, от
-            100 000 ₽ до 1,5 млрд ₽.
+            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 100 000 ₽ до 1,5 млрд ₽.
+            Финансирование для тех, кому «должны одобрять», но банки отказывают или дают меньшую сумму.
           </p>
 
           <ul className="mt-7 flex flex-col gap-2.5">
