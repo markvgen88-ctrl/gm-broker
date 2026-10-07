@@ -9,7 +9,7 @@ const SEGMENTS = [
 
 export function Audience() {
   return (
-    <section id="audience" className="section-y scroll-mt-16 bg-white">
+    <section id="audience" className="section-y scroll-mt-16">
       <div className="container-page">
         <SectionHeading title="Кому я помогаю" />
         <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">

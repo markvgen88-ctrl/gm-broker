@@ -50,10 +50,10 @@ export function HomePage() {
   return (
     <main>
       <Hero />
+      <About />
       <Services />
       <Process />
       <Advantages />
-      <About />
       <Audience />
       <Wizard />
       <DebtHelp />

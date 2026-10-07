@@ -10,7 +10,7 @@ const STEPS = [
 
 export function Process() {
   return (
-    <section id="process" className="section-y scroll-mt-16 bg-white">
+    <section id="process" className="section-y scroll-mt-16">
       <div className="container-page">
         <SectionHeading
           title="Как проходит работа: пять шагов от заявки до денег"
@@ -18,7 +18,7 @@ export function Process() {
         />
         <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="bg-paper p-6">
+            <li key={s.title} className="bg-white p-6">
               <span className="grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-sm font-bold text-white">
                 {i + 1}
               </span>

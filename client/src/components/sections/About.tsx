@@ -9,7 +9,7 @@ const PARAGRAPHS = [
 
 export function About() {
   return (
-    <section id="about" className="section-y scroll-mt-16">
+    <section id="about" className="scroll-mt-16 pb-16 lg:pb-24">
       <div className="container-page grid items-center gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-16">
         <figure className="mx-auto w-full max-w-sm lg:mx-0">
           <img
@@ -25,7 +25,7 @@ export function About() {
           </figcaption>
         </figure>
         <div>
-          <SectionHeading title="С вами работает один человек, от анализа до результата" />
+          <SectionHeading title="Работаю от анализа до результата" />
           <div className="mt-6 flex flex-col gap-4">
             {PARAGRAPHS.map((p) => (
               <p key={p.slice(0, 20)} className="measure text-base leading-relaxed text-ink/85 md:text-lg">
