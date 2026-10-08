@@ -5,7 +5,6 @@ import logo from "@/assets/logo.webp";
 import { cn } from "@/lib/utils";
 import { cta } from "@/lib/cta";
 import { ServiceLink } from "@/components/ui/ServiceLink";
-import { SurveyLink } from "@/components/ui/SurveyLink";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 import { GROUP_TITLES, servicesByGroup, type ServiceGroup } from "@/data/services";
 
@@ -136,7 +135,6 @@ export function Header() {
           <button type="button" onClick={() => handleNav("debts")} className={cta("outline", "sm", "whitespace-nowrap")}>
             Юридическая помощь
           </button>
-          <SurveyLink className={cta("solid", "sm", "whitespace-nowrap")}>Пройти опрос</SurveyLink>
         </div>
 
         <button
@@ -153,12 +151,6 @@ export function Header() {
       {menuOpen && (
         <div className="max-h-[calc(100svh-4.25rem)] overflow-y-auto border-t border-line bg-paper xl:hidden">
           <nav className="container-page flex flex-col gap-6 pb-8 pt-5" aria-label="Мобильное меню">
-            <SurveyLink className={cta("solid", "lg", "w-full")} onNavigate={() => setMenuOpen(false)}>
-              Пройти опрос
-            </SurveyLink>
-            <button type="button" onClick={() => handleNav("debts")} className={cta("outline", "lg", "w-full")}>
-              Юридическая помощь
-            </button>
             {GROUPS.map((g) => (
               <div key={g}>
                 <p className="mb-2 text-sm font-semibold text-muted">{GROUP_TITLES[g]}</p>

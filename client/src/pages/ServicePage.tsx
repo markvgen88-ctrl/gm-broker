@@ -1,5 +1,5 @@
 import { Link, Navigate, useParams } from "react-router-dom";
-import { HiArrowLeft, HiArrowRight, HiOutlineClock, HiOutlineInformationCircle } from "react-icons/hi";
+import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
@@ -52,22 +52,12 @@ export function ServicePage() {
           <HiArrowLeft /> Все виды кредитования
         </Link>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
-          <div>
-            <p className="text-sm font-semibold text-pine">{GROUP_TITLES[service.group]}</p>
-            <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-6xl">
-              {service.title}
-            </h1>
-            <p className="measure mt-6 text-lg leading-relaxed text-muted">{service.lead}</p>
-          </div>
-          <div className="flex flex-col gap-3 lg:items-end">
-            <SurveyLink className={cta("solid", "lg", "w-full lg:w-auto")}>
-              Пройти опрос <HiArrowRight />
-            </SurveyLink>
-            <p className="flex items-center gap-1.5 text-sm text-muted">
-              <HiOutlineClock className="text-pine" /> около 2 минут, без предоплаты
-            </p>
-          </div>
+        <div className="mt-8">
+          <p className="text-sm font-semibold text-pine">{GROUP_TITLES[service.group]}</p>
+          <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-6xl">
+            {service.title}
+          </h1>
+          <p className="measure mt-6 text-lg leading-relaxed text-muted">{service.lead}</p>
         </div>
       </div>
 

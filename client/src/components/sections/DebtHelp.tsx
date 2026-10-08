@@ -3,11 +3,11 @@ import { HiArrowRight } from "react-icons/hi";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const LINKS = [
-  { to: "/articles/bankrotstvo-fizicheskogo-litsa-kak-spisat-dolgi", label: "О банкротстве через суд" },
-  { to: "/articles/vnesudebnoe-bankrotstvo-cherez-mfts", label: "О внесудебном банкротстве" },
-  { to: "/articles/restrukturizatsiya-sudebnogo-dolga", label: "О реструктуризации долга" },
-  { to: "/articles/ispravlenie-kreditnoy-istorii-oshibki", label: "О том, как исправить кредитную историю" },
-  { to: "/articles/vykup-dolga-cherez-tretye-litso", label: "О выкупе долга через третье лицо" },
+  { to: "/articles/bankrotstvo-fizicheskogo-litsa-kak-spisat-dolgi", label: "Банкротство через суд" },
+  { to: "/articles/vnesudebnoe-bankrotstvo-cherez-mfts", label: "Внесудебное банкротство" },
+  { to: "/articles/restrukturizatsiya-sudebnogo-dolga", label: "Реструктуризация долга" },
+  { to: "/articles/ispravlenie-kreditnoy-istorii-oshibki", label: "Исправление кредитной истории" },
+  { to: "/articles/vykup-dolga-cherez-tretye-litso", label: "Выкуп долга через третье лицо" },
 ];
 
 export function DebtHelp() {
@@ -17,7 +17,7 @@ export function DebtHelp() {
         <SectionHeading
           eyebrow="Юридическая помощь"
           title="Есть долги, суд или приставы?"
-          description="Если в кредитной истории зависшие долги или непосильная нагрузка, кредит может быть не лучшим первым шагом. Рассказываю о вариантах решения в статьях."
+          description="Если в кредитной истории зависшие долги, которых давно нет, или непосильная нагрузка: платежи, после которых не остаётся средств на жизнь, кредит может быть не лучшим путём. Предлагаю следующие варианты решения."
         />
         <ul className="flex flex-col divide-y divide-line border-y border-line">
           {LINKS.map((l) => (
