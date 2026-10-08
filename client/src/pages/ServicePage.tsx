@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
+import { FreezeRequestForm } from "@/components/forms/FreezeRequestForm";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
 import { useSeo } from "@/hooks/useSeo";
 
@@ -58,14 +59,19 @@ export function ServicePage() {
             {service.title}
           </h1>
           <p className="measure mt-6 text-lg leading-relaxed text-muted">{service.lead}</p>
+          {service.term && (
+            <p className="mt-6 inline-flex items-center rounded-full bg-mint px-4 py-2 text-sm font-semibold text-ink">
+              Срок: {service.term}
+            </p>
+          )}
         </div>
       </div>
 
       <section className="bg-white py-14 md:py-20">
         <div className="container-page grid gap-12 md:grid-cols-3">
-          <List title="Кому подходит" items={service.forWhom} />
-          <List title="Что я делаю" items={service.whatIDo} />
-          <List title="Что понадобится" items={service.prepare} />
+          <List title={service.listTitles?.[0] ?? "Кому подходит"} items={service.forWhom} />
+          <List title={service.listTitles?.[1] ?? "Что я делаю"} items={service.whatIDo} />
+          <List title={service.listTitles?.[2] ?? "Что понадобится"} items={service.prepare} />
         </div>
 
         {(service.note || service.article) && (
@@ -92,7 +98,22 @@ export function ServicePage() {
         )}
       </section>
 
-      {/* Приглашение пройти опрос */}
+      {service.requestForm === "freeze" ? (
+        <section id="request" className="wizard-skin scroll-mt-16 bg-ink py-16 text-white md:py-20">
+          <div className="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <h2 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
+                Оставьте заявку
+              </h2>
+              <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
+                Расскажите о своей ситуации. Мы изучим действующие кредитные обязательства, свяжемся с вами и
+                скажем, возможна ли отсрочка.
+              </p>
+            </div>
+            <FreezeRequestForm />
+          </div>
+        </section>
+      ) : (
       <section className="wizard-skin bg-ink py-16 text-white md:py-20">
         <div className="container-page grid items-center gap-8 md:grid-cols-[1.4fr_1fr]">
           <div>
@@ -111,6 +132,7 @@ export function ServicePage() {
           </div>
         </div>
       </section>
+      )}
 
       <section className="py-14 md:py-20">
         <div className="container-page">

@@ -33,3 +33,32 @@ export async function submitApplication(payload: SubmissionPayload): Promise<Sub
 
   return data ?? { success: true };
 }
+
+export interface FreezeRequestPayload {
+  name: string;
+  phone: string;
+  email?: string;
+  comment?: string;
+  consent: true;
+  /** Поле-ловушка для ботов, человек его не заполняет. */
+  website?: string;
+}
+
+export async function submitFreezeRequest(payload: FreezeRequestPayload): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/freeze-request`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  let data: { success?: boolean; message?: string } | null = null;
+  try {
+    data = await response.json();
+  } catch {
+    // тело ответа может отсутствовать при сетевой ошибке
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? "Не удалось отправить заявку. Попробуйте ещё раз.");
+  }
+}

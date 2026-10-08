@@ -68,3 +68,43 @@ export async function sendEmailReport(params: {
 
   return { ok: false, error: lastError };
 }
+
+/**
+ * Отправляет письмо конкретному получателю (или нескольким через запятую).
+ * Используется там, где получатель задаётся отдельно от MAIL_TO — например,
+ * копия заявки на заморозку кредита второму адресату.
+ */
+export async function sendEmailTo(params: {
+  to: string;
+  subject: string;
+  html: string;
+}): Promise<EmailSendResult> {
+  const transporter = getTransporter();
+  const from = process.env.MAIL_FROM ?? process.env.SMTP_USER;
+
+  if (!transporter || !from || !params.to) {
+    return { ok: false, error: "SMTP не настроен на сервере или не указан получатель" };
+  }
+
+  const ATTEMPTS = 2;
+  let lastError = "Неизвестная ошибка SMTP";
+
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    try {
+      await transporter.sendMail({
+        from: `"G.M. Broker — заявки с сайта" <${from}>`,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+      });
+      return { ok: true };
+    } catch (error) {
+      lastError = error instanceof Error ? error.message : lastError;
+      if (attempt < ATTEMPTS) {
+        await delay(500);
+      }
+    }
+  }
+
+  return { ok: false, error: lastError };
+}

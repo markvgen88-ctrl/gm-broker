@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { submitRouter } from "./routes/submit.js";
+import { freezeRouter } from "./routes/freeze.js";
 import { adminRouter } from "./routes/admin.js";
 import { ensureSchema } from "./db/schema.js";
 
@@ -37,6 +38,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api", submitRouter);
+app.use("/api", freezeRouter);
 app.use("/api/admin", adminRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -52,6 +54,9 @@ app.listen(PORT, async () => {
   }
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn("⚠️  SMTP не настроен — отправка на почту не будет работать.");
+  }
+  if (!process.env.FREEZE_MAIL_EXTRA) {
+    console.warn("⚠️  FREEZE_MAIL_EXTRA не задан — копия заявок на заморозку кредита второму адресату отправляться не будет.");
   }
   if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) {
     console.warn("⚠️  ADMIN_PASSWORD / ADMIN_SESSION_SECRET не заданы — вход в /admin не будет работать.");

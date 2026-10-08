@@ -1,0 +1,68 @@
+import { Router } from "express";
+import type { Request, Response } from "express";
+import { freezeRequestSchema } from "../lib/freezeValidation.js";
+import { buildFreezeReport } from "../lib/freezeTemplate.js";
+import { sendTelegramMessage } from "../services/telegram.js";
+import { sendEmailReport, sendEmailTo } from "../services/email.js";
+import { saveFreezeRequest } from "../db/freezeRequests.js";
+import { freezeRateLimiter } from "../middleware/rateLimit.js";
+import { withTimeout } from "../lib/withTimeout.js";
+
+export const freezeRouter = Router();
+
+/**
+ * Заявка на «заморозку кредитного договора».
+ *
+ * Уходит в четыре независимых канала: Telegram и письмо брокеру (MAIL_TO),
+ * отдельное письмо второму адресату (FREEZE_MAIL_EXTRA, можно несколько
+ * через запятую) и запись в базу. Успех — если сработал хотя бы один канал,
+ * так заявка не теряется из-за сбоя одного сервиса. Сбои каждого канала
+ * пишутся в лог сервера.
+ */
+freezeRouter.post("/freeze-request", freezeRateLimiter, async (req: Request, res: Response) => {
+  const parsed = freezeRequestSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    const message = parsed.error.issues[0]?.message ?? "Некорректные данные заявки";
+    return res.status(400).json({ success: false, message });
+  }
+
+  // Ловушка для ботов: поле заполнено — изображаем успех, но ничего не отправляем.
+  if (parsed.data.website && parsed.data.website.trim() !== "") {
+    return res.status(200).json({ success: true });
+  }
+
+  const report = buildFreezeReport(parsed.data);
+  const extraTo = (process.env.FREEZE_MAIL_EXTRA ?? "").trim();
+
+  const [telegramResult, emailMain, emailExtra, dbResult] = await Promise.all([
+    withTimeout(sendTelegramMessage(report.telegramText), 8000, { ok: false, error: "Telegram: таймаут запроса" }),
+    withTimeout(sendEmailReport({ subject: report.subject, html: report.html }), 11000, {
+      ok: false,
+      error: "Email (брокер): таймаут запроса",
+    }),
+    extraTo
+      ? withTimeout(sendEmailTo({ to: extraTo, subject: report.subject, html: report.html }), 11000, {
+          ok: false,
+          error: "Email (второй адрес): таймаут запроса",
+        })
+      : Promise.resolve({ ok: false, error: "FREEZE_MAIL_EXTRA не задан на сервере" }),
+    withTimeout(saveFreezeRequest(parsed.data), 6500, { ok: false, error: "База: таймаут запроса" }),
+  ]);
+
+  const results = { telegram: telegramResult, "email-main": emailMain, "email-extra": emailExtra, db: dbResult };
+  for (const [channel, result] of Object.entries(results)) {
+    if (!result.ok) console.error(`[freeze] ${channel} delivery failed:`, result.error);
+  }
+
+  const anySucceeded = telegramResult.ok || emailMain.ok || emailExtra.ok || dbResult.ok;
+  if (!anySucceeded) {
+    console.error("[freeze] All delivery channels failed — request was not saved anywhere.");
+    return res.status(502).json({
+      success: false,
+      message: "Не удалось отправить заявку. Пожалуйста, попробуйте ещё раз чуть позже.",
+    });
+  }
+
+  return res.status(200).json({ success: true });
+});

@@ -39,6 +39,16 @@ export async function ensureSchema(): Promise<void> {
 
       CREATE INDEX IF NOT EXISTS idx_comments_application_id ON application_comments (application_id);
 
+      -- Заявки на «заморозку кредитного договора» (форма на странице услуги).
+      CREATE TABLE IF NOT EXISTS freeze_requests (
+        id SERIAL PRIMARY KEY,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        email TEXT,
+        comment TEXT
+      );
+
       -- Сквозной счётчик номеров договора. Стартовое значение 1492 — это
       -- последний номер, реально выданный старым Telegram-ботом (до
       -- переноса генерации договоров на сайт), следующий выданный здесь
