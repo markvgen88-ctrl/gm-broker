@@ -4,31 +4,39 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "react-router-dom";
 import { HiOutlineCheckCircle } from "react-icons/hi";
-import { cta } from "@/lib/cta";
+import { Button } from "@/components/ui/Button";
 import { submitFreezeRequest } from "@/lib/api";
 
+// Тот же формат телефона и те же правила, что в анкете (FinalStep).
 const PHONE_REGEX = /^(\+7|8|7)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
 
 const schema = z.object({
-  name: z.string().trim().min(2, "Укажите имя").max(120, "Слишком длинное имя"),
-  phone: z.string().trim().regex(PHONE_REGEX, "Укажите корректный номер телефона"),
-  email: z
+  name: z.string().trim().min(2, "Укажите, как к вам обращаться"),
+  phone: z
     .string()
     .trim()
-    .refine((v) => v === "" || z.string().email().safeParse(v).success, "Укажите корректный e-mail"),
+    .min(10, "Укажите номер телефона для связи")
+    .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
+  email: z.string().trim().email("Укажите корректный e-mail"),
   comment: z.string().trim().max(2000, "Комментарий слишком длинный (до 2000 символов)"),
-  consent: z.boolean().refine((v) => v === true, "Нужно согласие на обработку персональных данных"),
+  consent: z.boolean().refine((v) => v === true, {
+    message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
+  }),
   website: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
+const labelCls = "mb-2 block text-xs font-medium uppercase tracking-wider text-metal";
 const inputCls =
-  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3.5 text-base text-white placeholder:text-white/40 transition-colors focus:border-pine-bright focus:outline-none";
-const labelCls = "mb-2 block text-sm font-medium text-white/70";
-const errCls = "mt-1.5 text-sm text-[#f0b4b4]";
+  "w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none";
+const errCls = "mt-2 text-sm text-[#e5a3a3]";
 
-/** Форма заявки на «заморозку кредитного договора». Светлый текст — форма стоит на тёмном фоне. */
+/**
+ * Форма заявки на «заморозку кредитного договора». Оформление и поля — как на
+ * последнем шаге опроса (FinalStep), плюс необязательный комментарий.
+ * Рассчитана на тёмный фон со скином `.wizard-skin`.
+ */
 export function FreezeRequestForm() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -48,7 +56,7 @@ export function FreezeRequestForm() {
       await submitFreezeRequest({
         name: values.name,
         phone: values.phone,
-        email: values.email || undefined,
+        email: values.email,
         comment: values.comment || undefined,
         consent: true,
         website: values.website,
@@ -61,10 +69,10 @@ export function FreezeRequestForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-8 text-center md:p-10" role="status">
-        <HiOutlineCheckCircle className="mx-auto text-pine-bright" size={48} />
-        <h3 className="mt-4 font-display text-2xl font-bold text-white">Заявка отправлена</h3>
-        <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-white/70">
+      <div className="rounded-3xl border border-white/10 bg-graphite p-8 text-center md:p-10" role="status">
+        <HiOutlineCheckCircle className="mx-auto text-gold" size={48} />
+        <h3 className="mt-4 font-display text-2xl font-semibold text-silver">Заявка отправлена</h3>
+        <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-metal">
           Свяжемся с вами, обсудим вашу ситуацию и скажем, возможна ли отсрочка по вашим кредитам.
         </p>
       </div>
@@ -75,19 +83,26 @@ export function FreezeRequestForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8"
+      className="relative rounded-3xl border border-white/10 bg-graphite p-6 md:p-10"
     >
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-5">
         <div>
           <label htmlFor="fr-name" className={labelCls}>
             Имя
           </label>
-          <input id="fr-name" type="text" autoComplete="name" placeholder="Как к вам обращаться" className={inputCls} {...register("name")} />
+          <input
+            id="fr-name"
+            autoComplete="name"
+            placeholder="Как к вам обращаться"
+            className={inputCls}
+            {...register("name")}
+          />
           {errors.name && <p className={errCls}>{errors.name.message}</p>}
         </div>
+
         <div>
           <label htmlFor="fr-phone" className={labelCls}>
-            Телефон
+            Номер телефона
           </label>
           <input
             id="fr-phone"
@@ -100,56 +115,74 @@ export function FreezeRequestForm() {
           />
           {errors.phone && <p className={errCls}>{errors.phone.message}</p>}
         </div>
-      </div>
 
-      <div className="mt-5">
-        <label htmlFor="fr-email" className={labelCls}>
-          E-mail <span className="text-white/40">(по желанию)</span>
-        </label>
-        <input id="fr-email" type="email" autoComplete="email" inputMode="email" placeholder="Адрес электронной почты" className={inputCls} {...register("email")} />
-        {errors.email && <p className={errCls}>{errors.email.message}</p>}
-      </div>
+        <div>
+          <label htmlFor="fr-email" className={labelCls}>
+            E-mail
+          </label>
+          <input
+            id="fr-email"
+            type="email"
+            autoComplete="email"
+            inputMode="email"
+            placeholder="Укажите ваш актуальный адрес эл. почты"
+            className={inputCls}
+            {...register("email")}
+          />
+          {errors.email && <p className={errCls}>{errors.email.message}</p>}
+        </div>
 
-      <div className="mt-5">
-        <label htmlFor="fr-comment" className={labelCls}>
-          Комментарий <span className="text-white/40">(по желанию)</span>
-        </label>
-        <textarea
-          id="fr-comment"
-          rows={4}
-          placeholder="Какие кредиты, какой ежемесячный платёж, что хотите решить"
-          className={inputCls}
-          {...register("comment")}
-        />
-        {errors.comment && <p className={errCls}>{errors.comment.message}</p>}
-      </div>
+        <div>
+          <label htmlFor="fr-comment" className={labelCls}>
+            Комментарий
+          </label>
+          <textarea
+            id="fr-comment"
+            rows={4}
+            placeholder="Какие кредиты, какой ежемесячный платёж, что хотите решить (по желанию)"
+            className={inputCls}
+            {...register("comment")}
+          />
+          {errors.comment && <p className={errCls}>{errors.comment.message}</p>}
+        </div>
 
-      {/* Ловушка для ботов: скрыта от людей и от скринридеров */}
-      <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
-        <label htmlFor="fr-website">Сайт</label>
-        <input id="fr-website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />
-      </div>
+        {/* Ловушка для ботов: скрыта от людей и от скринридеров */}
+        <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">
+          <label htmlFor="fr-website">Сайт</label>
+          <input id="fr-website" type="text" tabIndex={-1} autoComplete="off" {...register("website")} />
+        </div>
 
-      <div className="mt-6">
-        <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-white/70">
-          <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-[#34c49a]" {...register("consent")} />
-          <span>
-            Я даю согласие на обработку персональных данных и их передачу исполнителю услуги в соответствии с{" "}
-            <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-pine-bright underline underline-offset-2">
-              Политикой конфиденциальности
-            </Link>
-          </span>
-        </label>
-        {errors.consent && <p className={errCls}>{errors.consent.message}</p>}
+        <div>
+          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-metal">
+            <input type="checkbox" className="mt-0.5 h-4 w-4 shrink-0 accent-gold" {...register("consent")} />
+            <span>
+              Я даю согласие на обработку персональных данных в соответствии с{" "}
+              <Link
+                to="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gold underline underline-offset-2 hover:text-gold-deep"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Политикой конфиденциальности
+              </Link>
+            </span>
+          </label>
+          {errors.consent && <p className={errCls}>{errors.consent.message}</p>}
+        </div>
       </div>
 
       {submitError && (
-        <p className="mt-5 rounded-lg border border-[#f0b4b4]/30 bg-[#f0b4b4]/10 px-4 py-3 text-sm text-[#f0b4b4]">{submitError}</p>
+        <p className="mt-5 rounded-lg border border-[#e5a3a3]/30 bg-[#e5a3a3]/10 px-4 py-3 text-sm text-[#e5a3a3]">
+          {submitError}
+        </p>
       )}
 
-      <button type="submit" disabled={isSubmitting} className={cta("bright", "lg", "mt-7 w-full sm:w-auto")}>
-        {isSubmitting ? "Отправляем…" : "Отправить заявку"}
-      </button>
+      <div className="mt-8 flex justify-end">
+        <Button type="submit" size="lg" disabled={isSubmitting}>
+          {isSubmitting ? "Отправляем…" : "Отправить заявку"}
+        </Button>
+      </div>
     </form>
   );
 }

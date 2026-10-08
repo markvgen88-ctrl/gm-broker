@@ -20,7 +20,7 @@ export function buildFreezeReport(data: FreezeRequestInput, receivedAt: Date = n
   const rows: [string, string][] = [
     ["Имя", data.name],
     ["Телефон", data.phone],
-    ["E-mail", data.email || "не указан"],
+    ["E-mail", data.email],
     ["Комментарий", data.comment || "не указан"],
     ["Получена", `${when} (МСК)`],
   ];

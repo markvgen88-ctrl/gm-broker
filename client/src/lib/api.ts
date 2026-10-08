@@ -37,7 +37,7 @@ export async function submitApplication(payload: SubmissionPayload): Promise<Sub
 export interface FreezeRequestPayload {
   name: string;
   phone: string;
-  email?: string;
+  email: string;
   comment?: string;
   consent: true;
   /** Поле-ловушка для ботов, человек его не заполняет. */

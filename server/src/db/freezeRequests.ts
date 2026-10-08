@@ -17,7 +17,7 @@ export async function saveFreezeRequest(data: FreezeRequestInput): Promise<Freez
   try {
     await pool.query(
       `INSERT INTO freeze_requests (name, phone, email, comment) VALUES ($1, $2, $3, $4)`,
-      [data.name, data.phone, data.email || null, data.comment || null]
+      [data.name, data.phone, data.email, data.comment || null]
     );
     return { ok: true };
   } catch (error) {
