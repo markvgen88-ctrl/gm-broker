@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import { freezeRequestSchema } from "../lib/freezeValidation.js";
 import { buildFreezeReport } from "../lib/freezeTemplate.js";
 import { sendTelegramMessage } from "../services/telegram.js";
-import { sendEmailReport, sendEmailTo } from "../services/email.js";
+import { sendEmailReport } from "../services/email.js";
 import { saveFreezeRequest } from "../db/freezeRequests.js";
 import { freezeRateLimiter } from "../middleware/rateLimit.js";
 import { withTimeout } from "../lib/withTimeout.js";
@@ -13,11 +13,10 @@ export const freezeRouter = Router();
 /**
  * Заявка на «заморозку кредитного договора».
  *
- * Уходит в четыре независимых канала: Telegram и письмо брокеру (MAIL_TO),
- * отдельное письмо второму адресату (FREEZE_MAIL_EXTRA, можно несколько
- * через запятую) и запись в базу. Успех — если сработал хотя бы один канал,
- * так заявка не теряется из-за сбоя одного сервиса. Сбои каждого канала
- * пишутся в лог сервера.
+ * Получает только брокер и уходит в три независимых канала: Telegram,
+ * письмо на MAIL_TO и запись в базу. Успех — если сработал хотя бы один
+ * канал, так заявка не теряется из-за сбоя одного сервиса. Сбои каждого
+ * канала пишутся в лог сервера.
  */
 freezeRouter.post("/freeze-request", freezeRateLimiter, async (req: Request, res: Response) => {
   const parsed = freezeRequestSchema.safeParse(req.body);
@@ -33,29 +32,22 @@ freezeRouter.post("/freeze-request", freezeRateLimiter, async (req: Request, res
   }
 
   const report = buildFreezeReport(parsed.data);
-  const extraTo = (process.env.FREEZE_MAIL_EXTRA ?? "").trim();
 
-  const [telegramResult, emailMain, emailExtra, dbResult] = await Promise.all([
+  const [telegramResult, emailResult, dbResult] = await Promise.all([
     withTimeout(sendTelegramMessage(report.telegramText), 8000, { ok: false, error: "Telegram: таймаут запроса" }),
     withTimeout(sendEmailReport({ subject: report.subject, html: report.html }), 11000, {
       ok: false,
-      error: "Email (брокер): таймаут запроса",
+      error: "Email: таймаут запроса",
     }),
-    extraTo
-      ? withTimeout(sendEmailTo({ to: extraTo, subject: report.subject, html: report.html }), 11000, {
-          ok: false,
-          error: "Email (второй адрес): таймаут запроса",
-        })
-      : Promise.resolve({ ok: false, error: "FREEZE_MAIL_EXTRA не задан на сервере" }),
     withTimeout(saveFreezeRequest(parsed.data), 6500, { ok: false, error: "База: таймаут запроса" }),
   ]);
 
-  const results = { telegram: telegramResult, "email-main": emailMain, "email-extra": emailExtra, db: dbResult };
+  const results = { telegram: telegramResult, email: emailResult, db: dbResult };
   for (const [channel, result] of Object.entries(results)) {
     if (!result.ok) console.error(`[freeze] ${channel} delivery failed:`, result.error);
   }
 
-  const anySucceeded = telegramResult.ok || emailMain.ok || emailExtra.ok || dbResult.ok;
+  const anySucceeded = telegramResult.ok || emailResult.ok || dbResult.ok;
   if (!anySucceeded) {
     console.error("[freeze] All delivery channels failed — request was not saved anywhere.");
     return res.status(502).json({

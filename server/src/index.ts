@@ -55,9 +55,6 @@ app.listen(PORT, async () => {
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.warn("⚠️  SMTP не настроен — отправка на почту не будет работать.");
   }
-  if (!process.env.FREEZE_MAIL_EXTRA) {
-    console.warn("⚠️  FREEZE_MAIL_EXTRA не задан — копия заявок на заморозку кредита второму адресату отправляться не будет.");
-  }
   if (!process.env.ADMIN_PASSWORD || !process.env.ADMIN_SESSION_SECRET) {
     console.warn("⚠️  ADMIN_PASSWORD / ADMIN_SESSION_SECRET не заданы — вход в /admin не будет работать.");
   }
