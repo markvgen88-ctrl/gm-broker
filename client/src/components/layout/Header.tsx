@@ -74,7 +74,7 @@ export function Header() {
     <header
       className={cn(
         "fixed inset-x-0 top-0 z-50 border-b transition-colors duration-200",
-        scrolled || menuOpen ? "border-line bg-paper/95 backdrop-blur" : "border-transparent bg-paper"
+        scrolled || menuOpen ? "border-line bg-paper/90 backdrop-blur" : "border-transparent bg-paper/60 backdrop-blur"
       )}
     >
       <div className="container-page flex h-[4.25rem] items-center justify-between gap-6">

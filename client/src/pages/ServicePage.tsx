@@ -67,7 +67,7 @@ export function ServicePage() {
         </div>
       </div>
 
-      <section className="bg-white py-14 md:py-20">
+      <section className="bg-white/65 py-14 md:py-20">
         <div className="container-page grid gap-12 md:grid-cols-3">
           <List title={service.listTitles?.[0] ?? "Кому подходит"} items={service.forWhom} />
           <List title={service.listTitles?.[1] ?? "Что я делаю"} items={service.whatIDo} />

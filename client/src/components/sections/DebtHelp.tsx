@@ -12,7 +12,7 @@ const LINKS = [
 
 export function DebtHelp() {
   return (
-    <section id="debts" className="section-y scroll-mt-16 bg-white">
+    <section id="debts" className="section-y scroll-mt-16 bg-white/65">
       <div className="container-page grid gap-10 lg:grid-cols-[1fr_1fr] lg:gap-16">
         <SectionHeading
           eyebrow="Юридическая помощь"

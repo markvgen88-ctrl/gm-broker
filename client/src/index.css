@@ -184,6 +184,26 @@ body.is-public {
   background-color: var(--color-paper);
   color: var(--color-ink);
 }
+/* Фоновое изображение всего публичного сайта: фиксированный слой под
+   контентом (надёжнее background-attachment: fixed, который глючит на iOS). */
+body.is-public::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--color-paper);
+  background-image: url("./assets/site-bg.webp");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 767px) {
+  body.is-public::before {
+    background-image: url("./assets/site-bg-mobile.webp");
+    background-position: right center;
+  }
+}
 body.is-public ::selection {
   background: var(--color-pine);
   color: #fff;
