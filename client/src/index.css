@@ -198,10 +198,11 @@ body.is-public::before {
   background-position: center;
   background-repeat: no-repeat;
 }
+/* Мобильный фон: вертикальная версия в том же стиле. */
 @media (max-width: 767px) {
   body.is-public::before {
     background-image: url("./assets/site-bg-mobile.webp");
-    background-position: right center;
+    background-position: center;
   }
 }
 body.is-public ::selection {
