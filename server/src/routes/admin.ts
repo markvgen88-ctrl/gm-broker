@@ -20,6 +20,18 @@ import { generateContractDocx } from "../lib/contractTemplate.js";
 
 export const adminRouter = Router();
 
+/**
+ * Ответы /admin/* зависят от сессионной куки, поэтому их нельзя кэшировать ни
+ * в браузере, ни в промежуточных прокси хостинга: иначе ответ 401, полученный
+ * до входа, может «залипнуть» и вернуть на форму входа уже после правильного
+ * пароля (лечится только F5). Заголовок ставится до проверки авторизации, так
+ * что действует и на ответы 401/503.
+ */
+adminRouter.use((_req: Request, res: Response, next: () => void) => {
+  res.setHeader("Cache-Control", "no-store");
+  next();
+});
+
 /** База не настроена — все /admin/* эндпоинты (кроме логина) недоступны. */
 function requireDatabase(_req: Request, res: Response, next: () => void): void {
   if (!isDatabaseConfigured()) {
