@@ -1,21 +1,34 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { adminCheckSession, adminLogout } from "@/lib/adminApi";
 
 export function AdminLayout() {
   const [authState, setAuthState] = useState<"checking" | "authed" | "guest">("checking");
   const navigate = useNavigate();
+  const location = useLocation();
+  const justLoggedIn = Boolean((location.state as { justLoggedIn?: boolean } | null)?.justLoggedIn);
 
   useEffect(() => {
     let cancelled = false;
-    adminCheckSession().then((ok) => {
+    // Сразу после входа первая проверка сессии иногда не проходит (кука ещё не
+    // «закрепилась» в браузере), хотя после F5 всё работает. Поэтому только в
+    // этом случае даём ещё две попытки с паузой, прежде чем вернуть на логин.
+    const retryDelays = justLoggedIn ? [400, 1200] : [];
+    (async () => {
+      let ok = await adminCheckSession();
+      for (const delay of retryDelays) {
+        if (ok || cancelled) break;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        if (cancelled) break;
+        ok = await adminCheckSession();
+      }
       if (!cancelled) setAuthState(ok ? "authed" : "guest");
-    });
+    })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [justLoggedIn]);
 
   const handleLogout = async () => {
     await adminLogout();

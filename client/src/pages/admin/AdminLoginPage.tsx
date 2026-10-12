@@ -25,7 +25,7 @@ export function AdminLoginPage() {
     setLoading(true);
     try {
       await adminLogin(password);
-      navigate("/admin", { replace: true });
+      navigate("/admin", { replace: true, state: { justLoggedIn: true } });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось войти");
     } finally {

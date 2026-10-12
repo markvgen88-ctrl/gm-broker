@@ -66,7 +66,10 @@ export async function adminLogout(): Promise<void> {
 
 export async function adminCheckSession(): Promise<boolean> {
   try {
-    await adminFetch("/session");
+    // no-store: браузер не должен подставлять запомненный ответ 401, полученный
+    // до входа (например, на странице логина), — иначе сразу после входа
+    // проверка сессии «видит» старый отказ и возвращает на форму.
+    await adminFetch("/session", { cache: "no-store" });
     return true;
   } catch {
     return false;
