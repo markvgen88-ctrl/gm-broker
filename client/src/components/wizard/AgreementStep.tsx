@@ -15,7 +15,7 @@ export function AgreementStep({ node, onAnswer, onBack, canGoBack }: AgreementSt
 
   return (
     <div>
-      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
+      <h3 className="text-2xl leading-snug text-silver md:text-[1.9rem]">
         {node.question}
       </h3>
 
@@ -25,7 +25,7 @@ export function AgreementStep({ node, onAnswer, onBack, canGoBack }: AgreementSt
         ))}
       </div>
 
-      <label className="mt-8 flex cursor-pointer items-start gap-3 rounded-xl metal-border bg-graphite/40 px-5 py-4 text-sm leading-relaxed text-metal">
+      <label className="mt-8 flex cursor-pointer items-start gap-3 rounded-lg border border-white/15 px-5 py-4 text-sm leading-relaxed text-metal">
         <input
           type="checkbox"
           checked={checked}

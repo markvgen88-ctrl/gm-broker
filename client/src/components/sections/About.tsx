@@ -15,7 +15,7 @@ export function About() {
           <img
             src={brokerPhoto}
             alt="Геннадий Марков, основатель G.M. Broker"
-            className="aspect-[4/5] w-full rounded-3xl object-cover object-top"
+            className="aspect-[4/5] w-full rounded-xl object-cover object-top outline outline-1 outline-offset-[10px] outline-champagne/50"
             width={360}
             height={450}
             loading="lazy"

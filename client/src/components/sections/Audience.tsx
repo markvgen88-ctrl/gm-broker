@@ -15,8 +15,8 @@ export function Audience() {
         <div className="mt-12 grid gap-x-10 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
           {SEGMENTS.map((s) => (
             <div key={s.title}>
-              <h3 className="font-display text-lg font-bold leading-snug tracking-tight text-ink">{s.title}</h3>
-              <ul className="mt-4 flex flex-col gap-3 border-l-2 border-pine pl-4">
+              <h3 className="text-xl leading-snug text-ink">{s.title}</h3>
+              <ul className="mt-4 flex flex-col gap-3 border-l border-champagne pl-5">
                 {s.points.map((p) => (
                   <li key={p} className="text-[0.95rem] leading-relaxed text-muted">
                     {p}

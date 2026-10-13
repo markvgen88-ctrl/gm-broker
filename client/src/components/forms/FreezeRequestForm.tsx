@@ -29,7 +29,7 @@ type FormValues = z.infer<typeof schema>;
 
 const labelCls = "mb-2 block text-xs font-medium uppercase tracking-wider text-metal";
 const inputCls =
-  "w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none";
+  "wiz-input";
 const errCls = "mt-2 text-sm text-[#e5a3a3]";
 
 /**
@@ -69,7 +69,7 @@ export function FreezeRequestForm() {
 
   if (submitted) {
     return (
-      <div className="rounded-3xl border border-white/10 bg-graphite p-8 text-center md:p-10" role="status">
+      <div className="rounded-2xl border border-gold/25 bg-graphite p-8 text-center md:p-12" role="status">
         <HiOutlineCheckCircle className="mx-auto text-gold" size={48} />
         <h3 className="mt-4 font-display text-2xl font-semibold text-silver">Заявка отправлена</h3>
         <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-metal">
@@ -83,7 +83,7 @@ export function FreezeRequestForm() {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="relative rounded-3xl border border-white/10 bg-graphite p-6 md:p-10"
+      className="relative wizard-card rounded-2xl border border-gold/25 bg-graphite px-6 py-8 md:px-12 md:py-12"
     >
       <div className="grid gap-5">
         <div>

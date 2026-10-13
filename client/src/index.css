@@ -12,15 +12,17 @@
   --color-accent: #ffffff;
 
   /* ---- Новая публичная палитра (v2) ---- */
-  --color-paper: #f5f6f2;
+  --color-paper: #f6f4ee;
   --color-ink: #0f1e19;
   --color-ink-soft: #173029;
   --color-pine: #0d6150;
   --color-pine-deep: #0b5845;
-  --color-pine-bright: #34c49a;
-  --color-mint: #e4f0e9;
+  /* «Шампань»: светлый акцент на тёмных зонах (раньше — яркая мята) */
+  --color-pine-bright: #d6bd8a;
+  --color-champagne: #b89b5e;
+  --color-mint: #eceee6;
   --color-brass: #b8923a;
-  --color-line: #d9e0da;
+  --color-line: #ddd8c8;
   --color-muted: #3b4b44;
 
   --font-display: "Onest", ui-sans-serif, system-ui, sans-serif;
@@ -195,7 +197,7 @@ body.is-public::before {
   background-color: var(--color-paper);
   /* светлая «вуаль» поверх картинки — чтобы текст всегда читался */
   background-image:
-    linear-gradient(rgb(245 246 242 / 0.3), rgb(245 246 242 / 0.3)),
+    linear-gradient(rgb(246 244 238 / 0.62), rgb(246 244 238 / 0.62)),
     url("./assets/site-bg.webp");
   background-size: cover;
   background-position: center;
@@ -205,7 +207,7 @@ body.is-public::before {
 @media (max-width: 767px) {
   body.is-public::before {
     background-image:
-      linear-gradient(rgb(245 246 242 / 0.45), rgb(245 246 242 / 0.45)),
+      linear-gradient(rgb(246 244 238 / 0.7), rgb(246 244 238 / 0.7)),
       url("./assets/site-bg-mobile.webp");
     background-position: center;
   }
@@ -234,22 +236,80 @@ body.is-public ::-webkit-scrollbar-thumb {
   --color-graphite-soft: #183128;
   --color-metal: #b9c8c0;
   --color-silver: #f2f6f3;
-  --color-gold: #34c49a;
-  --color-gold-deep: #1fa07c;
+  --color-gold: #d6bd8a;
+  --color-gold-deep: #b89b5e;
 }
 .wizard-skin :focus-visible {
   outline-color: var(--color-pine-bright);
 }
 
 .section-y {
-  padding-block: 4.5rem;
+  padding-block: 5.5rem;
 }
 @media (min-width: 1024px) {
   .section-y {
-    padding-block: 7rem;
+    padding-block: 9rem;
   }
 }
 
 .measure {
   max-width: 62ch;
+}
+
+
+/* =========================================================
+   «Тихая роскошь»: заголовки с засечками, шампань, тонкие линии
+   ========================================================= */
+body.is-public h1,
+body.is-public h2,
+body.is-public h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+}
+body.is-public h3 {
+  font-weight: 600;
+}
+
+/* Карточка опроса: тонкая линия шампани по верхнему краю */
+.wizard-card {
+  position: relative;
+}
+.wizard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 2.5rem auto 2.5rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  opacity: 0.7;
+}
+
+/* Поля опроса: только нижняя линия, крупный шрифт с засечками */
+.wiz-input {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 0.28);
+  border-radius: 0;
+  background: transparent;
+  padding: 0.9rem 0;
+  color: var(--color-silver);
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  line-height: 1.4;
+  transition: border-color 0.25s;
+}
+.wiz-input::placeholder {
+  color: rgb(185 200 192 / 0.45);
+  font-style: italic;
+}
+.wiz-input:focus {
+  border-bottom-color: var(--color-gold);
+}
+.wizard-skin .wiz-input:focus-visible {
+  outline: none;
+}
+
+/* Вопросы опроса — спокойнее, чем заголовки секций */
+body.is-public .wizard-card h3 {
+  font-weight: 500;
 }

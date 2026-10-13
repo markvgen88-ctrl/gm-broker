@@ -12,12 +12,12 @@ interface ChoiceStepProps {
 export function ChoiceStep({ node, onAnswer, onBack, canGoBack }: ChoiceStepProps) {
   return (
     <div>
-      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
+      <h3 className="text-2xl leading-snug text-silver md:text-[1.9rem]">
         {node.question}
       </h3>
       {node.hint && <p className="mt-3 text-sm leading-relaxed text-metal md:text-base">{node.hint}</p>}
 
-      <div className="mt-8 grid gap-3 sm:grid-cols-2">
+      <div className="mt-10 grid gap-3 sm:grid-cols-2">
         {node.options.map((option, i) => (
           <motion.button
             key={option.value}
@@ -26,7 +26,7 @@ export function ChoiceStep({ node, onAnswer, onBack, canGoBack }: ChoiceStepProp
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: i * 0.06 }}
             onClick={() => onAnswer(option.value, option.next)}
-            className="group flex items-center justify-between gap-3 rounded-xl metal-border px-5 py-4 text-left text-sm font-medium text-silver transition-all duration-250 hover:border-gold/60 hover:bg-gold/[0.06] active:scale-[0.98] md:text-base"
+            className="group flex items-center justify-between gap-3 rounded-lg border border-white/15 px-5 py-5 text-left text-base font-medium text-silver transition-colors duration-300 hover:border-gold hover:bg-white/[0.04] active:bg-white/[0.07]"
           >
             {option.label}
             <HiOutlineArrowRight className="shrink-0 text-metal transition-all duration-250 group-hover:translate-x-1 group-hover:text-gold" />

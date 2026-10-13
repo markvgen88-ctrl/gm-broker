@@ -16,13 +16,13 @@ export function Process() {
           title="Как проходит работа: пять шагов от заявки до денег"
           description="Работа по подбору кредита начинается только после подписания договора."
         />
-        <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
+        <ol className="mt-14 grid gap-x-8 gap-y-10 md:grid-cols-5">
           {STEPS.map((s, i) => (
-            <li key={s.title} className="bg-white p-6">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-ink font-display text-sm font-bold text-white">
-                {i + 1}
+            <li key={s.title} className="border-t border-champagne/60 pt-5">
+              <span className="font-serif text-4xl font-medium leading-none text-champagne">
+                {String(i + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-5 font-display text-lg font-bold leading-snug tracking-tight text-ink">{s.title}</h3>
+              <h3 className="mt-5 text-lg leading-snug text-ink">{s.title}</h3>
               <p className="mt-2 text-[0.95rem] leading-relaxed text-muted">{s.text}</p>
             </li>
           ))}
