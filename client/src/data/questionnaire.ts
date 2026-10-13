@@ -37,6 +37,15 @@ import type { QuestionnaireGraph } from "@/types/questionnaire";
  *    перед формой контактов; вставлен в каждую ветку по карте. В версии
  *    от 11.10.2026 в него добавлена строка о комиссии брокера (15%) и
  *    слова «ознакомлен(а) с комиссией» в тексте чекбокса.
+ *  - Версия карты от 13.10.2026: (1) в начале ветки физлица после города по
+ *    прописке добавлены «Фактический адрес проживания? (Город-район)»
+ *    (f_actual_address) и «Карты каких банков у вас уже открыты?»
+ *    (f_bank_cards) — до вопроса о банкротстве; их же проходит ИП,
+ *    согласившийся на рассмотрение как физлицо. (2) В ветке ИП после ИНН
+ *    добавлена цепочка: доход официальный/неофициальный → деятельность →
+ *    основной банк по тратам → карты банков → фактический адрес → сумма
+ *    кредита (ip_income_type, ip_activity, ip_main_bank, ip_bank_cards,
+ *    ip_actual_address). Все семь вопросов — текстовые поля без ветвления.
  *  - ИП/ООО: логика согласований (дата открытия/регистрации, альтернатива
  *    при недостаточном сроке) не изменилась.
  *
@@ -87,6 +96,26 @@ export const questionnaireGraph: QuestionnaireGraph = {
     inputType: "text",
     question: "Город проживания по прописке",
     placeholder: "Например, Москва",
+    next: "f_actual_address",
+  },
+
+  f_actual_address: {
+    id: "f_actual_address",
+    kind: "input",
+    field: "actualAddress",
+    inputType: "text",
+    question: "Фактический адрес проживания? (Город-район)",
+    placeholder: "Например, Москва, Хамовники",
+    next: "f_bank_cards",
+  },
+
+  f_bank_cards: {
+    id: "f_bank_cards",
+    kind: "input",
+    field: "bankCards",
+    inputType: "text",
+    question: "Карты каких банков у вас уже открыты?",
+    placeholder: "Например, Сбербанк, Т-Банк, Альфа-Банк",
     next: "f_bankruptcy",
   },
 
@@ -1162,6 +1191,56 @@ export const questionnaireGraph: QuestionnaireGraph = {
     inputType: "text",
     question: "Напишите ИНН",
     placeholder: "12 цифр",
+    next: "ip_income_type",
+  },
+
+  ip_income_type: {
+    id: "ip_income_type",
+    kind: "input",
+    field: "incomeType",
+    inputType: "text",
+    question: "Доход официальный или неофициальный?",
+    placeholder: "Например: официальный (по декларации / выписке)",
+    next: "ip_activity",
+  },
+
+  ip_activity: {
+    id: "ip_activity",
+    kind: "input",
+    field: "activityType",
+    inputType: "text",
+    question: "С какой деятельности зарабатываете деньги, что делаете?",
+    placeholder: "Например: грузоперевозки, розничная торговля",
+    next: "ip_main_bank",
+  },
+
+  ip_main_bank: {
+    id: "ip_main_bank",
+    kind: "input",
+    field: "mainSpendingBank",
+    inputType: "text",
+    question: "Какой банк основной по тратам?",
+    placeholder: "Например, Сбербанк",
+    next: "ip_bank_cards",
+  },
+
+  ip_bank_cards: {
+    id: "ip_bank_cards",
+    kind: "input",
+    field: "bankCards",
+    inputType: "text",
+    question: "Карты каких банков у вас уже открыты?",
+    placeholder: "Например, Сбербанк, Т-Банк, Альфа-Банк",
+    next: "ip_actual_address",
+  },
+
+  ip_actual_address: {
+    id: "ip_actual_address",
+    kind: "input",
+    field: "actualAddress",
+    inputType: "text",
+    question: "Фактический адрес проживания? (Город-район)",
+    placeholder: "Например, Москва, Хамовники",
     next: "ip_loan_amount",
   },
 
