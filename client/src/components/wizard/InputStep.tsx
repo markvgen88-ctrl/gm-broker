@@ -99,12 +99,12 @@ export function InputStep({ node, defaultValue, onAnswer, onBack, canGoBack }: I
 
   return (
     <form onSubmit={onSubmit}>
-      <h3 className="text-2xl leading-snug text-silver md:text-[1.9rem]">
+      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
         {node.question}
       </h3>
       {node.hint && <p className="mt-3 text-sm leading-relaxed text-metal md:text-base">{node.hint}</p>}
 
-      <div className="mt-10">
+      <div className="mt-8">
         <div className="relative">
           <input
             {...rest}
@@ -119,10 +119,10 @@ export function InputStep({ node, defaultValue, onAnswer, onBack, canGoBack }: I
             max={node.inputType === "date" ? TODAY_ISO : undefined}
             placeholder={node.placeholder}
             autoComplete="off"
-            className="wiz-input pr-12 [color-scheme:dark]"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 pr-16 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none md:text-lg [color-scheme:dark]"
           />
           {node.suffix && (
-            <span className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 font-serif text-lg text-gold">
+            <span className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-sm font-medium text-gold">
               {node.suffix}
             </span>
           )}

@@ -23,7 +23,7 @@ export function DeclineStep({ node, onBack, onReset, canGoBack }: DeclineStepPro
       <div className="mb-6 grid h-16 w-16 place-items-center rounded-full bg-white/5 text-metal">
         <HiOutlineInformationCircle size={36} />
       </div>
-      <h3 className="text-2xl leading-snug text-silver md:text-[1.9rem]">
+      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
         {node.message}
       </h3>
       {node.hint && (

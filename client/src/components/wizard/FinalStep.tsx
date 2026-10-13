@@ -45,7 +45,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <h3 className="text-2xl leading-snug text-silver md:text-[1.9rem]">
+      <h3 className="font-display text-xl font-semibold leading-snug text-silver md:text-2xl">
         {node.question}
       </h3>
       {node.hint && <p className="mt-3 text-sm leading-relaxed text-metal md:text-base">{node.hint}</p>}
@@ -59,7 +59,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
             id="name"
             autoComplete="name"
             placeholder="Как к вам обращаться"
-            className="wiz-input"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
             {...register("name")}
           />
           {errors.name && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.name.message}</p>}
@@ -75,7 +75,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
             autoComplete="tel"
             inputMode="tel"
             placeholder="+7 (___) ___-__-__"
-            className="wiz-input"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
             {...register("phone")}
           />
           {errors.phone && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.phone.message}</p>}
@@ -91,7 +91,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
             autoComplete="email"
             inputMode="email"
             placeholder="Укажите ваш актуальный адрес эл. почты"
-            className="wiz-input"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
             {...register("contactInfo")}
           />
           {errors.contactInfo && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.contactInfo.message}</p>}

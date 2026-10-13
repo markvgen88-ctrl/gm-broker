@@ -80,7 +80,7 @@ export function Header() {
       <div className="container-page flex h-[4.25rem] items-center justify-between gap-6">
         <Link to="/" onClick={handleLogoClick} className="flex items-center gap-2.5" aria-label="G.M. Broker — на главную">
           <img src={logo} alt="" className="h-9 w-9" width={36} height={36} />
-          <span className="whitespace-nowrap font-serif text-lg font-semibold tracking-tight text-ink">G.M. Broker</span>
+          <span className="whitespace-nowrap font-display text-base font-bold tracking-tight text-ink">G.M. Broker</span>
         </Link>
 
         <nav className="hidden items-center gap-5 xl:flex" aria-label="Основное меню">

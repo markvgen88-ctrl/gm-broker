@@ -14,9 +14,8 @@ export function SectionHeading({ title, description, eyebrow, tone = "light", cl
   const dark = tone === "dark";
   return (
     <div className={cn("max-w-3xl", className)}>
-      <span aria-hidden className="mb-6 block h-px w-12 bg-champagne [.text-center_&]:mx-auto" />
       {eyebrow && (
-        <p className={cn("mb-4 text-xs font-semibold uppercase tracking-[0.22em]", dark ? "text-pine-bright" : "text-[#86692c]")}>{eyebrow}</p>
+        <p className={cn("mb-3 text-sm font-semibold", dark ? "text-pine-bright" : "text-pine")}>{eyebrow}</p>
       )}
       <h2
         className={cn(

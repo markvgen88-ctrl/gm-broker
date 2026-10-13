@@ -15,9 +15,9 @@ import { reachGoal, WIZARD_GOALS } from "@/lib/metrika";
 import type { AnswersState } from "@/types/questionnaire";
 
 const slideVariants = {
-  enter: (direction: 1 | -1) => ({ opacity: 0, x: direction * 20 }),
+  enter: (direction: 1 | -1) => ({ opacity: 0, x: direction * 32 }),
   center: { opacity: 1, x: 0 },
-  exit: (direction: 1 | -1) => ({ opacity: 0, x: direction * -20 }),
+  exit: (direction: 1 | -1) => ({ opacity: 0, x: direction * -32 }),
 };
 
 export function Wizard() {
@@ -66,14 +66,13 @@ export function Wizard() {
       <div className="container-page">
         <SectionHeading
           tone="dark"
-          eyebrow="Опрос"
           title="Пройдите опрос: узнайте свои шансы за 2 минуты"
           description="Это короткий пошаговый опрос, а не длинная анкета. Отвечайте честно: данные используются только для оценки вашей ситуации."
           className="mx-auto mb-12 text-center [&_p]:mx-auto"
         />
 
         <div className="mx-auto max-w-2xl">
-          <div className="wizard-card rounded-2xl border border-gold/25 bg-graphite px-6 py-8 md:px-12 md:py-12">
+          <div className="rounded-3xl border border-white/10 bg-graphite p-6 md:p-10">
             {submitted ? (
               <SuccessScreen onReset={handleReset} />
             ) : (
@@ -90,7 +89,7 @@ export function Wizard() {
                         initial="enter"
                         animate="center"
                         exit="exit"
-                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       >
                         {currentNode.kind === "choice" && (
                           <ChoiceStep
