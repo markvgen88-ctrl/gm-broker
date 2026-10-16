@@ -92,7 +92,7 @@ export function Header() {
               aria-haspopup="true"
               onClick={() => setServicesOpen((v) => !v)}
             >
-              Виды кредитования
+              Перечень услуг
               <HiChevronDown className={cn("transition-transform", servicesOpen && "rotate-180")} />
             </button>
             {servicesOpen && (
