@@ -42,3 +42,15 @@ export const adminLoginRateLimiter = rateLimit({
     message: "Слишком много попыток входа. Попробуйте позже.",
   },
 });
+
+/** Калькулятор комиссии: не больше 40 расчётов за 10 минут с одного IP. */
+export const calculatorRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 40,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Слишком много расчётов с вашего IP. Попробуйте чуть позже.",
+  },
+});
