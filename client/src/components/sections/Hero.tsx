@@ -2,7 +2,7 @@ import { HiOutlineCheckCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 
-const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия 15% только после поступления денег"];
+const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия от 7 до 15% только после поступления денег"];
 
 export function Hero() {
   const goToSection = useSectionNavigate();
