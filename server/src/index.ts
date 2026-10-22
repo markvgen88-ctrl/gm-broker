@@ -6,7 +6,6 @@ import cookieParser from "cookie-parser";
 import { submitRouter } from "./routes/submit.js";
 import { freezeRouter } from "./routes/freeze.js";
 import { adminRouter } from "./routes/admin.js";
-import { calculatorRouter } from "./routes/calculator.js";
 import { ensureSchema } from "./db/schema.js";
 
 const app = express();
@@ -40,7 +39,6 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api", submitRouter);
 app.use("/api", freezeRouter);
-app.use("/api", calculatorRouter);
 app.use("/api/admin", adminRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

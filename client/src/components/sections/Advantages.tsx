@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { cta } from "@/lib/cta";
 
 const TERMS = [
   { title: "Без предоплаты", text: "Работа начинается без авансовых платежей с вашей стороны." },
@@ -30,10 +28,6 @@ export function Advantages() {
             </div>
           ))}
         </dl>
-
-        <Link to="/calculator" className={cta("outline", "md", "mt-10")}>
-          Рассчитать комиссию для вашей ситуации
-        </Link>
 
         <div className="mt-16 grid gap-8 rounded-3xl bg-mint p-7 md:grid-cols-[0.8fr_1.2fr] md:p-10">
           <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-ink">

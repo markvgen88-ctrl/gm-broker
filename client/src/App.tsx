@@ -8,7 +8,6 @@ import { ArticlesIndexPage } from "@/pages/ArticlesIndexPage";
 import { ArticlePage } from "@/pages/ArticlePage";
 import { ServicePage } from "@/pages/ServicePage";
 import { PrivacyPolicyPage } from "@/pages/PrivacyPolicyPage";
-import { CalculatorPage } from "@/pages/CalculatorPage";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
@@ -35,7 +34,6 @@ function AppShell() {
           <Route path="/articles" element={<ArticlesIndexPage />} />
           <Route path="/articles/:slug" element={<ArticlePage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/calculator" element={<CalculatorPage />} />
 
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin" element={<AdminLayout />}>

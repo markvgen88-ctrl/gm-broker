@@ -126,9 +126,6 @@ export function Header() {
               {l.label}
             </button>
           ))}
-          <Link to="/calculator" className={linkCls}>
-            Калькулятор
-          </Link>
           <Link to="/articles" className={linkCls}>
             Статьи
           </Link>
@@ -184,9 +181,6 @@ export function Header() {
                   {l.label}
                 </button>
               ))}
-              <Link to="/calculator" className="border-b border-line py-3 text-base text-ink">
-                Калькулятор комиссии
-              </Link>
               <Link to="/articles" className="border-b border-line py-3 text-base text-ink">
                 Статьи
               </Link>

@@ -75,11 +75,6 @@ export function Footer() {
               </button>
             </li>
             <li>
-              <Link to="/calculator" className={linkCls}>
-                Калькулятор комиссии
-              </Link>
-            </li>
-            <li>
               <Link to="/articles" className={linkCls}>
                 Статьи
               </Link>
