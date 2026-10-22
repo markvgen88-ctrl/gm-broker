@@ -46,6 +46,25 @@ import type { QuestionnaireGraph } from "@/types/questionnaire";
  *    основной банк по тратам → карты банков → фактический адрес → сумма
  *    кредита (ip_income_type, ip_activity, ip_main_bank, ip_bank_cards,
  *    ip_actual_address). Все семь вопросов — текстовые поля без ветвления.
+ *  - Версия карты от 22.10.2026: (1) во всех трёх ветках добавлена цепочка
+ *    «задолженность по налогам → блокировка по 115-ФЗ → блокировка счетов
+ *    приставами» (поля taxDebt, block115, bailiffBlock): у физлица — после
+ *    «самого большого выплаченного кредита» и перед недвижимостью (5 копий,
+ *    f_tax_N / f_115fz_N / f_bailiffs_N), у ИП и ООО — после карт/счетов
+ *    банков и перед суммой кредита. (2) Физлицо: после вопроса про МФО
+ *    (ветки «текущая просрочка» и «просрочка за 12 мес.») сразу идёт «самый
+ *    большой кредит» — вопросы об остатке и платежах там убраны (узлы
+ *    f_loan_balance_2 / f_monthly_payments_2 удалены); «нет кредитов и нет
+ *    просрочки за 12 мес.» теперь тоже ведёт на «самый большой кредит», а
+ *    не сразу на недвижимость. (3) ИП: порядок — возраст → город по
+ *    прописке → фактический адрес → дата открытия; вопрос «доход
+ *    официальный/неофициальный» убран, ИНН ведёт сразу на «деятельность»;
+ *    после карт банков — цепочка налоги/115-ФЗ/приставы. (4) ООО: после ИНН
+ *    добавлены «деятельность → основной банк по тратам → счета каких банков
+ *    открыты (bankAccounts)» и цепочка налоги/115-ФЗ/приставы.
+ *  - ИП (срок <6 мес.): после согласия на рассмотрение как физлицо анкета
+ *    переходит сразу на вопрос «Карты каких банков у вас уже открыты?»
+ *    (f_bank_cards), т.к. город и адрес ИП уже указал.
  *  - ИП/ООО: логика согласований (дата открытия/регистрации, альтернатива
  *    при недостаточном сроке) не изменилась.
  *
@@ -248,6 +267,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Напишите сумму самого большого кредита который вы выплатили полностью",
     placeholder: "Сумма в рублях (0, если не было)",
     suffix: "₽",
+    next: "f_tax_1",
+  },
+
+  f_tax_1: {
+    id: "f_tax_1",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "f_115fz_1",
+  },
+
+  f_115fz_1: {
+    id: "f_115fz_1",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "f_bailiffs_1",
+  },
+
+  f_bailiffs_1: {
+    id: "f_bailiffs_1",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "f_property_1",
   },
 
@@ -361,31 +410,9 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "usesMFO",
     question: "Вы пользуетесь услугами микрофинансовых организаций?",
     options: [
-      { label: "Нет", value: "no", next: "f_loan_balance_2" },
-      { label: "Да", value: "yes", next: "f_loan_balance_2" },
+      { label: "Нет", value: "no", next: "f_biggest_paid_loan_2" },
+      { label: "Да", value: "yes", next: "f_biggest_paid_loan_2" },
     ],
-  },
-
-  f_loan_balance_2: {
-    id: "f_loan_balance_2",
-    kind: "input",
-    field: "loanBalance",
-    inputType: "number",
-    question: "Напишите остаток задолженности по действующим кредитам",
-    placeholder: "Сумма в рублях",
-    suffix: "₽",
-    next: "f_monthly_payments_2",
-  },
-
-  f_monthly_payments_2: {
-    id: "f_monthly_payments_2",
-    kind: "input",
-    field: "monthlyPayments",
-    inputType: "number",
-    question: "Напишите общую сумму платежей в месяц по действующим кредитам",
-    placeholder: "Сумма в рублях",
-    suffix: "₽",
-    next: "f_biggest_paid_loan_2",
   },
 
   f_biggest_paid_loan_2: {
@@ -396,6 +423,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Напишите сумму самого большого кредита который вы выплатили полностью",
     placeholder: "Сумма в рублях (0, если не было)",
     suffix: "₽",
+    next: "f_tax_2",
+  },
+
+  f_tax_2: {
+    id: "f_tax_2",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "f_115fz_2",
+  },
+
+  f_115fz_2: {
+    id: "f_115fz_2",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "f_bailiffs_2",
+  },
+
+  f_bailiffs_2: {
+    id: "f_bailiffs_2",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "f_property_2",
   },
 
@@ -541,7 +598,7 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "hadOverdue12m",
     question: "Вы допускали просрочку ранее в течение последних 12 месяцев?",
     options: [
-      { label: "Нет", value: "no", next: "f_property_1" },
+      { label: "Нет", value: "no", next: "f_biggest_paid_loan_1" },
       { label: "Да", value: "yes", next: "f_mfo_2" },
     ],
   },
@@ -620,6 +677,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Напишите сумму самого большого кредита который вы выплатили полностью",
     placeholder: "Сумма в рублях (0, если не было)",
     suffix: "₽",
+    next: "f_tax_3",
+  },
+
+  f_tax_3: {
+    id: "f_tax_3",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "f_115fz_3",
+  },
+
+  f_115fz_3: {
+    id: "f_115fz_3",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "f_bailiffs_3",
+  },
+
+  f_bailiffs_3: {
+    id: "f_bailiffs_3",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "f_property_3",
   },
 
@@ -811,6 +898,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Напишите сумму самого большого кредита который вы выплатили полностью",
     placeholder: "Сумма в рублях (0, если не было)",
     suffix: "₽",
+    next: "f_tax_4",
+  },
+
+  f_tax_4: {
+    id: "f_tax_4",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "f_115fz_4",
+  },
+
+  f_115fz_4: {
+    id: "f_115fz_4",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "f_bailiffs_4",
+  },
+
+  f_bailiffs_4: {
+    id: "f_bailiffs_4",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "f_property_4",
   },
 
@@ -969,6 +1086,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Напишите сумму самого большого кредита который вы выплатили полностью",
     placeholder: "Сумма в рублях (0, если не было)",
     suffix: "₽",
+    next: "f_tax_5",
+  },
+
+  f_tax_5: {
+    id: "f_tax_5",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "f_115fz_5",
+  },
+
+  f_115fz_5: {
+    id: "f_115fz_5",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "f_bailiffs_5",
+  },
+
+  f_bailiffs_5: {
+    id: "f_bailiffs_5",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "f_property_5",
   },
 
@@ -1131,6 +1278,26 @@ export const questionnaireGraph: QuestionnaireGraph = {
     placeholder: "Например, 35",
     min: 18,
     max: 75,
+    next: "ip_registration_city",
+  },
+
+  ip_registration_city: {
+    id: "ip_registration_city",
+    kind: "input",
+    field: "registrationCity",
+    inputType: "text",
+    question: "Город проживания по прописке",
+    placeholder: "Например, Москва",
+    next: "ip_actual_address",
+  },
+
+  ip_actual_address: {
+    id: "ip_actual_address",
+    kind: "input",
+    field: "actualAddress",
+    inputType: "text",
+    question: "Фактический адрес проживания? (Город-район)",
+    placeholder: "Например, Москва, Хамовники",
     next: "ip_open_date",
   },
 
@@ -1150,7 +1317,7 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "ipConsentToIndividual",
     question: "К сожалению ИП кредитуют сроком от 6 месяцев и с оборотом по счетам от 100 000 в месяц. Для вас можем рассмотреть кредитование как для физлица. Вы согласны?",
     options: [
-      { label: "Да", value: "yes", next: "f_registration_city" },
+      { label: "Да", value: "yes", next: "f_bank_cards" },
       { label: "Нет", value: "no", next: "ip_decline" },
     ],
   },
@@ -1191,16 +1358,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     inputType: "text",
     question: "Напишите ИНН",
     placeholder: "12 цифр",
-    next: "ip_income_type",
-  },
-
-  ip_income_type: {
-    id: "ip_income_type",
-    kind: "input",
-    field: "incomeType",
-    inputType: "text",
-    question: "Доход официальный или неофициальный?",
-    placeholder: "Например: официальный (по декларации / выписке)",
     next: "ip_activity",
   },
 
@@ -1231,16 +1388,36 @@ export const questionnaireGraph: QuestionnaireGraph = {
     inputType: "text",
     question: "Карты каких банков у вас уже открыты?",
     placeholder: "Например, Сбербанк, Т-Банк, Альфа-Банк",
-    next: "ip_actual_address",
+    next: "ip_tax",
   },
 
-  ip_actual_address: {
-    id: "ip_actual_address",
+  ip_tax: {
+    id: "ip_tax",
     kind: "input",
-    field: "actualAddress",
+    field: "taxDebt",
     inputType: "text",
-    question: "Фактический адрес проживания? (Город-район)",
-    placeholder: "Например, Москва, Хамовники",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "ip_115fz",
+  },
+
+  ip_115fz: {
+    id: "ip_115fz",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "ip_bailiffs",
+  },
+
+  ip_bailiffs: {
+    id: "ip_bailiffs",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "ip_loan_amount",
   },
 
@@ -1364,6 +1541,66 @@ export const questionnaireGraph: QuestionnaireGraph = {
     inputType: "text",
     question: "Напишите ИНН",
     placeholder: "10 цифр",
+    next: "llc_activity",
+  },
+
+  llc_activity: {
+    id: "llc_activity",
+    kind: "input",
+    field: "activityType",
+    inputType: "text",
+    question: "С какой деятельности зарабатываете деньги, что делаете?",
+    placeholder: "Например: грузоперевозки, розничная торговля",
+    next: "llc_main_bank",
+  },
+
+  llc_main_bank: {
+    id: "llc_main_bank",
+    kind: "input",
+    field: "mainSpendingBank",
+    inputType: "text",
+    question: "Какой банк основной по тратам?",
+    placeholder: "Например, Сбербанк",
+    next: "llc_bank_accounts",
+  },
+
+  llc_bank_accounts: {
+    id: "llc_bank_accounts",
+    kind: "input",
+    field: "bankAccounts",
+    inputType: "text",
+    question: "Счета каких банков у вас уже открыты?",
+    placeholder: "Например, Сбербанк, Т-Банк, Альфа-Банк",
+    next: "llc_tax",
+  },
+
+  llc_tax: {
+    id: "llc_tax",
+    kind: "input",
+    field: "taxDebt",
+    inputType: "text",
+    question: "Есть ли задолженность по налогам? Если да, укажите сумму.",
+    placeholder: "Например: нет, или 50 000 ₽",
+    next: "llc_115fz",
+  },
+
+  llc_115fz: {
+    id: "llc_115fz",
+    kind: "input",
+    field: "block115",
+    inputType: "text",
+    question: "Есть ли блокировка по 115-ФЗ? Если есть, укажите по какому банку.",
+    placeholder: "Например: нет, или Сбербанк",
+    next: "llc_bailiffs",
+  },
+
+  llc_bailiffs: {
+    id: "llc_bailiffs",
+    kind: "input",
+    field: "bailiffBlock",
+    inputType: "text",
+    question: "Есть ли блокировка банковских счетов судебными приставами?",
+    placeholder: "Например: нет, или да, в Сбербанке",
     next: "llc_loan_amount",
   },
 
