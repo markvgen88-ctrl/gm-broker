@@ -64,9 +64,9 @@ export function Wizard() {
     <section id="wizard" className="wizard-skin section-y scroll-mt-16 bg-ink">
       <div className="container-page">
         <div className="mx-auto mb-12 max-w-3xl text-center">
-          <p className="measure mx-auto text-base leading-relaxed text-white/70 md:text-lg">
-            Это короткий пошаговый опрос, а не длинная анкета. Отвечайте честно: данные используются только для оценки вашей ситуации.
-          </p>
+          <h2 className="measure mx-auto font-display text-2xl font-semibold leading-snug tracking-[-0.02em] text-white md:text-3xl">
+            Проверьте свои шансы на одобрение, пройдя наш специальный опрос.
+          </h2>
         </div>
 
         <div className="mx-auto max-w-2xl">
