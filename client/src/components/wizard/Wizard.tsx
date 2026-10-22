@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiOutlineClock, HiOutlineLockClosed } from "react-icons/hi";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
 import { ChoiceStep } from "@/components/wizard/ChoiceStep";
 import { InputStep } from "@/components/wizard/InputStep";
@@ -64,12 +63,11 @@ export function Wizard() {
   return (
     <section id="wizard" className="wizard-skin section-y scroll-mt-16 bg-ink">
       <div className="container-page">
-        <SectionHeading
-          tone="dark"
-          title="Пройдите опрос: узнайте свои шансы за 2 минуты"
-          description="Это короткий пошаговый опрос, а не длинная анкета. Отвечайте честно: данные используются только для оценки вашей ситуации."
-          className="mx-auto mb-12 text-center [&_p]:mx-auto"
-        />
+        <div className="mx-auto mb-12 max-w-3xl text-center">
+          <p className="measure mx-auto text-base leading-relaxed text-white/70 md:text-lg">
+            Это короткий пошаговый опрос, а не длинная анкета. Отвечайте честно: данные используются только для оценки вашей ситуации.
+          </p>
+        </div>
 
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-white/10 bg-graphite p-6 md:p-10">
