@@ -9,14 +9,9 @@
  * ID counter'а зашит здесь и должен совпадать с тем, что в index.html.
  */
 
-const COUNTER_ID = 111116876;
+const COUNTER_ID = 113752805;
 
-type YandexMetrika = (
-  counterId: number,
-  action: "reachGoal",
-  target: string,
-  params?: Record<string, unknown>
-) => void;
+type YandexMetrika = (counterId: number, action: string, ...args: unknown[]) => void;
 
 declare global {
   interface Window {
@@ -38,6 +33,36 @@ export const WIZARD_GOALS = {
   LEAD_SUBMITTED: "wizard_lead_submitted",
 } as const;
 
+/** Цели форм обратной связи (кроме анкеты) — держим в одном месте, как и цели анкеты. */
+export const FORM_GOALS = {
+  /** Клик по кнопке «Отправить заявку» в форме услуги (даже если форма не прошла проверку). */
+  SERVICE_REQUEST_CLICK: "service_request_click",
+  /** Заявка с формы услуги успешно отправлена. Параметр service — slug услуги. */
+  SERVICE_REQUEST_SUBMITTED: "service_request_submitted",
+  /** Клик по кнопке «Отправить заявку» в последнем шаге опроса (анкеты). */
+  SURVEY_REQUEST_CLICK: "request_click_opros",
+} as const;
+
+/** Короткие ключи услуг для идентификаторов целей (отдельная цель на каждую услугу). */
+const SERVICE_GOAL_KEYS: Record<string, string> = {
+  "zamorozka-kreditnogo-dogovora": "zamorozka",
+  "bankrotstvo-cherez-sud": "bankrotstvo_sud",
+  "vnesudebnoe-bankrotstvo": "bankrotstvo_vnesud",
+  "restrukturizatsiya-dolga": "restrukturizatsiya",
+  "ispravlenie-kreditnoy-istorii": "kreditnaya_istoriya",
+};
+
+/**
+ * Идентификатор цели для конкретной услуги:
+ *  click -> request_click_<ключ> (клик по кнопке «Отправить заявку»)
+ *  sent  -> request_sent_<ключ>  (заявка успешно отправлена)
+ * Для услуги, которой нет в списке выше, ключом станет её slug с «_» вместо «-».
+ */
+export function serviceGoal(kind: "click" | "sent", slug: string): string {
+  const key = SERVICE_GOAL_KEYS[slug] ?? slug.replace(/-/g, "_");
+  return `request_${kind}_${key}`;
+}
+
 /**
  * Отправляет цель в Яндекс.Метрику. Безопасна к вызову в любой момент:
  * если window.ym недоступен (не загрузился/заблокирован), просто ничего не делает.
@@ -48,5 +73,22 @@ export function reachGoal(target: string, params?: Record<string, unknown>): voi
     window.ym(COUNTER_ID, "reachGoal", target, params);
   } catch {
     // Намеренно игнорируем — недоступность метрики не должна ломать анкету.
+  }
+}
+
+/**
+ * Отправляет в Метрику просмотр страницы вручную (метод hit).
+ *
+ * Сайт — одностраничное приложение: при переходе между разделами браузер не
+ * перезагружает страницу, и счётчик сам этого не видит. Поэтому при смене
+ * маршрута нужно вызывать hit() — иначе в Метрике засчитывается только первая
+ * загрузка. Безопасна к вызову в любой момент (см. reachGoal).
+ */
+export function hit(url: string, options?: { title?: string; referer?: string }): void {
+  if (typeof window === "undefined" || typeof window.ym !== "function") return;
+  try {
+    window.ym(COUNTER_ID, "hit", url, options);
+  } catch {
+    // Недоступность метрики не должна ломать сайт.
   }
 }
