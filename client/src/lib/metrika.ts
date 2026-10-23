@@ -9,7 +9,7 @@
  * ID counter'а зашит здесь и должен совпадать с тем, что в index.html.
  */
 
-const COUNTER_ID = 111116876;
+const COUNTER_ID = 113752805;
 
 type YandexMetrika = (
   counterId: number,
