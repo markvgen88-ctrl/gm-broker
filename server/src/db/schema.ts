@@ -39,7 +39,9 @@ export async function ensureSchema(): Promise<void> {
 
       CREATE INDEX IF NOT EXISTS idx_comments_application_id ON application_comments (application_id);
 
-      -- Заявки на «заморозку кредитного договора» (форма на странице услуги).
+      -- Заявки на услуги с форм на страницах услуг (заморозка кредита,
+      -- банкротство и др.). Таблица называется freeze_requests исторически —
+      -- раньше здесь были только заявки на заморозку; услуга — в колонке service.
       CREATE TABLE IF NOT EXISTS freeze_requests (
         id SERIAL PRIMARY KEY,
         created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -48,6 +50,9 @@ export async function ensureSchema(): Promise<void> {
         email TEXT,
         comment TEXT
       );
+      -- Старые заявки (до появления колонки) — это заявки на заморозку.
+      ALTER TABLE freeze_requests
+        ADD COLUMN IF NOT EXISTS service TEXT NOT NULL DEFAULT 'zamorozka-kreditnogo-dogovora';
 
       -- Сквозной счётчик номеров договора. Стартовое значение 1492 — это
       -- последний номер, реально выданный старым Telegram-ботом (до

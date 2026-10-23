@@ -15,8 +15,8 @@ export const submitRateLimiter = rateLimit({
   },
 });
 
-/** Лимит на заявки по заморозке кредита: не больше 5 за 10 минут с одного IP. */
-export const freezeRateLimiter = rateLimit({
+/** Лимит на заявки на услуги (заморозка, банкротство и др.): не больше 5 за 10 минут с одного IP. */
+export const serviceRequestRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,
   limit: 5,
   standardHeaders: true,

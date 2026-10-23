@@ -2,11 +2,12 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
-import { FreezeRequestForm } from "@/components/forms/FreezeRequestForm";
+import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
 import { useSeo } from "@/hooks/useSeo";
 
 function List({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) return null;
   return (
     <div>
       <h2 className="font-display text-xl font-bold tracking-tight text-ink">{title}</h2>
@@ -44,13 +45,23 @@ export function ServicePage() {
 
   if (!service) return <Navigate to="/#services" replace />;
 
-  const others = SERVICES.filter((s) => s.slug !== service.slug && !s.comingSoon);
+  const isLegal = service.group === "legal";
+  // Внутри юридической помощи показываем только её услуги, иначе — остальные виды кредитования.
+  const others = SERVICES.filter((s) => s.slug !== service.slug && (s.group === "legal") === isLegal);
+  const lists = [
+    { title: service.listTitles?.[0] ?? "Кому подходит", items: service.forWhom },
+    { title: service.listTitles?.[1] ?? "Что я делаю", items: service.whatIDo },
+    { title: service.listTitles?.[2] ?? "Что понадобится", items: service.prepare },
+  ].filter((l) => l.items.length > 0);
 
   return (
     <main className="pt-[4.25rem]">
       <div className="container-page pb-16 pt-10 md:pt-14">
-        <Link to="/#services" className="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-pine">
-          <HiArrowLeft /> Все виды кредитования
+        <Link
+          to={isLegal ? "/#debts" : "/#services"}
+          className="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-pine"
+        >
+          <HiArrowLeft /> {isLegal ? "Вся юридическая помощь" : "Все виды кредитования"}
         </Link>
 
         <div className="mt-8">
@@ -68,11 +79,36 @@ export function ServicePage() {
       </div>
 
       <section className="bg-white/65 py-14 md:py-20">
-        <div className="container-page grid gap-12 md:grid-cols-3">
-          <List title={service.listTitles?.[0] ?? "Кому подходит"} items={service.forWhom} />
-          <List title={service.listTitles?.[1] ?? "Что я делаю"} items={service.whatIDo} />
-          <List title={service.listTitles?.[2] ?? "Что понадобится"} items={service.prepare} />
+        <div className={`container-page grid gap-12 ${lists.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+          {lists.map((l) => (
+            <List key={l.title} title={l.title} items={l.items} />
+          ))}
         </div>
+
+        {service.sections && service.sections.length > 0 && (
+          <div className="container-page mt-14 grid gap-x-12 gap-y-10 border-t border-line pt-12 md:grid-cols-2">
+            {service.sections.map((s) => (
+              <div key={s.heading}>
+                <h2 className="font-display text-xl font-bold tracking-tight text-ink">{s.heading}</h2>
+                {s.paragraphs?.map((p) => (
+                  <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
+                    {p}
+                  </p>
+                ))}
+                {s.list && (
+                  <ul className="mt-4 flex flex-col gap-3">
+                    {s.list.map((i) => (
+                      <li key={i} className="flex gap-3 text-base leading-relaxed text-ink/85">
+                        <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
+                        {i}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
 
         {(service.note || service.article) && (
           <div className="container-page mt-12 grid gap-4 md:grid-cols-2">
@@ -98,7 +134,7 @@ export function ServicePage() {
         )}
       </section>
 
-      {service.requestForm === "freeze" ? (
+      {service.requestForm ? (
         <section id="request" className="wizard-skin scroll-mt-16 bg-ink py-16 text-white md:py-20">
           <div className="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
@@ -106,11 +142,11 @@ export function ServicePage() {
                 Оставьте заявку
               </h2>
               <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
-                Расскажите о своей ситуации. Мы изучим действующие кредитные обязательства, свяжемся с вами и
-                скажем, возможна ли отсрочка.
+                {service.requestText ??
+                  "Расскажите о своей ситуации. Мы свяжемся с вами и подскажем, подойдёт ли вам эта услуга."}
               </p>
             </div>
-            <FreezeRequestForm />
+            <ServiceRequestForm service={service} />
           </div>
         </section>
       ) : (
@@ -136,7 +172,9 @@ export function ServicePage() {
 
       <section className="py-14 md:py-20">
         <div className="container-page">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-ink">Другие виды кредитования</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
+            {isLegal ? "Другие услуги юридической помощи" : "Другие виды кредитования"}
+          </h2>
           <ul className="mt-6 flex flex-wrap gap-2.5">
             {others.map((s) => (
               <li key={s.slug}>

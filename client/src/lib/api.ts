@@ -34,7 +34,9 @@ export async function submitApplication(payload: SubmissionPayload): Promise<Sub
   return data ?? { success: true };
 }
 
-export interface FreezeRequestPayload {
+export interface ServiceRequestPayload {
+  /** slug услуги (/services/:slug), на которую оставлена заявка. */
+  service: string;
   name: string;
   phone: string;
   email: string;
@@ -44,8 +46,8 @@ export interface FreezeRequestPayload {
   website?: string;
 }
 
-export async function submitFreezeRequest(payload: FreezeRequestPayload): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/freeze-request`, {
+export async function submitServiceRequest(payload: ServiceRequestPayload): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/service-request`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

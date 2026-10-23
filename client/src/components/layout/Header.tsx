@@ -110,7 +110,6 @@ export function Header() {
                             >
                               <s.icon className="shrink-0 text-pine" size={18} />
                               {s.title}
-                              {s.comingSoon && <span className="text-xs font-semibold text-pine">скоро</span>}
                             </ServiceLink>
                           </li>
                         ))}
@@ -163,7 +162,6 @@ export function Header() {
                       >
                         <s.icon className="shrink-0 text-pine" size={20} />
                         {s.title}
-                        {s.comingSoon && <span className="text-xs font-semibold text-pine">скоро</span>}
                       </ServiceLink>
                     </li>
                   ))}
