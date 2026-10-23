@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { MetrikaPageTracker } from "@/components/layout/MetrikaPageTracker";
 import { HomePage } from "@/pages/HomePage";
 import { ArticlesIndexPage } from "@/pages/ArticlesIndexPage";
 import { ArticlePage } from "@/pages/ArticlePage";
@@ -26,6 +27,7 @@ function AppShell() {
   return (
     <>
       <ScrollToTop />
+      <MetrikaPageTracker />
       <div className="relative">
         {!isAdminRoute && <Header />}
         <Routes>
