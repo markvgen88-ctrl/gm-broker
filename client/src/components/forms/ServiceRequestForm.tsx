@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import { submitServiceRequest } from "@/lib/api";
-import { reachGoal, serviceGoal, FORM_GOALS } from "@/lib/metrika";
 import type { Service } from "@/data/services";
 
 // Тот же формат телефона и те же правила, что в анкете (FinalStep).
@@ -69,8 +68,6 @@ export function ServiceRequestForm({ service }: { service: Service }) {
         consent: true,
         website: values.website,
       });
-      reachGoal(FORM_GOALS.SERVICE_REQUEST_SUBMITTED, { service: service.slug });
-      reachGoal(serviceGoal("sent", service.slug));
       setSubmitted(true);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Не удалось отправить заявку. Попробуйте ещё раз.");
@@ -193,10 +190,6 @@ export function ServiceRequestForm({ service }: { service: Service }) {
           type="submit"
           size="lg"
           disabled={isSubmitting}
-          onClick={() => {
-            reachGoal(FORM_GOALS.SERVICE_REQUEST_CLICK, { service: service.slug });
-            reachGoal(serviceGoal("click", service.slug));
-          }}
         >
           {isSubmitting ? "Отправляем…" : "Отправить заявку"}
         </Button>

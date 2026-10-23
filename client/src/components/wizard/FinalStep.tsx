@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import type { FinalNode } from "@/types/questionnaire";
-import { reachGoal, FORM_GOALS } from "@/lib/metrika";
 
 // Достаточно гибкий формат российского номера: допускает +7/8/7, пробелы,
 // скобки и дефисы — например «+7 (926) 123-45-67», «89261234567», «7 926 1234567».
@@ -136,7 +135,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
         >
           <HiArrowLeft /> Назад
         </button>
-        <Button type="submit" size="lg" disabled={isSubmitting} onClick={() => reachGoal(FORM_GOALS.SURVEY_REQUEST_CLICK)}>
+        <Button type="submit" size="lg" disabled={isSubmitting}>
           {isSubmitting ? "Отправляем…" : "Отправить заявку"}
         </Button>
       </div>
