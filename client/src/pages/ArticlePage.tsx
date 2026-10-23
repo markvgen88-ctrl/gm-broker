@@ -7,6 +7,19 @@ import { ArticleContent } from "@/components/articles/ArticleContent";
 import { getArticleBySlug } from "@/data/articles";
 import { useSeo } from "@/hooks/useSeo";
 
+/**
+ * Эти статьи превращены в услуги в разделе «Юридическая помощь».
+ * Старые ссылки (из поиска, закладок) ведут на новые страницы услуг.
+ */
+const MOVED_TO_SERVICES: Record<string, string> = {
+  "bankrotstvo-fizicheskogo-litsa-kak-spisat-dolgi": "/services/bankrotstvo-cherez-sud",
+  "vnesudebnoe-bankrotstvo-cherez-mfts": "/services/vnesudebnoe-bankrotstvo",
+  "restrukturizatsiya-sudebnogo-dolga": "/services/restrukturizatsiya-dolga",
+  "ispravlenie-kreditnoy-istorii-oshibki": "/services/ispravlenie-kreditnoy-istorii",
+  // Услуга «Выкуп долга через третье лицо» удалена — ведём в раздел юридической помощи.
+  "vykup-dolga-cherez-tretye-litso": "/#debts",
+};
+
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" }).format(
     new Date(iso)
@@ -36,7 +49,8 @@ export function ArticlePage() {
   });
 
   if (!article) {
-    return <Navigate to="/articles" replace />;
+    const moved = slug ? MOVED_TO_SERVICES[slug] : undefined;
+    return <Navigate to={moved ?? "/articles"} replace />;
   }
 
   return (

@@ -43,7 +43,6 @@ export function Footer() {
                 <li key={s.slug}>
                   <ServiceLink service={s} className={linkCls}>
                     {s.title}
-                    {s.comingSoon && <span className="ml-2 text-xs text-pine-bright">скоро</span>}
                   </ServiceLink>
                 </li>
               ))}

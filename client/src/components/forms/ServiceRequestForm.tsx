@@ -5,7 +5,8 @@ import { z } from "zod";
 import { Link } from "react-router-dom";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
-import { submitFreezeRequest } from "@/lib/api";
+import { submitServiceRequest } from "@/lib/api";
+import type { Service } from "@/data/services";
 
 // Тот же формат телефона и те же правила, что в анкете (FinalStep).
 const PHONE_REGEX = /^(\+7|8|7)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
@@ -32,12 +33,17 @@ const inputCls =
   "w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none";
 const errCls = "mt-2 text-sm text-[#e5a3a3]";
 
+const DEFAULT_SUCCESS = "Свяжемся с вами, обсудим вашу ситуацию и подскажем, подойдёт ли вам эта услуга.";
+const DEFAULT_PLACEHOLDER = "Коротко опишите ситуацию (по желанию)";
+
 /**
- * Форма заявки на «заморозку кредитного договора». Оформление и поля — как на
- * последнем шаге опроса (FinalStep), плюс необязательный комментарий.
- * Рассчитана на тёмный фон со скином `.wizard-skin`.
+ * Форма заявки на конкретную услугу (заморозка кредита, банкротство и т. д.).
+ * Название услуги уходит вместе с заявкой — в письме и Telegram видно, какую
+ * именно услугу выбрал клиент. Оформление и поля — как на последнем шаге
+ * опроса (FinalStep), плюс необязательный комментарий. Рассчитана на тёмный
+ * фон со скином `.wizard-skin`.
  */
-export function FreezeRequestForm() {
+export function ServiceRequestForm({ service }: { service: Service }) {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -53,7 +59,8 @@ export function FreezeRequestForm() {
   const onSubmit = async (values: FormValues) => {
     setSubmitError(null);
     try {
-      await submitFreezeRequest({
+      await submitServiceRequest({
+        service: service.slug,
         name: values.name,
         phone: values.phone,
         email: values.email,
@@ -73,7 +80,7 @@ export function FreezeRequestForm() {
         <HiOutlineCheckCircle className="mx-auto text-gold" size={48} />
         <h3 className="mt-4 font-display text-2xl font-semibold text-silver">Заявка отправлена</h3>
         <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-metal">
-          Свяжемся с вами, обсудим вашу ситуацию и скажем, возможна ли отсрочка по вашим кредитам.
+          {service.requestSuccess ?? DEFAULT_SUCCESS}
         </p>
       </div>
     );
@@ -139,7 +146,7 @@ export function FreezeRequestForm() {
           <textarea
             id="fr-comment"
             rows={4}
-            placeholder="Какие кредиты, какой ежемесячный платёж, что хотите решить (по желанию)"
+            placeholder={service.requestPlaceholder ?? DEFAULT_PLACEHOLDER}
             className={inputCls}
             {...register("comment")}
           />

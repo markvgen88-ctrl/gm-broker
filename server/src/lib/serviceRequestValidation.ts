@@ -1,14 +1,16 @@
 import { z } from "zod";
+import { DEFAULT_REQUEST_SERVICE, REQUEST_SERVICE_SLUGS } from "./requestServices.js";
 
 // Тот же формат телефона, что в анкете.
 const PHONE_REGEX = /^(\+7|8|7)?[\s-]?\(?\d{3}\)?[\s-]?\d{3}[\s-]?\d{2}[\s-]?\d{2}$/;
 
 /**
- * Заявка на «заморозку кредитного договора»: имя, телефон, e-mail (как в
- * анкете), необязательный комментарий, согласие. Поле `website` — «ловушка» для ботов:
- * человек его не видит и не заполняет.
+ * Заявка на услугу с сайта (заморозка кредита, банкротство и т. д.): услуга,
+ * имя, телефон, e-mail (как в анкете), необязательный комментарий, согласие.
+ * Поле `website` — «ловушка» для ботов: человек его не видит и не заполняет.
  */
-export const freezeRequestSchema = z.object({
+export const serviceRequestSchema = z.object({
+  service: z.enum(REQUEST_SERVICE_SLUGS, { message: "Не удалось определить услугу" }).default(DEFAULT_REQUEST_SERVICE),
   name: z.string().trim().min(2, "Укажите имя").max(120, "Слишком длинное имя"),
   phone: z
     .string()
@@ -20,4 +22,4 @@ export const freezeRequestSchema = z.object({
   website: z.string().max(200).optional(),
 });
 
-export type FreezeRequestInput = z.infer<typeof freezeRequestSchema>;
+export type ServiceRequestInput = z.infer<typeof serviceRequestSchema>;

@@ -1,4 +1,5 @@
-import type { FreezeRequestInput } from "./freezeValidation.js";
+import type { ServiceRequestInput } from "./serviceRequestValidation.js";
+import { REQUEST_SERVICES } from "./requestServices.js";
 
 function escapeHtml(value: string): string {
   return value
@@ -14,10 +15,12 @@ function moscowNow(date: Date): string {
   return `${p(d.getUTCDate())}.${p(d.getUTCMonth() + 1)}.${d.getUTCFullYear()} ${p(d.getUTCHours())}:${p(d.getUTCMinutes())}`;
 }
 
-/** Тема, HTML-письмо и текст для Telegram по заявке на заморозку кредита. */
-export function buildFreezeReport(data: FreezeRequestInput, receivedAt: Date = new Date()) {
+/** Тема, HTML-письмо и текст для Telegram по заявке на услугу. */
+export function buildServiceRequestReport(data: ServiceRequestInput, receivedAt: Date = new Date()) {
+  const { title, emoji } = REQUEST_SERVICES[data.service];
   const when = moscowNow(receivedAt);
   const rows: [string, string][] = [
+    ["Услуга", title],
     ["Имя", data.name],
     ["Телефон", data.phone],
     ["E-mail", data.email],
@@ -25,11 +28,11 @@ export function buildFreezeReport(data: FreezeRequestInput, receivedAt: Date = n
     ["Получена", `${when} (МСК)`],
   ];
 
-  const subject = `Заявка: заморозка кредитного договора — ${data.name}`;
+  const subject = `Заявка: ${title} — ${data.name}`;
 
   const html = `<!doctype html><html><body style="margin:0;padding:24px;background:#f5f6f2;font-family:Arial,Helvetica,sans-serif;color:#0f1e19;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;">
-    <tr><td style="background:#0f6b54;color:#ffffff;padding:18px 24px;font-size:18px;font-weight:700;">Заявка: заморозка кредитного договора</td></tr>
+    <tr><td style="background:#0f6b54;color:#ffffff;padding:18px 24px;font-size:18px;font-weight:700;">Заявка: ${escapeHtml(title)}</td></tr>
     <tr><td style="padding:8px 0;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
         ${rows
@@ -46,7 +49,7 @@ export function buildFreezeReport(data: FreezeRequestInput, receivedAt: Date = n
 </body></html>`;
 
   const telegramText = [
-    "❄️ Заявка: заморозка кредитного договора",
+    `${emoji} Заявка: ${title}`,
     "",
     ...rows.map(([label, value]) => `${label}: ${value}`),
   ].join("\n");

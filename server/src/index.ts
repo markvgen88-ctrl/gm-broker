@@ -4,7 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import { submitRouter } from "./routes/submit.js";
-import { freezeRouter } from "./routes/freeze.js";
+import { serviceRequestRouter } from "./routes/serviceRequest.js";
 import { adminRouter } from "./routes/admin.js";
 import { ensureSchema } from "./db/schema.js";
 
@@ -38,7 +38,7 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api", submitRouter);
-app.use("/api", freezeRouter);
+app.use("/api", serviceRequestRouter);
 app.use("/api/admin", adminRouter);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

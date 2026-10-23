@@ -25,36 +25,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://gm-broker.ru/articles/bankrotstvo-fizicheskogo-litsa-kak-spisat-dolgi</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://gm-broker.ru/articles/restrukturizatsiya-sudebnogo-dolga</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://gm-broker.ru/articles/ispravlenie-kreditnoy-istorii-oshibki</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://gm-broker.ru/articles/vykup-dolga-cherez-tretye-litso</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://gm-broker.ru/articles/vnesudebnoe-bankrotstvo-cherez-mfts</loc>
-    <lastmod>2026-08-23</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://gm-broker.ru/services/potrebitelskiy-kredit</loc>
     <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
@@ -129,6 +99,30 @@
   <url>
     <loc>https://gm-broker.ru/services/zamorozka-kreditnogo-dogovora</loc>
     <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gm-broker.ru/services/bankrotstvo-cherez-sud</loc>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gm-broker.ru/services/vnesudebnoe-bankrotstvo</loc>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gm-broker.ru/services/restrukturizatsiya-dolga</loc>
+    <lastmod>2026-10-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://gm-broker.ru/services/ispravlenie-kreditnoy-istorii</loc>
+    <lastmod>2026-10-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
