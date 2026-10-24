@@ -2,6 +2,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
+import { CaseStudyBlock } from "@/components/sections/CaseStudyBlock";
 import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
 import { useSeo } from "@/hooks/useSeo";
@@ -70,6 +71,14 @@ export function ServicePage() {
             {service.title}
           </h1>
           <p className="measure mt-6 text-lg leading-relaxed text-muted">{service.lead}</p>
+          {service.caseStudy && (
+            <a
+              href="#case"
+              className="mt-6 mr-3 inline-flex items-center gap-2 rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white hover:bg-pine-deep"
+            >
+              Кейс: одобрено 4,88 млн ₽ после банкротства <HiArrowRight />
+            </a>
+          )}
           {service.term && (
             <p className="mt-6 inline-flex items-center rounded-full bg-mint px-4 py-2 text-sm font-semibold text-ink">
               Срок: {service.term}
@@ -133,6 +142,8 @@ export function ServicePage() {
           </div>
         )}
       </section>
+
+      {service.caseStudy && <CaseStudyBlock data={service.caseStudy} />}
 
       {service.requestForm ? (
         <section id="request" className="wizard-skin scroll-mt-16 bg-ink py-16 text-white md:py-20">
