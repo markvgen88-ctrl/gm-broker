@@ -22,7 +22,13 @@ export function MetrikaPageTracker() {
     if (previous === null || previous === url) return;
     if (pathname.startsWith("/admin")) return;
 
-    hit(url, { title: document.title, referer: previous });
+    // Небольшая задержка: страница сама выставляет document.title в своём
+    // эффекте (useSeo), который срабатывает уже после этого. Без паузы в
+    // Метрику ушёл бы заголовок предыдущей страницы.
+    const timer = window.setTimeout(() => {
+      hit(url, { title: document.title, referer: previous });
+    }, 100);
+    return () => window.clearTimeout(timer);
   }, [pathname, search]);
 
   return null;
