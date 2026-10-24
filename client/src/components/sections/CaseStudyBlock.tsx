@@ -4,8 +4,9 @@ import { SurveyLink } from "@/components/ui/SurveyLink";
 import type { CaseStudy } from "@/data/services";
 
 /**
- * Разбор кейса на странице услуги: «Было → Сделали → Результат → Сопровождение».
+ * Разбор кейса на странице услуги: «Было → Что сделали → Результат → дальше».
  * Данные — в `caseStudy` нужной услуги (client/src/data/services.ts).
+ * Необязательные блоки (extra, steps, situations, quote) не показываются, если не заданы.
  */
 export function CaseStudyBlock({ data }: { data: CaseStudy }) {
   return (
@@ -17,9 +18,7 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
         <h2 className="measure mt-5 font-display text-3xl font-extrabold leading-[1.1] tracking-[-0.02em] text-ink md:text-5xl">
           {data.title}
         </h2>
-        <p className="measure mt-5 text-lg leading-relaxed text-muted">
-          Ситуация, за которую многие брокеры даже не берутся. Я не подаю заявки наугад — я выстраиваю стратегию.
-        </p>
+        {data.intro && <p className="measure mt-5 text-lg leading-relaxed text-muted">{data.intro}</p>}
 
         {/* Результат */}
         <div className="wizard-skin mt-10 overflow-hidden rounded-3xl bg-ink p-7 text-white md:p-10">
@@ -30,13 +29,16 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
             </div>
             <HiArrowRight className="hidden text-pine-bright md:block" size={36} />
             <div>
-              <p className="text-sm font-semibold text-pine-bright">Одобрено</p>
+              <p className="text-sm font-semibold text-pine-bright">{data.approvedLabel ?? "Одобрено"}</p>
               <p className="mt-2 font-display text-4xl font-extrabold text-pine-bright md:text-6xl">
                 {data.approved}
               </p>
             </div>
           </div>
-          <dl className="mt-8 grid gap-4 border-t border-white/15 pt-6 sm:grid-cols-3">
+          <dl
+            className="mt-8 grid gap-4 border-t border-white/15 pt-6"
+            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))" }}
+          >
             {data.details.map((d) => (
               <div key={d.label}>
                 <dt className="text-sm text-white/60">{d.label}</dt>
@@ -46,11 +48,11 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
           </dl>
         </div>
 
-        {/* Было → Сделали */}
+        {/* Было → Что сделали */}
         <div className="mt-10 grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="rounded-3xl border border-line bg-white/80 p-7">
-            <h3 className="font-display text-xl font-bold text-ink">Было</h3>
-            <p className="mt-2 text-sm text-muted">Банки в такой ситуации часто отказывают уже на первом этапе.</p>
+            <h3 className="font-display text-xl font-bold text-ink">{data.wasTitle ?? "Было"}</h3>
+            {data.wasNote && <p className="mt-2 text-sm text-muted">{data.wasNote}</p>}
             <ul className="mt-5 flex flex-col gap-3">
               {data.was.map((w) => (
                 <li key={w} className="flex gap-3 text-base leading-relaxed text-ink/85">
@@ -61,7 +63,7 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
             </ul>
           </div>
           <div className="rounded-3xl bg-mint p-7">
-            <h3 className="font-display text-xl font-bold text-ink">Что сделали</h3>
+            <h3 className="font-display text-xl font-bold text-ink">{data.doneTitle ?? "Что сделали"}</h3>
             <ol className="mt-5 grid gap-5 sm:grid-cols-2">
               {data.done.map((d, i) => (
                 <li key={d.title} className="flex gap-3">
@@ -78,53 +80,68 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
           </div>
         </div>
 
+        {data.extra && (
+          <div className="mt-8 rounded-3xl border border-pine/30 bg-white/80 p-7">
+            <h3 className="font-display text-xl font-bold text-ink">{data.extra.title}</h3>
+            <ul className="mt-4 grid gap-3 md:grid-cols-2">
+              {data.extra.items.map((i) => (
+                <li key={i} className="flex gap-3 text-base leading-relaxed text-ink/85">
+                  <HiOutlineCheckCircle className="mt-0.5 shrink-0 text-pine" size={22} />
+                  {i}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {data.quote && (
           <blockquote className="measure mt-10 border-l-4 border-pine pl-5 font-display text-xl font-semibold leading-snug text-ink md:text-2xl">
             {data.quote}
           </blockquote>
         )}
 
-        {/* Сопровождение под ключ */}
-        <div className="mt-14">
-          <h3 className="font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
-            Дальше — сопровождение «под ключ»
-          </h3>
-          <p className="measure mt-3 text-base leading-relaxed text-muted">
-            Одобрение — только часть работы. Клиент не погружается в хаос процесса: его я беру на себя.
-          </p>
-          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {data.steps.map((s, i) => (
-              <li key={s.title} className="rounded-2xl border border-line bg-white/80 p-5">
-                <span className="text-sm font-bold text-pine">Шаг {i + 1}</span>
-                <span className="mt-1 block font-semibold text-ink">{s.title}</span>
-                <span className="mt-1 block text-[0.95rem] leading-relaxed text-ink/80">{s.text}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-
-        {/* Ситуации и CTA */}
-        <div className="mt-14 grid gap-8 md:grid-cols-2">
-          <div>
-            <h3 className="font-display text-xl font-bold text-ink">С какими ситуациями работаю</h3>
-            <ul className="mt-4 flex flex-col gap-3">
-              {data.situations.map((s) => (
-                <li key={s} className="flex gap-3 text-base text-ink/85">
-                  <HiOutlineCheckCircle className="mt-0.5 shrink-0 text-pine" size={22} />
-                  {s}
+        {data.steps && data.steps.length > 0 && (
+          <div className="mt-14">
+            {data.stepsTitle && (
+              <h3 className="font-display text-2xl font-bold tracking-tight text-ink md:text-3xl">
+                {data.stepsTitle}
+              </h3>
+            )}
+            {data.stepsIntro && <p className="measure mt-3 text-base leading-relaxed text-muted">{data.stepsIntro}</p>}
+            <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {data.steps.map((s, i) => (
+                <li key={s.title} className="rounded-2xl border border-line bg-white/80 p-5">
+                  {data.stepsNumbered && <span className="text-sm font-bold text-pine">Шаг {i + 1}</span>}
+                  <span className="mt-1 block font-semibold text-ink">{s.title}</span>
+                  <span className="mt-1 block text-[0.95rem] leading-relaxed text-ink/80">{s.text}</span>
                 </li>
               ))}
-            </ul>
-            {data.volume && <p className="mt-4 text-base font-medium text-ink">{data.volume}</p>}
+            </ol>
           </div>
+        )}
+
+        <div className="mt-14 grid gap-8 md:grid-cols-2">
+          {data.situations && data.situations.length > 0 ? (
+            <div>
+              {data.situationsTitle && <h3 className="font-display text-xl font-bold text-ink">{data.situationsTitle}</h3>}
+              <ul className="mt-4 flex flex-col gap-3">
+                {data.situations.map((s) => (
+                  <li key={s} className="flex gap-3 text-base text-ink/85">
+                    <HiOutlineCheckCircle className="mt-0.5 shrink-0 text-pine" size={22} />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+              {data.volume && <p className="mt-4 text-base font-medium text-ink">{data.volume}</p>}
+            </div>
+          ) : (
+            <div className="hidden md:block" />
+          )}
           <div className="rounded-3xl border border-pine/30 bg-white/80 p-7">
-            <h3 className="font-display text-xl font-bold text-ink">Похожая ситуация?</h3>
-            <p className="mt-3 text-base leading-relaxed text-ink/85">
-              Лучше один раз разобрать её правильно, чем получить десять отказов подряд. Пройдите опрос — я посмотрю,
-              что реально можно сделать в вашем случае. Консультация бесплатная.
-            </p>
+            <h3 className="font-display text-xl font-bold text-ink">{data.ctaTitle}</h3>
+            <p className="mt-3 text-base leading-relaxed text-ink/85">{data.ctaText}</p>
             <SurveyLink className={cta("solid", "lg", "mt-6")}>
-              Разобрать мою ситуацию <HiArrowRight />
+              {data.ctaButton} <HiArrowRight />
             </SurveyLink>
           </div>
         </div>

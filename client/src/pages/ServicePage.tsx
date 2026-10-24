@@ -76,7 +76,7 @@ export function ServicePage() {
               href="#case"
               className="mt-6 mr-3 inline-flex items-center gap-2 rounded-full bg-pine px-4 py-2 text-sm font-semibold text-white hover:bg-pine-deep"
             >
-              Кейс: одобрено 4,88 млн ₽ после банкротства <HiArrowRight />
+              {service.caseStudy.teaser} <HiArrowRight />
             </a>
           )}
           {service.term && (
