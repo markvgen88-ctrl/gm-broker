@@ -22,19 +22,28 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
 
         {/* Результат */}
         <div className="wizard-skin mt-10 overflow-hidden rounded-3xl bg-ink p-7 text-white md:p-10">
-          <div className="grid items-end gap-8 md:grid-cols-[1fr_auto_1fr]">
-            <div>
-              <p className="text-sm text-white/60">Запрашивали</p>
-              <p className="mt-2 font-display text-3xl font-bold md:text-4xl">{data.requested}</p>
+          {data.requested ? (
+            <div className="grid items-end gap-8 md:grid-cols-[1fr_auto_1fr]">
+              <div>
+                <p className="text-sm text-white/60">Запрашивали</p>
+                <p className="mt-2 font-display text-3xl font-bold md:text-4xl">{data.requested}</p>
+              </div>
+              <HiArrowRight className="hidden text-pine-bright md:block" size={36} />
+              <div>
+                <p className="text-sm font-semibold text-pine-bright">{data.approvedLabel ?? "Одобрено"}</p>
+                <p className="mt-2 font-display text-4xl font-extrabold text-pine-bright md:text-6xl">
+                  {data.approved}
+                </p>
+              </div>
             </div>
-            <HiArrowRight className="hidden text-pine-bright md:block" size={36} />
+          ) : (
             <div>
               <p className="text-sm font-semibold text-pine-bright">{data.approvedLabel ?? "Одобрено"}</p>
-              <p className="mt-2 font-display text-4xl font-extrabold text-pine-bright md:text-6xl">
+              <p className="mt-2 font-display text-5xl font-extrabold text-pine-bright md:text-7xl">
                 {data.approved}
               </p>
             </div>
-          </div>
+          )}
           <dl
             className="mt-8 grid gap-4 border-t border-white/15 pt-6"
             style={{ gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))" }}
