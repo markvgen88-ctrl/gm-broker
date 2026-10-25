@@ -21,17 +21,17 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
         {data.intro && <p className="measure mt-5 text-lg leading-relaxed text-muted">{data.intro}</p>}
 
         {/* Результат */}
-        <div className="wizard-skin mt-10 overflow-hidden rounded-3xl bg-ink p-7 text-white md:p-10">
+        <div className="wizard-skin mt-8 overflow-hidden rounded-2xl bg-ink p-5 text-white md:px-8 md:py-6">
           {data.requested ? (
-            <div className="grid items-end gap-8 md:grid-cols-[1fr_auto_1fr]">
+            <div className="grid items-end gap-4 md:grid-cols-[1fr_auto_1fr] md:gap-6">
               <div>
                 <p className="text-sm text-white/60">Запрашивали</p>
-                <p className="mt-2 font-display text-3xl font-bold md:text-4xl">{data.requested}</p>
+                <p className="mt-1 font-display text-2xl font-bold md:text-3xl">{data.requested}</p>
               </div>
-              <HiArrowRight className="hidden text-pine-bright md:block" size={36} />
+              <HiArrowRight className="hidden text-pine-bright md:block" size={28} />
               <div>
                 <p className="text-sm font-semibold text-pine-bright">{data.approvedLabel ?? "Одобрено"}</p>
-                <p className="mt-2 font-display text-4xl font-extrabold text-pine-bright md:text-6xl">
+                <p className="mt-1 font-display text-3xl font-extrabold text-pine-bright md:text-4xl">
                   {data.approved}
                 </p>
               </div>
@@ -39,19 +39,19 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
           ) : (
             <div>
               <p className="text-sm font-semibold text-pine-bright">{data.approvedLabel ?? "Одобрено"}</p>
-              <p className="mt-2 font-display text-5xl font-extrabold text-pine-bright md:text-7xl">
+              <p className="mt-1 font-display text-4xl font-extrabold text-pine-bright md:text-5xl">
                 {data.approved}
               </p>
             </div>
           )}
           <dl
-            className="mt-8 grid gap-4 border-t border-white/15 pt-6"
-            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))" }}
+            className="mt-5 grid gap-3 border-t border-white/15 pt-4"
+            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(9rem, 1fr))" }}
           >
             {data.details.map((d) => (
               <div key={d.label}>
-                <dt className="text-sm text-white/60">{d.label}</dt>
-                <dd className="mt-1 text-lg font-semibold">{d.value}</dd>
+                <dt className="text-xs text-white/60">{d.label}</dt>
+                <dd className="mt-0.5 text-base font-semibold leading-snug">{d.value}</dd>
               </div>
             ))}
           </dl>
