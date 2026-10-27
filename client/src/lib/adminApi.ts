@@ -29,7 +29,7 @@ export interface ContractSummary {
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
-  fields: { label: string; value: string }[];
+  fields: { key: string; label: string; value: string; tone: "good" | "bad" | "neutral" }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
 }

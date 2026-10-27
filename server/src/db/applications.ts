@@ -1,6 +1,8 @@
 import { pool, isDatabaseConfigured } from "./pool.js";
 import type { SubmissionInput } from "../lib/validation.js";
 import { FIELD_LABELS, FIELD_ORDER, formatFieldValue } from "../lib/fields.js";
+import { getFieldTone } from "../lib/fieldTone.js";
+import type { FieldTone } from "../lib/fieldTone.js";
 import { DEFAULT_STATUS } from "../lib/statuses.js";
 import { listContractsForApplication } from "./contracts.js";
 import type { ContractSummary } from "./contracts.js";
@@ -50,7 +52,7 @@ export interface ApplicationComment {
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
-  fields: { label: string; value: string }[];
+  fields: { key: string; label: string; value: string; tone: FieldTone }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
 }
@@ -125,8 +127,10 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
 
   const answers = row.answers as Record<string, string | number>;
   const fields = FIELD_ORDER.filter((key) => answers[key] !== undefined && answers[key] !== "").map((key) => ({
+    key,
     label: FIELD_LABELS[key] ?? key,
     value: formatFieldValue(key, answers[key]),
+    tone: getFieldTone(key, answers[key]),
   }));
 
   const commentsResult = await pool.query<{ id: number; text: string; created_at: string }>(
