@@ -14,7 +14,7 @@ export function ContactNotice({ className = "" }: { className?: string }) {
       <div>
         <p className="text-sm font-medium text-silver md:text-[15px]">Отвечаем в текстовом формате</p>
         <p className="mt-1 text-sm leading-relaxed text-silver/85 md:text-[15px]">
-          Клиенты часто не отвечают на звонок, поэтому мы пишем, а не звоним. Проверяйте, пожалуйста, почту, SMS и
+          Клиенты часто не отвечают на звонок, поэтому мы пишем, а не звоним. Проверяйте пожалуйста почту, SMS и
           сообщения в мессенджерах.
         </p>
         <ul className="mt-2.5 flex flex-wrap gap-1.5">
