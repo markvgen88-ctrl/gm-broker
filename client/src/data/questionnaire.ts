@@ -54,8 +54,12 @@ import type { QuestionnaireGraph } from "@/types/questionnaire";
  *    f_tax_N / f_115fz_N / f_bailiffs_N), у ИП и ООО — после карт/счетов
  *    банков и перед суммой кредита. (2) Физлицо: после вопроса про МФО
  *    (ветки «текущая просрочка» и «просрочка за 12 мес.») сразу идёт «самый
- *    большой кредит» — вопросы об остатке и платежах там убраны (узлы
- *    f_loan_balance_2 / f_monthly_payments_2 удалены); «нет кредитов и нет
+ *    большой кредит» (узел МФО в той карте был общий для обеих веток). В карте
+ *    от 27.10.2026 ветка «действующие кредиты → текущая просрочка» получила
+ *    собственный узел МФО → остаток (f_loan_balance_5) → платежи
+ *    (f_monthly_payments_5) → самый большой кредит, как и остальные ветки с
+ *    действующими кредитами (в коде — f_mfo_5); ветка «кредитов нет, но была просрочка
+ *    за 12 мес.» остаётся на f_mfo_2 без вопросов об остатке; «нет кредитов и нет
  *    просрочки за 12 мес.» теперь тоже ведёт на «самый большой кредит», а
  *    не сразу на недвижимость. (3) ИП: порядок — возраст → город по
  *    прописке → фактический адрес → дата открытия; вопрос «доход
@@ -218,7 +222,7 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "У вас сейчас есть действующая просроченная задолженность?",
     options: [
       { label: "Нет", value: "no", next: "f_overdue_12m_1" },
-      { label: "Да", value: "yes", next: "f_mfo_2" },
+      { label: "Да", value: "yes", next: "f_mfo_5" },
     ],
   },
 
@@ -420,6 +424,43 @@ export const questionnaireGraph: QuestionnaireGraph = {
       { label: "Нет", value: "no", next: "f_biggest_paid_loan_2" },
       { label: "Да", value: "yes", next: "f_biggest_paid_loan_2" },
     ],
+  },
+
+  // Действующие кредиты + текущая просрочка: МФО → остаток → платежи → самый
+  // большой кредит. Узел отделён от f_mfo_2 (его делит ветка «нет кредитов,
+  // но была просрочка за 12 мес.»), чтобы у клиента с действующими кредитами
+  // обязательно спрашивались остаток и платежи (как в остальных ветках).
+  f_mfo_5: {
+    id: "f_mfo_5",
+    kind: "choice",
+    field: "usesMFO",
+    question: "Вы пользуетесь услугами микрофинансовых организаций?",
+    options: [
+      { label: "Нет", value: "no", next: "f_loan_balance_5" },
+      { label: "Да", value: "yes", next: "f_loan_balance_5" },
+    ],
+  },
+
+  f_loan_balance_5: {
+    id: "f_loan_balance_5",
+    kind: "input",
+    field: "loanBalance",
+    inputType: "number",
+    question: "Напишите остаток задолженности по действующим кредитам",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_monthly_payments_5",
+  },
+
+  f_monthly_payments_5: {
+    id: "f_monthly_payments_5",
+    kind: "input",
+    field: "monthlyPayments",
+    inputType: "number",
+    question: "Напишите общую сумму платежей в месяц по действующим кредитам",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_biggest_paid_loan_2",
   },
 
   f_biggest_paid_loan_2: {
