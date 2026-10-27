@@ -40,6 +40,7 @@ export interface ServiceRequestPayload {
   name: string;
   phone: string;
   email: string;
+  telegram?: string;
   comment?: string;
   consent: true;
   /** Поле-ловушка для ботов, человек его не заполняет. */

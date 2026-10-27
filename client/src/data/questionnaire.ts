@@ -389,7 +389,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   f_minor_owners_1: {
@@ -604,7 +603,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   f_car_2: {
@@ -825,7 +823,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   f_relatives_pledge_3: {
@@ -1046,7 +1043,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   f_relatives_pledge_4: {
@@ -1234,7 +1230,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   f_relatives_pledge_5: {
@@ -1513,7 +1508,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },
 
   // ==========================================================
@@ -1696,7 +1690,6 @@ export const questionnaireGraph: QuestionnaireGraph = {
     kind: "final",
     field: "contactInfo",
     question: "Спасибо, что прошли опрос!",
-    hint: "Оставьте ваш актуальный адрес электронной почты — на него брокер пришлёт ответ после анализа заявки.",
   },};
 
 /** Человекочитаемые подписи полей — используются при сборке HTML-отчёта. */

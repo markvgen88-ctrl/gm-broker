@@ -53,6 +53,8 @@ export async function ensureSchema(): Promise<void> {
       -- Старые заявки (до появления колонки) — это заявки на заморозку.
       ALTER TABLE freeze_requests
         ADD COLUMN IF NOT EXISTS service TEXT NOT NULL DEFAULT 'zamorozka-kreditnogo-dogovora';
+      ALTER TABLE freeze_requests
+        ADD COLUMN IF NOT EXISTS telegram TEXT;
 
       -- Сквозной счётчик номеров договора. Стартовое значение 1492 — это
       -- последний номер, реально выданный старым Telegram-ботом (до

@@ -11,6 +11,7 @@ import { SuccessScreen } from "@/components/wizard/SuccessScreen";
 import { useWizard } from "@/hooks/useWizard";
 import { submitApplication } from "@/lib/api";
 import type { AnswersState } from "@/types/questionnaire";
+import { normalizeTelegram } from "@/lib/telegram";
 
 const slideVariants = {
   enter: (direction: 1 | -1) => ({ opacity: 0, x: direction * 32 }),
@@ -28,11 +29,13 @@ export function Wizard() {
     setSubmitting(true);
     setSubmitError(null);
 
+    const telegram = normalizeTelegram(values.telegram) ?? "";
     const finalAnswers: AnswersState = {
       ...wizard.answers,
       name: values.name,
       phone: values.phone,
       contactInfo: values.contactInfo,
+      ...(telegram ? { telegram } : {}),
     };
 
     try {
@@ -41,7 +44,12 @@ export function Wizard() {
         answers: finalAnswers,
         submittedAt: new Date().toISOString(),
       });
-      wizard.setFinalAnswers({ name: values.name, phone: values.phone, contactInfo: values.contactInfo });
+      wizard.setFinalAnswers({
+        name: values.name,
+        phone: values.phone,
+        contactInfo: values.contactInfo,
+        ...(telegram ? { telegram } : {}),
+      });
       setSubmitted(true);
     } catch (error) {
       setSubmitError(

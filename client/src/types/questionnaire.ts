@@ -56,7 +56,8 @@ export type FieldKey =
   | "orgTurnover"
   | "name"
   | "phone"
-  | "contactInfo";
+  | "contactInfo"
+  | "telegram";
 
 export type AnswerValue = string | number;
 

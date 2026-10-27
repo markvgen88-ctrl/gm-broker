@@ -18,8 +18,8 @@ export async function saveServiceRequest(data: ServiceRequestInput): Promise<Ser
   }
   try {
     await pool.query(
-      `INSERT INTO freeze_requests (service, name, phone, email, comment) VALUES ($1, $2, $3, $4, $5)`,
-      [data.service, data.name, data.phone, data.email, data.comment || null]
+      `INSERT INTO freeze_requests (service, name, phone, email, telegram, comment) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [data.service, data.name, data.phone, data.email, data.telegram || null, data.comment || null]
     );
     return { ok: true };
   } catch (error) {

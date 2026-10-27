@@ -5,6 +5,8 @@ import { z } from "zod";
 import { Link } from "react-router-dom";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
+import { ContactNotice } from "@/components/ui/ContactNotice";
+import { normalizeTelegram, TELEGRAM_ERROR } from "@/lib/telegram";
 import { submitServiceRequest } from "@/lib/api";
 import type { Service } from "@/data/services";
 
@@ -19,6 +21,7 @@ const schema = z.object({
     .min(10, "Укажите номер телефона для связи")
     .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
   email: z.string().trim().email("Укажите корректный e-mail"),
+  telegram: z.string().trim().max(120).refine((v) => normalizeTelegram(v) !== null, TELEGRAM_ERROR),
   comment: z.string().trim().max(2000, "Комментарий слишком длинный (до 2000 символов)"),
   consent: z.boolean().refine((v) => v === true, {
     message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
@@ -53,7 +56,7 @@ export function ServiceRequestForm({ service }: { service: Service }) {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", phone: "", email: "", comment: "", consent: false, website: "" },
+    defaultValues: { name: "", phone: "", email: "", telegram: "", comment: "", consent: false, website: "" },
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -64,6 +67,7 @@ export function ServiceRequestForm({ service }: { service: Service }) {
         name: values.name,
         phone: values.phone,
         email: values.email,
+        telegram: normalizeTelegram(values.telegram) || undefined,
         comment: values.comment || undefined,
         consent: true,
         website: values.website,
@@ -92,7 +96,9 @@ export function ServiceRequestForm({ service }: { service: Service }) {
       noValidate
       className="relative rounded-3xl border border-white/10 bg-graphite p-6 md:p-10"
     >
-      <div className="grid gap-5">
+      <ContactNotice />
+
+      <div className="mt-6 grid gap-5">
         <div>
           <label htmlFor="fr-name" className={labelCls}>
             Имя
@@ -137,6 +143,22 @@ export function ServiceRequestForm({ service }: { service: Service }) {
             {...register("email")}
           />
           {errors.email && <p className={errCls}>{errors.email.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="fr-telegram" className={labelCls}>
+            Telegram <span className="normal-case tracking-normal text-metal/60">— если есть</span>
+          </label>
+          <input
+            id="fr-telegram"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder="@username или ссылка t.me/…"
+            className={inputCls}
+            {...register("telegram")}
+          />
+          {errors.telegram && <p className={errCls}>{errors.telegram.message}</p>}
         </div>
 
         <div>

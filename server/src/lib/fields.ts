@@ -51,6 +51,7 @@ export const FIELD_LABELS: Record<string, string> = {
   name: "Имя",
   phone: "Телефон",
   contactInfo: "E-mail",
+  telegram: "Telegram",
 };
 
 /** Порядок полей при выводе полной анкеты в отчёте (соответствует новому порядку вопросов в анкете). */

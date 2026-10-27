@@ -52,6 +52,7 @@ export interface ApplicationComment {
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
+  telegram: string | null;
   fields: { key: string; label: string; value: string; tone: FieldTone }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
@@ -140,8 +141,11 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
   const comments = commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at }));
   const contracts = await listContractsForApplication(id);
 
+  const telegramRaw = String(answers.telegram ?? "").trim();
+
   return {
     ...toListItem(row),
+    telegram: telegramRaw || null,
     fields,
     comments,
     contracts,

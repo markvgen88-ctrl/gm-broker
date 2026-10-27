@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeTelegram, TELEGRAM_ERROR } from "./telegram.js";
 
 // Тот же формат, что и на клиенте (client/src/components/wizard/FinalStep.tsx) —
 // допускает +7/8/7, пробелы, скобки и дефисы.
@@ -17,6 +18,9 @@ export const submissionSchema = z.object({
     })
     .refine((a) => typeof a.contactInfo === "string" && z.string().email().safeParse(a.contactInfo.trim()).success, {
       message: "Укажите корректный e-mail",
+    })
+    .refine((a) => a.telegram === undefined || (typeof a.telegram === "string" && normalizeTelegram(a.telegram) !== null), {
+      message: TELEGRAM_ERROR,
     }),
 });
 

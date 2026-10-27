@@ -107,6 +107,7 @@ export async function buildApplicationsWorkbook(rows: ExportRow[]): Promise<Buff
     { header: "Имя", key: "name", width: 26 },
     { header: "Телефон", key: "phone", width: 18 },
     { header: "E-mail", key: "email", width: 28 },
+    { header: "Telegram", key: "telegram", width: 20 },
     ...answerFields.map((f) => ({
       header: HEADER_OVERRIDES[f] ?? FIELD_LABELS[f] ?? f,
       key: `f_${f}`,
@@ -132,6 +133,7 @@ export async function buildApplicationsWorkbook(rows: ExportRow[]): Promise<Buff
       name: r.name,
       phone: r.phone,
       email: r.email,
+      telegram: String(r.answers.telegram ?? ""),
       contracts: r.contracts.map((c) => `№ ${c.num} от ${formatMoscowDate(c.at)}`).join("\n"),
       comments: r.comments.map((c) => `${formatMoscow(c.at)} — ${c.text}`).join("\n\n"),
     };

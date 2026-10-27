@@ -29,6 +29,7 @@ export interface ContractSummary {
 }
 
 export interface ApplicationDetail extends ApplicationListItem {
+  telegram: string | null;
   fields: { key: string; label: string; value: string; tone: "good" | "bad" | "neutral" }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];

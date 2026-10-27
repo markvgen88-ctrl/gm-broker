@@ -24,6 +24,7 @@ export function buildServiceRequestReport(data: ServiceRequestInput, receivedAt:
     ["Имя", data.name],
     ["Телефон", data.phone],
     ["E-mail", data.email],
+    ...(data.telegram ? ([["Telegram", data.telegram]] as [string, string][]) : []),
     ["Комментарий", data.comment || "не указан"],
     ["Получена", `${when} (МСК)`],
   ];

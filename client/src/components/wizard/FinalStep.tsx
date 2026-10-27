@@ -4,6 +4,8 @@ import { z } from "zod";
 import { Link } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
+import { ContactNotice } from "@/components/ui/ContactNotice";
+import { normalizeTelegram, TELEGRAM_ERROR } from "@/lib/telegram";
 import type { FinalNode } from "@/types/questionnaire";
 
 // Достаточно гибкий формат российского номера: допускает +7/8/7, пробелы,
@@ -18,6 +20,7 @@ const finalSchema = z.object({
     .min(10, "Укажите номер телефона для связи")
     .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
   contactInfo: z.string().trim().email("Укажите корректный e-mail"),
+  telegram: z.string().trim().max(120).refine((v) => normalizeTelegram(v) !== null, TELEGRAM_ERROR),
   consent: z.boolean().refine((v) => v === true, {
     message: "Нужно согласие на обработку персональных данных, чтобы продолжить",
   }),
@@ -40,7 +43,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
     formState: { errors },
   } = useForm<FinalFormValues>({
     resolver: zodResolver(finalSchema),
-    defaultValues: { name: "", phone: "", contactInfo: "", consent: false },
+    defaultValues: { name: "", phone: "", contactInfo: "", telegram: "", consent: false },
   });
 
   return (
@@ -49,6 +52,8 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
         {node.question}
       </h3>
       {node.hint && <p className="mt-3 text-sm leading-relaxed text-metal md:text-base">{node.hint}</p>}
+
+      <ContactNotice className="mt-5" />
 
       <div className="mt-8 grid gap-5">
         <div>
@@ -95,6 +100,22 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
             {...register("contactInfo")}
           />
           {errors.contactInfo && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.contactInfo.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="telegram" className="mb-2 block text-xs font-medium uppercase tracking-wider text-metal">
+            Telegram <span className="normal-case tracking-normal text-metal/60">— если есть</span>
+          </label>
+          <input
+            id="telegram"
+            autoComplete="off"
+            autoCapitalize="none"
+            spellCheck={false}
+            placeholder="@username или ссылка t.me/…"
+            className="w-full rounded-xl border border-white/12 bg-graphite/60 px-5 py-4 text-base text-silver placeholder:text-metal/50 transition-colors duration-250 focus:border-gold/60 focus:outline-none"
+            {...register("telegram")}
+          />
+          {errors.telegram && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.telegram.message}</p>}
         </div>
 
         <div>

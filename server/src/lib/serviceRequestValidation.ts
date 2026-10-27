@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeTelegram, TELEGRAM_ERROR } from "./telegram.js";
 import { DEFAULT_REQUEST_SERVICE, REQUEST_SERVICE_SLUGS } from "./requestServices.js";
 
 // Тот же формат телефона, что в анкете.
@@ -17,6 +18,13 @@ export const serviceRequestSchema = z.object({
     .trim()
     .regex(PHONE_REGEX, "Укажите корректный номер телефона"),
   email: z.string().trim().max(160).email("Укажите корректный e-mail"),
+  telegram: z
+    .string()
+    .trim()
+    .max(120)
+    .refine((v) => normalizeTelegram(v) !== null, TELEGRAM_ERROR)
+    .transform((v) => normalizeTelegram(v) ?? "")
+    .optional(),
   comment: z.string().trim().max(2000, "Комментарий слишком длинный (до 2000 символов)").optional(),
   consent: z.literal(true, { message: "Нужно согласие на обработку персональных данных" }),
   website: z.string().max(200).optional(),

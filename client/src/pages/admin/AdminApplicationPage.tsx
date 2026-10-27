@@ -133,6 +133,19 @@ export function AdminApplicationPage() {
           <h1 className="font-display text-xl font-semibold sm:text-2xl">{item.name}</h1>
           <p className="mt-1 break-words text-sm text-metal sm:text-base">
             {item.phone} · {item.email}
+            {item.telegram && (
+              <>
+                {" · "}
+                <a
+                  href={`https://t.me/${item.telegram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gold hover:underline"
+                >
+                  {item.telegram}
+                </a>
+              </>
+            )}
           </p>
           <p className="mt-1 text-xs text-metal">
             Заявка №{item.id} · {dateTimeFormatter.format(new Date(item.createdAt))}

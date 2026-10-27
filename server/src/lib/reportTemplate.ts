@@ -1,5 +1,6 @@
 import { FIELD_LABELS, FIELD_ORDER, formatFieldValue } from "./fields.js";
 import type { SubmissionInput } from "./validation.js";
+import { normalizeTelegram } from "./telegram.js";
 
 export interface BuiltReport {
   subject: string;
@@ -36,6 +37,8 @@ export function buildReport(input: SubmissionInput): BuiltReport {
   const name = String(answers.name ?? "—");
   const phone = String(answers.phone ?? "—");
   const contactInfo = String(answers.contactInfo ?? "—");
+  const telegramRaw = String(answers.telegram ?? "").trim();
+  const clientTelegram = telegramRaw ? normalizeTelegram(telegramRaw) ?? telegramRaw : "";
   const loanAmount = answers.loanAmount !== undefined ? formatFieldValue("loanAmount", answers.loanAmount) : "—";
   const loanPurpose = answers.loanPurpose !== undefined ? String(answers.loanPurpose) : "—";
   const clientTypeLabel = formatFieldValue("clientType", clientType);
@@ -115,11 +118,21 @@ export function buildReport(input: SubmissionInput): BuiltReport {
                           </td>
                         </tr>
                         <tr>
-                          <td style="font-size:13px;color:${MUTED};">E-mail</td>
-                          <td style="font-size:14px;color:${INK};font-weight:700;">
+                          <td style="font-size:13px;color:${MUTED};${clientTelegram ? "padding-bottom:6px;" : ""}">E-mail</td>
+                          <td style="font-size:14px;color:${INK};font-weight:700;${clientTelegram ? "padding-bottom:6px;" : ""}">
                             <a href="mailto:${escapeHtml(contactInfo)}" style="color:${INK};text-decoration:none;">${escapeHtml(contactInfo)}</a>
                           </td>
-                        </tr>
+                        </tr>${
+                          clientTelegram
+                            ? `
+                        <tr>
+                          <td style="font-size:13px;color:${MUTED};">Telegram</td>
+                          <td style="font-size:14px;color:${INK};font-weight:700;">
+                            <a href="https://t.me/${escapeHtml(clientTelegram.replace(/^@/, ""))}" style="color:${INK};text-decoration:none;">${escapeHtml(clientTelegram)}</a>
+                          </td>
+                        </tr>`
+                            : ""
+                        }
                       </table>
                     </td>
                   </tr>
@@ -189,6 +202,7 @@ export function buildReport(input: SubmissionInput): BuiltReport {
     `🙋 <b>Имя:</b> ${escapeHtml(name)}`,
     `📞 <b>Телефон:</b> ${escapeHtml(phone)}`,
     `📧 <b>E-mail:</b> ${escapeHtml(contactInfo)}`,
+    ...(clientTelegram ? [`✈️ <b>Telegram:</b> ${escapeHtml(clientTelegram)}`] : []),
     "",
     `💰 <b>Сумма:</b> ${escapeHtml(loanAmount)}`,
     `🎯 <b>Цель:</b> ${escapeHtml(loanPurpose)}`,
