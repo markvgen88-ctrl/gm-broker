@@ -28,7 +28,7 @@ export function Hero() {
             ))}
           </ul>
 
-          <p className="mt-8 max-w-md text-sm leading-relaxed text-muted">
+          <p className="mt-8 max-w-lg text-base font-medium leading-relaxed text-[#c62828]">
             Клиентам с просрочкой доступно только залоговое кредитование от 21% годовых. Если получить кредит
             невозможно, скажу об этом сразу и дам бесплатную рекомендацию.
           </p>
