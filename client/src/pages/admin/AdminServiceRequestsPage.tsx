@@ -3,17 +3,12 @@ import { Link } from "react-router-dom";
 import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { DualTime } from "@/components/admin/DualTime";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
 import { deleteServiceRequest, fetchServiceRequests } from "@/lib/adminApi";
 import type { ServiceRequestListItem } from "@/lib/adminApi";
 import { cn } from "@/lib/utils";
-
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "Europe/Moscow",
-});
 
 /**
  * Заявки по услугам (заморозка, банкротство, реструктуризация и т. д.) —
@@ -194,7 +189,7 @@ export function AdminServiceRequestsPage() {
                       {item.email && <div className="text-xs">{item.email}</div>}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-metal">
-                      {dateFormatter.format(new Date(item.createdAt))}
+                      <DualTime iso={item.createdAt} />
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={item.status} />
@@ -232,7 +227,7 @@ export function AdminServiceRequestsPage() {
                   {item.email ? ` · ${item.email}` : ""}
                 </p>
                 <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-metal">
-                  <span className="shrink-0">{dateFormatter.format(new Date(item.createdAt))}</span>
+                  <DualTime iso={item.createdAt} className="shrink-0" />
                   {item.lastComment && <span className="min-w-0 flex-1 truncate italic">«{item.lastComment.text}»</span>}
                   <DeleteButton
                     onClick={(e) => {

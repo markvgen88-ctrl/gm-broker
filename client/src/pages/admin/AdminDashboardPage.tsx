@@ -4,16 +4,11 @@ import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { DeleteButton } from "@/components/admin/DeleteButton";
+import { DualTime } from "@/components/admin/DualTime";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
 import { deleteApplication, downloadApplicationsExcel, fetchApplications } from "@/lib/adminApi";
 import type { ApplicationListItem } from "@/lib/adminApi";
 import { cn } from "@/lib/utils";
-
-const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "Europe/Moscow",
-});
 
 export function AdminDashboardPage() {
   const [filter, setFilter] = useState<string>("all");
@@ -158,7 +153,7 @@ export function AdminDashboardPage() {
                       <div className="text-xs">{item.email}</div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap text-metal">
-                      {dateFormatter.format(new Date(item.createdAt))}
+                      <DualTime iso={item.createdAt} />
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={item.status} />
@@ -195,7 +190,7 @@ export function AdminDashboardPage() {
                   {item.phone} · {item.email}
                 </p>
                 <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-metal">
-                  <span className="shrink-0">{dateFormatter.format(new Date(item.createdAt))}</span>
+                  <DualTime iso={item.createdAt} className="shrink-0" />
                   {item.lastComment && <span className="min-w-0 flex-1 truncate italic">«{item.lastComment.text}»</span>}
                   <DeleteButton
                     onClick={(e) => {

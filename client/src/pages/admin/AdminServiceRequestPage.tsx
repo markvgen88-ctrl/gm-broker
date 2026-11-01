@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StatusEditor } from "@/components/admin/StatusEditor";
+import { DualTime } from "@/components/admin/DualTime";
 import { Button } from "@/components/ui/Button";
 import {
   addServiceRequestComment,
@@ -124,7 +125,7 @@ export function AdminServiceRequestPage() {
             )}
           </p>
           <p className="mt-1 text-xs text-metal">
-            Заявка по услуге №{item.id} · {dateTimeFormatter.format(new Date(item.createdAt))}
+            Заявка по услуге №{item.id} · <DualTime iso={item.createdAt} variant="inline" />
           </p>
         </div>
 

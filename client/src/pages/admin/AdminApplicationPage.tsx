@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StatusEditor } from "@/components/admin/StatusEditor";
+import { DualTime } from "@/components/admin/DualTime";
 import { ContractHistory } from "@/components/admin/ContractHistory";
 import { ContractWizardModal } from "@/components/admin/ContractWizardModal";
 import { Button } from "@/components/ui/Button";
@@ -148,7 +149,7 @@ export function AdminApplicationPage() {
             )}
           </p>
           <p className="mt-1 text-xs text-metal">
-            Заявка №{item.id} · {dateTimeFormatter.format(new Date(item.createdAt))}
+            Заявка №{item.id} · <DualTime iso={item.createdAt} variant="inline" />
           </p>
         </div>
 
