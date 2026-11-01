@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
+import { FiTrash2 } from "react-icons/fi";
 import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
-import { fetchServiceRequests } from "@/lib/adminApi";
+import { deleteServiceRequest, fetchServiceRequests } from "@/lib/adminApi";
 import type { ServiceRequestListItem } from "@/lib/adminApi";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +25,22 @@ export function AdminServiceRequestsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [items, setItems] = useState<ServiceRequestListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  // Удаление прямо из списка (иконка-мусорка в строке), без захода в карточку.
+  const handleDelete = async (item: ServiceRequestListItem) => {
+    if (!window.confirm(`Удалить заявку «${item.name}» без возможности восстановить?`)) return;
+    setDeletingId(item.id);
+    setError(null);
+    try {
+      await deleteServiceRequest(item.id);
+      setItems((prev) => (prev ? prev.filter((i) => i.id !== item.id) : prev));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Не удалось удалить заявку");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -170,8 +188,14 @@ export function AdminServiceRequestsPage() {
                     <td className="px-4 py-3">
                       <StatusBadge status={item.status} />
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <LastCommentIndicator comment={item.lastComment} />
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        <LastCommentIndicator comment={item.lastComment} />
+                        <DeleteButton
+                          onClick={() => handleDelete(item)}
+                          disabled={deletingId === item.id}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -198,7 +222,17 @@ export function AdminServiceRequestsPage() {
                 </p>
                 <div className="mt-1.5 flex items-center justify-between gap-2 text-xs text-metal">
                   <span className="shrink-0">{dateFormatter.format(new Date(item.createdAt))}</span>
-                  {item.lastComment && <span className="truncate italic">«{item.lastComment.text}»</span>}
+                  {item.lastComment && <span className="min-w-0 flex-1 truncate italic">«{item.lastComment.text}»</span>}
+                  <DeleteButton
+                    onClick={(e) => {
+                      // Карточка — ссылка в заявку: не даём клику по мусорке открыть её.
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleDelete(item);
+                    }}
+                    disabled={deletingId === item.id}
+                    className="ml-auto"
+                  />
                 </div>
               </Link>
             ))}
@@ -237,6 +271,33 @@ function FilterTab({
     >
       {label}
       {typeof count === "number" && <span className="ml-1.5 opacity-60">{count}</span>}
+    </button>
+  );
+}
+
+function DeleteButton({
+  onClick,
+  disabled,
+  className,
+}: {
+  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
+  disabled?: boolean;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label="Удалить заявку"
+      title="Удалить заявку"
+      className={cn(
+        "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] text-metal transition-colors",
+        "hover:border-rose-400/60 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+    >
+      <FiTrash2 className="h-3.5 w-3.5" />
     </button>
   );
 }
