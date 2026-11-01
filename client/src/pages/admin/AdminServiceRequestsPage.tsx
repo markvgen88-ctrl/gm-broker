@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import type { MouseEvent } from "react";
 import { Link } from "react-router-dom";
-import { FiTrash2 } from "react-icons/fi";
 import { ADMIN_STATUS_SUGGESTIONS } from "@/data/adminStatuses";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { DeleteButton } from "@/components/admin/DeleteButton";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
 import { deleteServiceRequest, fetchServiceRequests } from "@/lib/adminApi";
@@ -35,6 +34,18 @@ export function AdminServiceRequestsPage() {
     try {
       await deleteServiceRequest(item.id);
       setItems((prev) => (prev ? prev.filter((i) => i.id !== item.id) : prev));
+      // Если удалили последнюю заявку выбранной услуги или статуса — вкладка
+      // исчезнет, возвращаем «Все», чтобы не остаться на пустом фильтре.
+      const rest = (items ?? []).filter((i) => i.id !== item.id);
+      if (serviceFilter !== "all" && !rest.some((i) => i.service === serviceFilter)) {
+        setServiceFilter("all");
+        setStatusFilter("all");
+      } else if (
+        statusFilter !== "all" &&
+        !rest.some((i) => (serviceFilter === "all" || i.service === serviceFilter) && i.status === statusFilter)
+      ) {
+        setStatusFilter("all");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Не удалось удалить заявку");
     } finally {
@@ -271,33 +282,6 @@ function FilterTab({
     >
       {label}
       {typeof count === "number" && <span className="ml-1.5 opacity-60">{count}</span>}
-    </button>
-  );
-}
-
-function DeleteButton({
-  onClick,
-  disabled,
-  className,
-}: {
-  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
-  disabled?: boolean;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label="Удалить заявку"
-      title="Удалить заявку"
-      className={cn(
-        "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/[0.03] text-metal transition-colors",
-        "hover:border-rose-400/60 hover:text-rose-400 disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
-    >
-      <FiTrash2 className="h-3.5 w-3.5" />
     </button>
   );
 }
