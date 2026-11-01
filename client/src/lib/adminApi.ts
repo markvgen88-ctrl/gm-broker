@@ -35,6 +35,26 @@ export interface ApplicationDetail extends ApplicationListItem {
   contracts: ContractSummary[];
 }
 
+/** Заявка по услуге (заморозка, банкротство и т. д.) — отдельный раздел CRM. */
+export interface ServiceRequestListItem {
+  id: number;
+  createdAt: string;
+  service: string;
+  serviceTitle: string;
+  name: string;
+  phone: string;
+  email: string | null;
+  telegram: string | null;
+  /** Комментарий клиента из формы на сайте */
+  clientComment: string | null;
+  status: string;
+  lastComment: { text: string; createdAt: string } | null;
+}
+
+export interface ServiceRequestDetail extends ServiceRequestListItem {
+  comments: ApplicationComment[];
+}
+
 class AdminApiError extends Error {}
 
 async function adminFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -194,4 +214,33 @@ export async function downloadApplicationsExcel(status?: string): Promise<void> 
 
 export async function deleteContract(contractId: number): Promise<void> {
   await adminFetch(`/contracts/${contractId}`, { method: "DELETE" });
+}
+
+export async function fetchServiceRequests(): Promise<ServiceRequestListItem[]> {
+  const data = await adminFetch<{ items: ServiceRequestListItem[] }>("/service-requests");
+  return data.items;
+}
+
+export async function fetchServiceRequest(id: number): Promise<ServiceRequestDetail> {
+  const data = await adminFetch<{ item: ServiceRequestDetail }>(`/service-requests/${id}`);
+  return data.item;
+}
+
+export async function updateServiceRequestStatus(id: number, status: string): Promise<void> {
+  await adminFetch(`/service-requests/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function addServiceRequestComment(id: number, text: string): Promise<ApplicationComment> {
+  const data = await adminFetch<{ comment: ApplicationComment }>(`/service-requests/${id}/comments`, {
+    method: "POST",
+    body: JSON.stringify({ text }),
+  });
+  return data.comment;
+}
+
+export async function deleteServiceRequest(id: number): Promise<void> {
+  await adminFetch(`/service-requests/${id}`, { method: "DELETE" });
 }

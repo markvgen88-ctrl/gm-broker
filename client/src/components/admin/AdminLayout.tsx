@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import { Link, Navigate, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { adminCheckSession, adminLogout } from "@/lib/adminApi";
+import { cn } from "@/lib/utils";
 
 export function AdminLayout() {
   const [authState, setAuthState] = useState<"checking" | "authed" | "guest">("checking");
@@ -35,6 +37,9 @@ export function AdminLayout() {
     navigate("/admin/login", { replace: true });
   };
 
+  // Два раздела CRM: анкеты на кредитование и заявки по услугам.
+  const onServices = location.pathname.startsWith("/admin/service-requests");
+
   if (authState === "checking") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg text-metal">
@@ -58,10 +63,34 @@ export function AdminLayout() {
             Выйти
           </Button>
         </div>
+        <nav className="mx-auto flex max-w-6xl gap-2 px-4 pb-3 sm:px-6">
+          <SectionTab to="/admin" active={!onServices}>
+            Кредитование
+          </SectionTab>
+          <SectionTab to="/admin/service-requests" active={onServices}>
+            Услуги
+          </SectionTab>
+        </nav>
       </header>
       <main className="mx-auto max-w-6xl px-4 py-5 sm:px-6 sm:py-8">
         <Outlet />
       </main>
     </div>
+  );
+}
+
+function SectionTab({ to, active, children }: { to: string; active: boolean; children: ReactNode }) {
+  return (
+    <Link
+      to={to}
+      className={cn(
+        "rounded-full border px-4 py-1.5 text-sm transition-colors",
+        active
+          ? "border-gold/60 bg-gold/10 text-gold"
+          : "border-white/10 text-metal hover:border-white/25 hover:text-silver"
+      )}
+    >
+      {children}
+    </Link>
   );
 }

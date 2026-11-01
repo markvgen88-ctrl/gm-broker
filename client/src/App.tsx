@@ -13,6 +13,8 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import { AdminApplicationPage } from "@/pages/admin/AdminApplicationPage";
+import { AdminServiceRequestsPage } from "@/pages/admin/AdminServiceRequestsPage";
+import { AdminServiceRequestPage } from "@/pages/admin/AdminServiceRequestPage";
 
 function AppShell() {
   // Внутренняя CRM-панель не должна показывать публичные шапку/футер сайта.
@@ -41,6 +43,8 @@ function AppShell() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="applications/:id" element={<AdminApplicationPage />} />
+            <Route path="service-requests" element={<AdminServiceRequestsPage />} />
+            <Route path="service-requests/:id" element={<AdminServiceRequestPage />} />
           </Route>
         </Routes>
         {!isAdminRoute && <Footer />}

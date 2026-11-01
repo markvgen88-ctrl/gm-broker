@@ -74,7 +74,7 @@ export function AdminDashboardPage() {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3 sm:mb-6">
-        <h1 className="font-display text-xl font-semibold sm:text-2xl">Заявки</h1>
+        <h1 className="font-display text-xl font-semibold sm:text-2xl">Заявки на кредитование</h1>
         <button
           type="button"
           onClick={handleExport}

@@ -56,6 +56,25 @@ export async function ensureSchema(): Promise<void> {
       ALTER TABLE freeze_requests
         ADD COLUMN IF NOT EXISTS telegram TEXT;
 
+      -- Заявки по услугам ведутся в CRM (раздел «Услуги») отдельно от анкет
+      -- на кредитование: свой статус и свои комментарии. Статус по умолчанию
+      -- совпадает с DEFAULT_STATUS в lib/statuses.ts; у уже существующих
+      -- заявок он тоже станет «Новая заявка».
+      ALTER TABLE freeze_requests
+        ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'Новая заявка';
+      ALTER TABLE freeze_requests
+        ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT now();
+
+      CREATE TABLE IF NOT EXISTS service_request_comments (
+        id SERIAL PRIMARY KEY,
+        request_id INTEGER NOT NULL REFERENCES freeze_requests (id) ON DELETE CASCADE,
+        text TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_service_request_comments_request_id
+        ON service_request_comments (request_id);
+
       -- Сквозной счётчик номеров договора. Стартовое значение 1492 — это
       -- последний номер, реально выданный старым Telegram-ботом (до
       -- переноса генерации договоров на сайт), следующий выданный здесь

@@ -17,6 +17,13 @@ import { createContract, deleteContract, getContractById } from "../db/contracts
 import { contractInputSchema } from "../lib/contractValidation.js";
 import { buildApplicationsWorkbook, moscowDateStamp } from "../lib/applicationsExport.js";
 import { generateContractDocx } from "../lib/contractTemplate.js";
+import {
+  addServiceRequestComment,
+  deleteServiceRequest,
+  getServiceRequestById,
+  listServiceRequests,
+  updateServiceRequestStatus,
+} from "../db/serviceRequests.js";
 
 export const adminRouter = Router();
 
@@ -240,4 +247,73 @@ adminRouter.delete("/contracts/:id", async (req: Request, res: Response) => {
     return;
   }
   res.json({ success: true });
+});
+
+// ---------------------------------------------------------------------------
+// Заявки по услугам (заморозка, банкротство и т. д.) — отдельный раздел CRM,
+// не смешивается с анкетами на кредитование. Статусы и комментарии те же по
+// смыслу, но хранятся отдельно (freeze_requests / service_request_comments).
+// ---------------------------------------------------------------------------
+
+adminRouter.get("/service-requests", async (_req: Request, res: Response) => {
+  const items = await listServiceRequests();
+  res.json({ success: true, items });
+});
+
+adminRouter.get("/service-requests/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id заявки" });
+    return;
+  }
+  const item = await getServiceRequestById(id);
+  if (!item) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true, item });
+});
+
+adminRouter.delete("/service-requests/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id заявки" });
+    return;
+  }
+  const deleted = await deleteServiceRequest(id);
+  if (!deleted) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true });
+});
+
+adminRouter.patch("/service-requests/:id/status", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const parsed = statusSchema.safeParse(req.body);
+  if (!Number.isInteger(id) || !parsed.success || !isValidStatusText(parsed.data.status)) {
+    res.status(400).json({ success: false, message: "Статус не может быть пустым или слишком длинным" });
+    return;
+  }
+  const updated = await updateServiceRequestStatus(id, parsed.data.status.trim());
+  if (!updated) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true });
+});
+
+adminRouter.post("/service-requests/:id/comments", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const parsed = commentSchema.safeParse(req.body);
+  if (!Number.isInteger(id) || !parsed.success) {
+    res.status(400).json({ success: false, message: "Комментарий не может быть пустым" });
+    return;
+  }
+  const comment = await addServiceRequestComment(id, parsed.data.text);
+  if (!comment) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true, comment });
 });
