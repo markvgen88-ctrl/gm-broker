@@ -12,6 +12,7 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
   return (
     <section id="case" className="scroll-mt-16 py-14 md:py-20">
       <div className="container-page">
+        <div className="glass rounded-3xl p-6 md:p-10">
         <p className="inline-flex items-center rounded-full bg-pine px-4 py-1.5 text-sm font-semibold text-white">
           Разбор кейса
         </p>
@@ -19,6 +20,7 @@ export function CaseStudyBlock({ data }: { data: CaseStudy }) {
           {data.title}
         </h2>
         {data.intro && <p className="measure mt-5 text-lg leading-relaxed text-muted">{data.intro}</p>}
+        </div>
 
         {/* Результат */}
         <div className="wizard-skin mt-8 overflow-hidden rounded-2xl bg-ink p-5 text-white md:px-8 md:py-6">

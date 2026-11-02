@@ -15,6 +15,7 @@ export function Process() {
         <SectionHeading
           title="Как проходит работа: пять шагов от заявки до денег"
           description="Работа по подбору кредита начинается только после подписания договора."
+          className="glass rounded-3xl p-6 md:p-8"
         />
         <ol className="mt-12 grid gap-px overflow-hidden rounded-3xl border border-line bg-line md:grid-cols-5">
           {STEPS.map((s, i) => (

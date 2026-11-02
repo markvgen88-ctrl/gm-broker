@@ -16,7 +16,7 @@ const APPROACH = [
 
 export function Advantages() {
   return (
-    <section id="advantages" className="section-y scroll-mt-16 bg-white/65">
+    <section id="advantages" className="section-y scroll-mt-16 glass-band">
       <div className="container-page">
         <SectionHeading title="Условия работы понятны заранее" />
 

@@ -56,7 +56,7 @@ export function ArticlePage() {
   return (
     <main className="pt-32 pb-24 md:pt-40 md:pb-32">
       <div className="container-page">
-        <div className="mx-auto max-w-3xl">
+        <div className="glass mx-auto max-w-3xl rounded-3xl p-6 md:p-10">
           <Reveal>
             <a
               href="/articles"

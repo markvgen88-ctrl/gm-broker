@@ -10,7 +10,7 @@ export function Hero() {
   return (
     <section id="top" className="pt-[4.25rem]">
       <div className="container-page pb-16 pt-12 md:pt-16 lg:pb-24 lg:pt-20">
-        <div className="max-w-4xl">
+        <div className="glass max-w-4xl rounded-3xl p-6 sm:p-8 md:p-10">
           <h1 className="font-display text-[2rem] font-extrabold leading-[1.1] tracking-[-0.03em] text-ink sm:text-5xl lg:text-[3.6rem]">
             Профессиональные <span className="text-pine">кредитно-правовые решения</span> для частных лиц и бизнеса
           </h1>

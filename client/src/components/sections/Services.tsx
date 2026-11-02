@@ -6,7 +6,7 @@ const GROUPS: ServiceGroup[] = ["person", "business", "extra"];
 
 export function Services() {
   return (
-    <section id="services" className="section-y scroll-mt-16 bg-white/65">
+    <section id="services" className="section-y scroll-mt-16 glass-band">
       <div className="container-page">
         <SectionHeading
           title="Виды кредитования"

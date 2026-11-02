@@ -24,7 +24,7 @@ export function About() {
             Геннадий Марков, ИП, основатель G.M. Broker
           </figcaption>
         </figure>
-        <div>
+        <div className="glass rounded-3xl p-6 md:p-10">
           <SectionHeading title="Работаю от анализа до результата" />
           <div className="mt-6 flex flex-col gap-4">
             {PARAGRAPHS.map((p) => (

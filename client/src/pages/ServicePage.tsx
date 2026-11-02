@@ -60,12 +60,12 @@ export function ServicePage() {
       <div className="container-page pb-16 pt-10 md:pt-14">
         <Link
           to={isLegal ? "/#debts" : "/#services"}
-          className="inline-flex items-center gap-2 text-sm font-medium text-muted hover:text-pine"
+          className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted hover:text-pine"
         >
           <HiArrowLeft /> {isLegal ? "Вся юридическая помощь" : "Все виды кредитования"}
         </Link>
 
-        <div className="mt-8">
+        <div className="glass mt-6 rounded-3xl p-6 md:p-10">
           <p className="text-sm font-semibold text-pine">{GROUP_TITLES[service.group]}</p>
           <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-6xl">
             {service.title}
@@ -87,7 +87,7 @@ export function ServicePage() {
         </div>
       </div>
 
-      <section className="bg-white/65 py-14 md:py-20">
+      <section className="glass-band py-14 md:py-20">
         <div className={`container-page grid gap-12 ${lists.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {lists.map((l) => (
             <List key={l.title} title={l.title} items={l.items} />
@@ -183,6 +183,7 @@ export function ServicePage() {
 
       <section className="py-14 md:py-20">
         <div className="container-page">
+         <div className="glass rounded-3xl p-6 md:p-8">
           <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
             {isLegal ? "Другие услуги юридической помощи" : "Другие виды кредитования"}
           </h2>
@@ -198,6 +199,7 @@ export function ServicePage() {
               </li>
             ))}
           </ul>
+         </div>
         </div>
       </section>
     </main>

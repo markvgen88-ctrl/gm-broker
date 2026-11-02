@@ -17,7 +17,7 @@ export function ArticlesIndexPage() {
         <SectionHeading
           title="Статьи о кредитах и финансовой безопасности"
           description="Разбираю реальные ситуации из практики — чтобы вы могли принимать решения осознанно."
-          className="mb-14"
+          className="glass mb-10 rounded-3xl p-6 md:mb-14 md:p-8"
         />
 
         {articles.length > 0 ? (

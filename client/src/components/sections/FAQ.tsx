@@ -4,7 +4,8 @@ import { FAQ_ITEMS } from "@/data/faq";
 export function FAQ() {
   return (
     <section id="faq" className="section-y scroll-mt-16">
-      <div className="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+      <div className="container-page">
+        <div className="glass grid gap-10 rounded-3xl p-6 md:p-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <SectionHeading title="Вопросы, которые задают чаще всего" />
         <div className="divide-y divide-line border-y border-line">
           {FAQ_ITEMS.map((item, index) => (
@@ -18,6 +19,7 @@ export function FAQ() {
               <p className="measure mt-3 text-base leading-relaxed text-muted">{item.answer}</p>
             </details>
           ))}
+        </div>
         </div>
       </div>
     </section>

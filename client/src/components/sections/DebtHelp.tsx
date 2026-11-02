@@ -4,7 +4,7 @@ import { servicesByGroup } from "@/data/services";
 
 export function DebtHelp() {
   return (
-    <section id="debts" className="section-y scroll-mt-16 bg-white/65">
+    <section id="debts" className="section-y scroll-mt-16 glass-band">
       <div className="container-page">
         <SectionHeading
           eyebrow="Юридическая помощь"
