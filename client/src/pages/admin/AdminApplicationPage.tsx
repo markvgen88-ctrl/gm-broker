@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { StatusEditor } from "@/components/admin/StatusEditor";
 import { DualTime } from "@/components/admin/DualTime";
+import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ContractHistory } from "@/components/admin/ContractHistory";
 import { ContractWizardModal } from "@/components/admin/ContractWizardModal";
 import { Button } from "@/components/ui/Button";
@@ -174,6 +175,43 @@ export function AdminApplicationPage() {
       {error && <p className="mb-4 text-sm text-rose-400">{error}</p>}
 
       <div className="flex flex-col gap-4 sm:gap-5">
+        {item.related.length > 0 && (
+          <section className="rounded-2xl border border-amber-400/40 bg-amber-500/[0.07] p-4 sm:p-5">
+            <h2 className="text-[11px] font-bold tracking-wider text-amber-300 uppercase">
+              {item.earlierCount > 0 ? "Клиент уже обращался раньше" : "Этот клиент обращался повторно"}
+            </h2>
+            <p className="mt-1 mb-3 text-xs text-metal">
+              Другие заявки с тем же телефоном или e-mail ({item.related.length}). Всего обращений — {item.related.length + 1}.
+            </p>
+            <ul className="space-y-2">
+              {item.related.map((r) => {
+                const matched = [r.sameBy.phone && "телефон", r.sameBy.email && "e-mail"].filter(Boolean).join(" и ");
+                return (
+                  <li key={r.id}>
+                    <Link
+                      to={`/admin/applications/${r.id}`}
+                      className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 transition-colors hover:border-amber-400/40"
+                    >
+                      <span className="min-w-0 text-sm text-silver">
+                        <span className="font-semibold">№{r.id}</span>
+                        <span className="text-metal">
+                          {" · "}
+                          {dateTimeFormatter.format(new Date(r.createdAt))}
+                          {" · "}
+                          {r.clientTypeLabel}
+                          {r.loanAmount ? ` · ${r.loanAmount}` : ""}
+                        </span>
+                        <span className="block text-[11px] text-metal/80">совпадает: {matched}</span>
+                      </span>
+                      <StatusBadge status={r.status} className="shrink-0 text-[11px]" />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
+
         {(loanAmountField || loanPurposeField) && (
           <section className="grid grid-cols-1 overflow-hidden rounded-2xl border border-gold/30 bg-black/40 sm:grid-cols-2">
             <div className="p-4 sm:p-5">

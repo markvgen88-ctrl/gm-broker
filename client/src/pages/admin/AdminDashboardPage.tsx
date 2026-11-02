@@ -5,6 +5,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { LastCommentIndicator } from "@/components/admin/LastCommentIndicator";
 import { DeleteButton } from "@/components/admin/DeleteButton";
 import { DualTime } from "@/components/admin/DualTime";
+import { RepeatBadge } from "@/components/admin/RepeatBadge";
 import { seedCustomStatusesFromUsage } from "@/lib/customStatusStore";
 import { deleteApplication, downloadApplicationsExcel, fetchApplications } from "@/lib/adminApi";
 import type { ApplicationListItem } from "@/lib/adminApi";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 export function AdminDashboardPage() {
   const [filter, setFilter] = useState<string>("all");
+  const [onlyRepeat, setOnlyRepeat] = useState(false);
   const [items, setItems] = useState<ApplicationListItem[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -86,7 +88,9 @@ export function AdminDashboardPage() {
     return [...usedDefaults, ...usedExtra].map((label) => ({ label, count: counts.get(label) ?? 0 }));
   }, [items]);
 
-  const visibleItems = items?.filter((i) => filter === "all" || i.status === filter) ?? null;
+  const visibleItems =
+    items?.filter((i) => (filter === "all" || i.status === filter) && (!onlyRepeat || i.earlierCount > 0)) ?? null;
+  const repeatTotal = items?.filter((i) => i.earlierCount > 0).length ?? 0;
 
   return (
     <div>
@@ -109,6 +113,20 @@ export function AdminDashboardPage() {
         {tabs.map(({ label, count }) => (
           <FilterTab key={label} active={filter === label} onClick={() => setFilter(label)} label={label} count={count} />
         ))}
+        {repeatTotal > 0 && (
+          <button
+            onClick={() => setOnlyRepeat((v) => !v)}
+            className={cn(
+              "rounded-full border px-3 py-1 text-xs transition-colors sm:px-4 sm:py-1.5 sm:text-sm",
+              onlyRepeat
+                ? "border-amber-400/60 bg-amber-500/15 text-amber-300"
+                : "border-amber-400/25 text-amber-300/80 hover:border-amber-400/50"
+            )}
+            title="Показать только заявки от клиентов, которые уже обращались раньше"
+          >
+            Повторные<span className="ml-1.5 opacity-60">{repeatTotal}</span>
+          </button>
+        )}
       </div>
 
       {error && <p className="text-rose-400">{error}</p>}
@@ -143,6 +161,7 @@ export function AdminDashboardPage() {
                       <Link to={`/admin/applications/${item.id}`} className="font-medium text-silver hover:text-gold">
                         {item.name}
                       </Link>
+                      <RepeatBadge earlierCount={item.earlierCount} laterCount={item.laterCount} className="mt-1 block w-fit" />
                     </td>
                     <td className="px-4 py-3 text-metal">
                       {item.clientTypeLabel}
@@ -186,6 +205,7 @@ export function AdminDashboardPage() {
                   {item.clientTypeLabel}
                   {item.loanAmount ? ` · ${item.loanAmount}` : ""}
                 </p>
+                <RepeatBadge earlierCount={item.earlierCount} laterCount={item.laterCount} className="mt-1.5" />
                 <p className="mt-1 truncate text-xs text-metal">
                   {item.phone} · {item.email}
                 </p>

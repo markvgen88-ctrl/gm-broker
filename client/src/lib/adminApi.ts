@@ -11,6 +11,20 @@ export interface ApplicationListItem {
   loanAmount: string | null;
   status: string;
   lastComment: { text: string; createdAt: string } | null;
+  /** Сколько заявок этого же клиента пришло раньше этой (0 — первая). */
+  earlierCount: number;
+  /** Сколько заявок этого же клиента пришло позже этой. */
+  laterCount: number;
+}
+
+/** Другая заявка того же клиента (совпал телефон и/или e-mail). */
+export interface RelatedApplication {
+  id: number;
+  createdAt: string;
+  clientTypeLabel: string;
+  loanAmount: string | null;
+  status: string;
+  sameBy: { phone: boolean; email: boolean };
 }
 
 export interface ApplicationComment {
@@ -33,6 +47,7 @@ export interface ApplicationDetail extends ApplicationListItem {
   fields: { key: string; label: string; value: string; tone: "good" | "bad" | "neutral" }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
+  related: RelatedApplication[];
 }
 
 /** Заявка по услуге (заморозка, банкротство и т. д.) — отдельный раздел CRM. */

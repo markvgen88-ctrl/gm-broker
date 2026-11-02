@@ -43,6 +43,20 @@ export interface ApplicationListItem {
   loanAmount: string | null;
   status: string;
   lastComment: { text: string; createdAt: string } | null;
+  /** Сколько заявок этого же клиента пришло РАНЬШЕ этой (0 — первая). */
+  earlierCount: number;
+  /** Сколько заявок этого же клиента пришло ПОЗЖЕ этой. */
+  laterCount: number;
+}
+
+/** Другая заявка того же клиента (совпал телефон и/или e-mail). */
+export interface RelatedApplication {
+  id: number;
+  createdAt: string;
+  clientTypeLabel: string;
+  loanAmount: string | null;
+  status: string;
+  sameBy: { phone: boolean; email: boolean };
 }
 
 export interface ApplicationComment {
@@ -56,6 +70,8 @@ export interface ApplicationDetail extends ApplicationListItem {
   fields: { key: string; label: string; value: string; tone: FieldTone }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
+  /** Остальные заявки этого клиента, свежие сверху. */
+  related: RelatedApplication[];
 }
 
 /** Сохраняет присланную анкету в базу как новую заявку CRM. */
@@ -90,14 +106,37 @@ function toListItem(row: any): ApplicationListItem {
       row.last_comment_text !== undefined && row.last_comment_text !== null
         ? { text: row.last_comment_text, createdAt: row.last_comment_created_at }
         : null,
+    earlierCount: Number(row.earlier_count ?? 0),
+    laterCount: Number(row.later_count ?? 0),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Поиск повторных заявок одного клиента.
+//
+// Клиента узнаём «на лету», без отдельной таблицы и миграции — поэтому это
+// работает и для всех старых заявок. Заявки считаются от одного клиента, если
+// совпал телефон ИЛИ e-mail:
+//  • телефон сравниваем по последним 10 цифрам — «+7 (912) 345-67-89»,
+//    «8 912 345 67 89» и «9123456789» это один и тот же номер;
+//  • e-mail сравниваем без учёта регистра и пробелов по краям.
+// Заглушка «—» (когда поля не было) за совпадение не считается.
+// ---------------------------------------------------------------------------
+const phoneKey = (t: string) =>
+  `(CASE WHEN length(regexp_replace(${t}.phone, '\\D', '', 'g')) >= 10
+         THEN right(regexp_replace(${t}.phone, '\\D', '', 'g'), 10) END)`;
+const emailKey = (t: string) => `NULLIF(NULLIF(lower(btrim(${t}.email)), ''), '—')`;
+const sameClient = (a: string, b: string) => `(${phoneKey(a)} = ${phoneKey(b)} OR ${emailKey(a)} = ${emailKey(b)})`;
 
 // LATERAL-подзапрос подтягивает только самый свежий комментарий на заявку —
 // нужен для маленькой иконки с последним комментарием в списке на панели.
 const LIST_QUERY_BASE = `
   SELECT a.id, a.created_at, a.client_type, a.name, a.phone, a.email, a.loan_amount, a.status,
-         c.text AS last_comment_text, c.created_at AS last_comment_created_at
+         c.text AS last_comment_text, c.created_at AS last_comment_created_at,
+         (SELECT count(*)::int FROM applications b
+            WHERE b.id < a.id AND ${sameClient("a", "b")}) AS earlier_count,
+         (SELECT count(*)::int FROM applications b
+            WHERE b.id > a.id AND ${sameClient("a", "b")}) AS later_count
   FROM applications a
   LEFT JOIN LATERAL (
     SELECT text, created_at
@@ -141,6 +180,25 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
   const comments = commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at }));
   const contracts = await listContractsForApplication(id);
 
+  const relatedResult = await pool.query(
+    `SELECT b.id, b.created_at, b.client_type, b.loan_amount, b.status,
+            COALESCE(${phoneKey("a")} = ${phoneKey("b")}, false) AS same_phone,
+            COALESCE(${emailKey("a")} = ${emailKey("b")}, false) AS same_email
+     FROM applications a
+     JOIN applications b ON b.id <> a.id AND ${sameClient("a", "b")}
+     WHERE a.id = $1
+     ORDER BY b.created_at DESC, b.id DESC`,
+    [id]
+  );
+  const related: RelatedApplication[] = relatedResult.rows.map((r) => ({
+    id: r.id,
+    createdAt: r.created_at,
+    clientTypeLabel: formatFieldValue("clientType", r.client_type),
+    loanAmount: r.loan_amount,
+    status: r.status,
+    sameBy: { phone: r.same_phone, email: r.same_email },
+  }));
+
   const telegramRaw = String(answers.telegram ?? "").trim();
 
   return {
@@ -149,6 +207,9 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
     fields,
     comments,
     contracts,
+    related,
+    earlierCount: related.filter((r) => r.id < id).length,
+    laterCount: related.filter((r) => r.id > id).length,
     // row из запроса выше не содержит last_comment_*, поэтому берём последний
     // комментарий из уже загруженного списка (он отсортирован по возрастанию даты).
     lastComment: comments.length > 0 ? comments[comments.length - 1] : null,
