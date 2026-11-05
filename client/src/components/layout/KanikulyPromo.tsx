@@ -2,11 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiX } from "react-icons/hi";
-import { cta } from "@/lib/cta";
 import { reachGoal } from "@/lib/metrika";
 import {
   GOALS,
   KANIKULY_PATH,
+  PROMO_CLOSE_DELAY_SECONDS,
   PROMO_DELAY_SECONDS,
   hidePromoForVisit,
   isPromoHiddenThisVisit,
@@ -18,7 +18,8 @@ import {
  * Правила (чтобы не мешать главной цели сайта — анкете):
  *  - появляется через PROMO_DELAY_SECONDS секунд после входа на сайт (таймер не
  *    сбрасывается при переходах между страницами);
- *  - не закрывает экран: небольшая карточка, закрывается крестиком;
+ *  - не закрывает экран: небольшая карточка; крестик «Закрыть» появляется через
+ *    PROMO_CLOSE_DELAY_SECONDS секунд после показа;
  *  - не показывается в /admin, на самой странице услуги и пока на экране виден
  *    блок анкеты (#wizard);
  *  - при каждом новом заходе на сайт показывается снова, даже если её закрывали
@@ -29,6 +30,7 @@ export function KanikulyPromo() {
   const [ready, setReady] = useState(false);
   const [wizardInView, setWizardInView] = useState(false);
   const [dismissed, setDismissed] = useState(false);
+  const [closeReady, setCloseReady] = useState(false);
   const shownReported = useRef(false);
 
   useEffect(() => {
@@ -66,6 +68,13 @@ export function KanikulyPromo() {
     }
   }, [visible]);
 
+  // Крестик появляется не сразу: отсчёт идёт, пока плашка на экране.
+  useEffect(() => {
+    if (!visible || closeReady) return;
+    const timer = window.setTimeout(() => setCloseReady(true), PROMO_CLOSE_DELAY_SECONDS * 1000);
+    return () => window.clearTimeout(timer);
+  }, [visible, closeReady]);
+
   const close = () => {
     hidePromoForVisit();
     setDismissed(true);
@@ -89,27 +98,32 @@ export function KanikulyPromo() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 24 }}
           transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed left-4 right-4 z-40 rounded-2xl border border-line bg-white p-5 shadow-2xl sm:left-auto sm:right-6 sm:max-w-sm"
+          className="fixed left-4 right-4 z-40 rounded-2xl bg-gradient-to-br from-[#3f37c9] to-[#6c5ce7] p-5 text-white shadow-2xl shadow-[#3f37c9]/30 sm:left-auto sm:right-6 sm:max-w-sm"
           style={{ bottom: "calc(1rem + env(safe-area-inset-bottom, 0px))" }}
         >
-          <button
-            type="button"
-            onClick={close}
-            aria-label="Закрыть"
-            className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-muted hover:bg-mint hover:text-ink"
-          >
-            <HiX size={18} />
-          </button>
-          <p className="pr-8 font-display text-lg font-bold leading-snug text-ink">
+          {closeReady && (
+            <motion.button
+              type="button"
+              onClick={close}
+              aria-label="Закрыть"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.4 }}
+              className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-white/80 hover:bg-white/15 hover:text-white"
+            >
+              <HiX size={18} />
+            </motion.button>
+          )}
+          <p className="pr-8 font-display text-lg font-bold leading-snug text-white">
             Платите по кредитам, и это тяжело?
           </p>
-          <p className="mt-2 text-[0.95rem] leading-relaxed text-ink/85">
+          <p className="mt-2 text-[0.95rem] leading-relaxed text-white/90">
             Кредитные каникулы: проценты в период отсрочки не начисляются, а долг можно гасить в удобном графике.
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-muted">
+          <p className="mt-2 text-xs leading-relaxed text-white/70">
             Для физических лиц. Условия зависят от вашей ситуации.
           </p>
-          <Link to={KANIKULY_PATH} onClick={open} className={cta("solid", "sm", "mt-4 w-full sm:w-auto")}>
+          <Link to={KANIKULY_PATH} onClick={open} className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#ffc857] px-4 py-2.5 text-sm font-semibold text-[#2b2260] transition-colors hover:bg-[#ffd77f] sm:w-auto">
             Ознакомиться с условиями
           </Link>
         </motion.aside>

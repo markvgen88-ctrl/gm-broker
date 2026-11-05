@@ -18,6 +18,8 @@ export const KANIKULY_PATH = `/services/${KANIKULY_SLUG}`;
 
 /** Сколько секунд на сайте до показа плашки. */
 export const PROMO_DELAY_SECONDS = 60;
+/** Через сколько секунд после появления плашки показывается крестик «Закрыть». */
+export const PROMO_CLOSE_DELAY_SECONDS = 15;
 
 export const GOALS = {
   promoShown: "kanikuly_promo_shown",
