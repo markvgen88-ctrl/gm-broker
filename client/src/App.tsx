@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { MetrikaPageTracker } from "@/components/layout/MetrikaPageTracker";
+import { KanikulyPromo } from "@/components/layout/KanikulyPromo";
 import { HomePage } from "@/pages/HomePage";
 import { ArticlesIndexPage } from "@/pages/ArticlesIndexPage";
 import { ArticlePage } from "@/pages/ArticlePage";
@@ -48,6 +49,7 @@ function AppShell() {
           </Route>
         </Routes>
         {!isAdminRoute && <Footer />}
+        {!isAdminRoute && <KanikulyPromo />}
       </div>
     </>
   );

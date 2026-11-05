@@ -78,7 +78,10 @@ export function Wizard() {
         <div className="mx-auto max-w-2xl">
           <div className="rounded-3xl border border-white/10 bg-graphite p-6 md:p-10">
             {submitted ? (
-              <SuccessScreen onReset={handleReset} />
+              <SuccessScreen
+                onReset={handleReset}
+                offerKanikuly={wizard.answers.clientType === "individual" && wizard.answers.hasActiveLoans === "yes"}
+              />
             ) : (
               <>
                 <ProgressBar progress={wizard.progress} stepIndex={wizard.stepIndex} />
