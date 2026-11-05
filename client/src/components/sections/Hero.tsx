@@ -2,7 +2,7 @@ import { HiOutlineCheckCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
 
-const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия от 7 до 15% (зависит от сложности ситуации) только после поступления денег"];
+const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия от 7 до 18% (зависит от сложности ситуации) только после поступления денег"];
 
 export function Hero() {
   const goToSection = useSectionNavigate();
@@ -15,7 +15,7 @@ export function Hero() {
             Профессиональные <span className="text-pine">кредитно-правовые решения</span> для частных лиц и бизнеса
           </h1>
           <p className="measure mt-6 text-lg leading-relaxed text-muted">
-            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 100 000 ₽ до 1,5 млрд ₽.
+            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 1 000 000 ₽ до 1,5 млрд ₽.
             Финансирование для тех, кому «должны одобрять», но банки отказывают или дают меньшую сумму.
           </p>
 
@@ -28,8 +28,8 @@ export function Hero() {
             ))}
           </ul>
 
-          <p className="mt-8 max-w-lg text-base font-medium leading-relaxed text-[#c62828]">
-            Клиентам с просрочкой доступно только залоговое кредитование от 20% годовых.
+          <p className="mt-8 max-w-lg text-base font-bold leading-relaxed text-[#c62828]">
+            Клиентам с действующей просроченной задолженностью доступно только залоговое кредитование от 20% годовых.
           </p>
 
           {/* Только на мобильном: на компьютере кнопка «Юридическая помощь» есть в шапке */}
