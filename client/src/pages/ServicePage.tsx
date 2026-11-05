@@ -97,7 +97,7 @@ export function ServicePage() {
         {service.sections && service.sections.length > 0 && (
           <div className="container-page mt-14 grid gap-x-12 gap-y-10 border-t border-line pt-12 md:grid-cols-2">
             {service.sections.map((s) => (
-              <div key={s.heading}>
+              <div key={s.heading} className={s.wide ? "md:col-span-2 md:max-w-3xl" : undefined}>
                 <h2 className="font-display text-xl font-bold tracking-tight text-ink">{s.heading}</h2>
                 {s.paragraphs?.map((p) => (
                   <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
@@ -114,6 +114,11 @@ export function ServicePage() {
                     ))}
                   </ul>
                 )}
+                {s.afterList?.map((p) => (
+                  <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
+                    {p}
+                  </p>
+                ))}
               </div>
             ))}
           </div>

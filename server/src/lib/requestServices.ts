@@ -6,7 +6,7 @@
  * Добавляя услугу с формой на сайте, добавьте её и сюда.
  */
 export const REQUEST_SERVICES = {
-  "zamorozka-kreditnogo-dogovora": { title: "Заморозка кредитного договора", emoji: "❄️" },
+  "zamorozka-kreditnogo-dogovora": { title: "Кредитные каникулы", emoji: "❄️" },
   "bankrotstvo-cherez-sud": { title: "Банкротство через суд", emoji: "⚖️" },
   "vnesudebnoe-bankrotstvo": { title: "Внесудебное банкротство", emoji: "📄" },
   "restrukturizatsiya-dolga": { title: "Реструктуризация долга", emoji: "🔧" },
