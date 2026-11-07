@@ -3,6 +3,8 @@ import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-ico
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { CaseStudyBlock } from "@/components/sections/CaseStudyBlock";
+import { KanikulyChart } from "@/components/sections/KanikulyChart";
+import { KANIKULY_SLUG } from "@/lib/kanikuly";
 import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
 import { useSeo } from "@/hooks/useSeo";
@@ -96,13 +98,15 @@ export function ServicePage() {
 
         {service.sections && service.sections.length > 0 && (
           <div className="container-page mt-14 grid gap-x-12 gap-y-10 border-t border-line pt-12 md:grid-cols-2">
-            {service.sections.map((s) => (
+            {service.sections.map((s, sectionIndex) => (
               <div key={s.heading} className={s.wide ? "md:col-span-2 md:max-w-3xl" : undefined}>
                 <h2 className="font-display text-xl font-bold tracking-tight text-ink">{s.heading}</h2>
-                {s.paragraphs?.map((p) => (
-                  <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
-                    {p}
-                  </p>
+                {s.paragraphs?.map((p, i) => (
+                  <div key={p}>
+                    <p className="mt-4 text-base leading-relaxed text-ink/85">{p}</p>
+                    {/* Наглядный пример — после абзаца с цифрами, в первом разделе «Кредитных каникул». */}
+                    {service.slug === KANIKULY_SLUG && sectionIndex === 0 && i === 0 && <KanikulyChart />}
+                  </div>
                 ))}
                 {s.list && (
                   <ul className="mt-4 flex flex-col gap-3">
