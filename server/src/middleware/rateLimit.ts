@@ -42,3 +42,15 @@ export const adminLoginRateLimiter = rateLimit({
     message: "Слишком много попыток входа. Попробуйте позже.",
   },
 });
+
+/** Письма клиентам из CRM: не больше 20 за 10 минут (защита от случайных повторов и подбора). */
+export const adminMessageRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Слишком много писем за короткое время. Подождите несколько минут.",
+  },
+});

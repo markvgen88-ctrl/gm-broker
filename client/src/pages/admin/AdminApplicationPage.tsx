@@ -6,6 +6,8 @@ import { DualTime } from "@/components/admin/DualTime";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { ContractHistory } from "@/components/admin/ContractHistory";
 import { ContractWizardModal } from "@/components/admin/ContractWizardModal";
+import { ClientMessageModal } from "@/components/admin/ClientMessageModal";
+import { MessageHistory } from "@/components/admin/MessageHistory";
 import { Button } from "@/components/ui/Button";
 import {
   addApplicationComment,
@@ -13,7 +15,7 @@ import {
   fetchApplication,
   updateApplicationStatus,
 } from "@/lib/adminApi";
-import type { ApplicationDetail, ContractSummary } from "@/lib/adminApi";
+import type { ApplicationDetail, ApplicationMessage, ContractSummary } from "@/lib/adminApi";
 
 const dateTimeFormatter = new Intl.DateTimeFormat("ru-RU", {
   dateStyle: "long",
@@ -40,6 +42,8 @@ export function AdminApplicationPage() {
   const [commentSaving, setCommentSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [contractWizardOpen, setContractWizardOpen] = useState(false);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const load = () => {
     fetchApplication(applicationId)
@@ -95,6 +99,15 @@ export function AdminApplicationPage() {
       setError(err instanceof Error ? err.message : "Не удалось добавить комментарий");
     } finally {
       setCommentSaving(false);
+    }
+  };
+
+  const handleMessageSent = (message: ApplicationMessage | null) => {
+    if (message) {
+      setItem((prev) => (prev ? { ...prev, messages: [message, ...prev.messages] } : prev));
+      setNotice("Письмо отправлено клиенту.");
+    } else {
+      setNotice("Письмо отправлено, но не записалось в историю. Проверьте логи сервера.");
     }
   };
 
@@ -158,9 +171,21 @@ export function AdminApplicationPage() {
       </div>
 
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <Button variant="secondary" size="sm" onClick={() => setContractWizardOpen(true)}>
-          Заполнить договор
-        </Button>
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setNotice(null);
+              setMessageModalOpen(true);
+            }}
+          >
+            Написать клиенту
+          </Button>
+          <Button variant="secondary" size="sm" onClick={() => setContractWizardOpen(true)}>
+            Заполнить договор
+          </Button>
+        </div>
         <Button
           variant="ghost"
           size="sm"
@@ -173,6 +198,7 @@ export function AdminApplicationPage() {
       </div>
 
       {error && <p className="mb-4 text-sm text-rose-400">{error}</p>}
+      {notice && <p className="mb-4 text-sm text-emerald-300">{notice}</p>}
 
       <div className="flex flex-col gap-4 sm:gap-5">
         {item.related.length > 0 && (
@@ -289,10 +315,26 @@ export function AdminApplicationPage() {
         </section>
 
         <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-5">
+          <h2 className="mb-3 text-[11px] font-bold tracking-wider text-gold uppercase">Письма клиенту</h2>
+          <MessageHistory messages={item.messages} />
+        </section>
+
+        <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-5">
           <h2 className="mb-3 text-[11px] font-bold tracking-wider text-gold uppercase">Договоры</h2>
           <ContractHistory contracts={item.contracts} onDeleted={handleContractDeleted} />
         </section>
       </div>
+
+      {messageModalOpen && (
+        <ClientMessageModal
+          applicationId={item.id}
+          clientName={item.name}
+          clientEmail={item.email}
+          contracts={item.contracts}
+          onClose={() => setMessageModalOpen(false)}
+          onSent={handleMessageSent}
+        />
+      )}
 
       {contractWizardOpen && (
         <ContractWizardModal

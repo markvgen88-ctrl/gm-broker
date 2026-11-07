@@ -97,6 +97,21 @@ export async function ensureSchema(): Promise<void> {
       );
 
       CREATE INDEX IF NOT EXISTS idx_contracts_application_id ON contracts (application_id);
+
+      -- Письма клиенту, отправленные из карточки заявки. Сами файлы-вложения
+      -- не хранятся — только их названия и размеры.
+      CREATE TABLE IF NOT EXISTS application_messages (
+        id SERIAL PRIMARY KEY,
+        application_id INTEGER NOT NULL REFERENCES applications (id) ON DELETE CASCADE,
+        to_email TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        body TEXT NOT NULL,
+        attachments JSONB NOT NULL DEFAULT '[]'::jsonb,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_application_messages_application_id
+        ON application_messages (application_id);
     `);
     console.log("[db] Схема CRM проверена/создана.");
   } catch (err) {

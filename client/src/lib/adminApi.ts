@@ -42,11 +42,22 @@ export interface ContractSummary {
   createdAt: string;
 }
 
+/** Письмо клиенту, отправленное из карточки заявки. */
+export interface ApplicationMessage {
+  id: number;
+  toEmail: string;
+  subject: string;
+  body: string;
+  attachments: { name: string; size: number }[];
+  createdAt: string;
+}
+
 export interface ApplicationDetail extends ApplicationListItem {
   telegram: string | null;
   fields: { key: string; label: string; value: string; tone: "good" | "bad" | "neutral" }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
+  messages: ApplicationMessage[];
   related: RelatedApplication[];
 }
 
@@ -136,6 +147,39 @@ export async function addApplicationComment(id: number, text: string): Promise<A
     body: JSON.stringify({ text }),
   });
   return data.comment;
+}
+
+/**
+ * Отправляет письмо клиенту с вложениями (multipart). Возвращает запись для
+ * истории, либо null, если письмо ушло, но в историю не записалось.
+ */
+export async function sendApplicationMessage(
+  id: number,
+  payload: { subject: string; body: string; files: File[]; contractIds: number[] }
+): Promise<ApplicationMessage | null> {
+  const form = new FormData();
+  form.append("subject", payload.subject);
+  form.append("body", payload.body);
+  if (payload.contractIds.length > 0) form.append("contractIds", JSON.stringify(payload.contractIds));
+  payload.files.forEach((file) => form.append("files", file, file.name));
+
+  // Content-Type не задаём: браузер сам проставит multipart с границей.
+  const response = await fetch(`${API_BASE_URL}/admin/applications/${id}/messages`, {
+    method: "POST",
+    credentials: "include",
+    body: form,
+  });
+
+  let data: { message?: string; sentMessage?: ApplicationMessage | null } | null = null;
+  try {
+    data = await response.json();
+  } catch {
+    // тело ответа не JSON
+  }
+  if (!response.ok) {
+    throw new AdminApiError(data?.message ?? `Не удалось отправить письмо (${response.status})`);
+  }
+  return data?.sentMessage ?? null;
 }
 
 export async function deleteApplication(id: number): Promise<void> {

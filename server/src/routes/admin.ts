@@ -1,7 +1,8 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
 import { z } from "zod";
-import { adminLoginRateLimiter } from "../middleware/rateLimit.js";
+import multer from "multer";
+import { adminLoginRateLimiter, adminMessageRateLimiter } from "../middleware/rateLimit.js";
 import { clearSessionCookie, issueSessionCookie, requireAdminAuth, verifyAdminPassword } from "../middleware/adminAuth.js";
 import { isValidStatusText } from "../lib/statuses.js";
 import {
@@ -17,6 +18,20 @@ import { createContract, deleteContract, getContractById } from "../db/contracts
 import { contractInputSchema } from "../lib/contractValidation.js";
 import { buildApplicationsWorkbook, moscowDateStamp } from "../lib/applicationsExport.js";
 import { generateContractDocx } from "../lib/contractTemplate.js";
+import { getApplicationContact, insertMessage } from "../db/applicationMessages.js";
+import type { MessageAttachmentInfo } from "../db/applicationMessages.js";
+import { sendEmailToClient } from "../services/email.js";
+import type { ClientEmailAttachment } from "../services/email.js";
+import {
+  MAX_CONTRACTS_PER_MESSAGE,
+  MAX_TOTAL_ATTACHMENTS_BYTES,
+  MAX_UPLOADED_FILES,
+  fixFilenameEncoding,
+  isAllowedAttachmentName,
+  isPlausibleEmail,
+  sanitizeAttachmentName,
+  textToHtml,
+} from "../lib/clientMail.js";
 import {
   addServiceRequestComment,
   deleteServiceRequest,
@@ -165,6 +180,148 @@ adminRouter.post("/applications/:id/comments", async (req: Request, res: Respons
   }
   res.json({ success: true, comment });
 });
+
+// ---------------------------------------------------------------------------
+// Письмо клиенту из карточки заявки (с вложениями). Файлы в памяти, на диск и в
+// базу не пишутся — в историю попадают только названия и размеры.
+// ---------------------------------------------------------------------------
+
+const attachmentUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_TOTAL_ATTACHMENTS_BYTES,
+    files: MAX_UPLOADED_FILES,
+    fields: 10,
+    fieldSize: 100 * 1024,
+  },
+});
+
+const messageSchema = z.object({
+  subject: z.string().trim().min(1, "Укажите тему письма").max(200, "Тема письма слишком длинная"),
+  body: z.string().trim().min(1, "Напишите текст письма").max(20000, "Текст письма слишком длинный"),
+  contractIds: z
+    .array(z.number().int().positive(), { error: "Некорректный список договоров" })
+    .max(MAX_CONTRACTS_PER_MESSAGE, `Можно приложить не больше ${MAX_CONTRACTS_PER_MESSAGE} договоров`)
+    .default([]),
+});
+
+function parseContractIds(raw: unknown): unknown {
+  if (raw === undefined || raw === "") return [];
+  if (typeof raw !== "string") return raw;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+adminRouter.post(
+  "/applications/:id/messages",
+  adminMessageRateLimiter,
+  (req: Request, res: Response, next: () => void) => {
+    attachmentUpload.array("files", MAX_UPLOADED_FILES)(req, res, (err: unknown) => {
+      if (!err) {
+        next();
+        return;
+      }
+      const code = err instanceof multer.MulterError ? err.code : "";
+      const message =
+        code === "LIMIT_FILE_SIZE"
+          ? "Файл слишком большой: максимум 10 МБ на письмо"
+          : code === "LIMIT_FILE_COUNT" || code === "LIMIT_UNEXPECTED_FILE"
+            ? `Можно прикрепить не больше ${MAX_UPLOADED_FILES} файлов`
+            : "Не удалось принять вложения";
+      res.status(400).json({ success: false, message });
+    });
+  },
+  async (req: Request, res: Response) => {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id)) {
+      res.status(400).json({ success: false, message: "Некорректный id заявки" });
+      return;
+    }
+
+    const contact = await getApplicationContact(id);
+    if (!contact) {
+      res.status(404).json({ success: false, message: "Заявка не найдена" });
+      return;
+    }
+    const to = contact.email.trim();
+    if (!isPlausibleEmail(to)) {
+      res.status(400).json({ success: false, message: "В заявке нет корректного e-mail клиента" });
+      return;
+    }
+
+    const rawBody = (req.body ?? {}) as Record<string, unknown>;
+    const parsed = messageSchema.safeParse({
+      subject: typeof rawBody.subject === "string" ? rawBody.subject.replace(/[\r\n]+/g, " ") : "",
+      body: typeof rawBody.body === "string" ? rawBody.body.replace(/\r\n/g, "\n") : "",
+      contractIds: parseContractIds(rawBody.contractIds),
+    });
+    if (!parsed.success) {
+      res.status(400).json({ success: false, message: parsed.error.issues[0]?.message ?? "Проверьте поля письма" });
+      return;
+    }
+    const { subject, body, contractIds } = parsed.data;
+
+    const attachments: ClientEmailAttachment[] = [];
+
+    const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+    for (const file of files) {
+      const name = sanitizeAttachmentName(fixFilenameEncoding(file.originalname));
+      if (!isAllowedAttachmentName(name)) {
+        res.status(400).json({
+          success: false,
+          message: `Файл «${name}» нельзя отправить: допустимы документы, таблицы, картинки и архивы`,
+        });
+        return;
+      }
+      attachments.push({ filename: name, content: file.buffer });
+    }
+
+    for (const contractId of new Set(contractIds)) {
+      const contract = await getContractById(contractId);
+      if (!contract || contract.applicationId !== id) {
+        res.status(400).json({ success: false, message: "Договор не найден в этой заявке" });
+        return;
+      }
+      try {
+        const firstWord = contract.clientName.split(/\s+/)[0] ?? "Договор";
+        attachments.push({
+          filename: sanitizeAttachmentName(`Договор_${contract.contractNum}_${firstWord}.docx`),
+          content: generateContractDocx(contract.contractNum, contract.input),
+        });
+      } catch (err) {
+        console.error("[admin] Не удалось сформировать договор для письма:", err);
+        res.status(500).json({ success: false, message: "Не удалось сформировать файл договора для письма" });
+        return;
+      }
+    }
+
+    const totalSize = attachments.reduce((sum, a) => sum + a.content.length, 0);
+    if (totalSize > MAX_TOTAL_ATTACHMENTS_BYTES) {
+      res.status(400).json({ success: false, message: "Вложения весят больше 10 МБ: уберите часть файлов" });
+      return;
+    }
+
+    const sent = await sendEmailToClient({ to, subject, text: body, html: textToHtml(body), attachments });
+    if (!sent.ok) {
+      console.error("[admin] Письмо клиенту не отправлено:", sent.error);
+      res.status(502).json({ success: false, message: `Не удалось отправить письмо: ${sent.error ?? "ошибка почты"}` });
+      return;
+    }
+
+    // Письмо уже ушло — сбой записи в историю не должен выглядеть как неотправка.
+    let saved = null;
+    try {
+      const info: MessageAttachmentInfo[] = attachments.map((a) => ({ name: a.filename, size: a.content.length }));
+      saved = await insertMessage(id, { toEmail: to, subject, body, attachments: info });
+    } catch (err) {
+      console.error("[admin] Письмо отправлено, но не записано в историю:", err);
+    }
+    res.json({ success: true, sentMessage: saved });
+  }
+);
 
 adminRouter.post("/applications/:id/contracts", async (req: Request, res: Response) => {
   const id = Number(req.params.id);

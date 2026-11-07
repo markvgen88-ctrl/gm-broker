@@ -6,6 +6,8 @@ import type { FieldTone } from "../lib/fieldTone.js";
 import { DEFAULT_STATUS } from "../lib/statuses.js";
 import { listContractsForApplication } from "./contracts.js";
 import type { ContractSummary } from "./contracts.js";
+import { listMessagesForApplication } from "./applicationMessages.js";
+import type { ApplicationMessage } from "./applicationMessages.js";
 import type { ExportRow } from "../lib/applicationsExport.js";
 
 interface CrmSaveResult {
@@ -70,6 +72,8 @@ export interface ApplicationDetail extends ApplicationListItem {
   fields: { key: string; label: string; value: string; tone: FieldTone }[];
   comments: ApplicationComment[];
   contracts: ContractSummary[];
+  /** Письма клиенту, отправленные из CRM (свежие сверху). */
+  messages: ApplicationMessage[];
   /** Остальные заявки этого клиента, свежие сверху. */
   related: RelatedApplication[];
 }
@@ -179,6 +183,7 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
   );
   const comments = commentsResult.rows.map((c) => ({ id: c.id, text: c.text, createdAt: c.created_at }));
   const contracts = await listContractsForApplication(id);
+  const messages = await listMessagesForApplication(id);
 
   const relatedResult = await pool.query(
     `SELECT b.id, b.created_at, b.client_type, b.loan_amount, b.status,
@@ -207,6 +212,7 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
     fields,
     comments,
     contracts,
+    messages,
     related,
     earlierCount: related.filter((r) => r.id < id).length,
     laterCount: related.filter((r) => r.id > id).length,
