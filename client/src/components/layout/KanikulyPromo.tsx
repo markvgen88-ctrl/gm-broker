@@ -5,6 +5,7 @@ import { HiOutlinePause, HiX } from "react-icons/hi";
 import { reachGoal } from "@/lib/metrika";
 import {
   GOALS,
+  KANIKULY_COPY,
   KANIKULY_PATH,
   PROMO_CLOSE_DELAY_SECONDS,
   PROMO_DELAY_SECONDS,
@@ -115,23 +116,24 @@ export function KanikulyPromo() {
             </motion.button>
           )}
           <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-white">
-            <HiOutlinePause size={14} aria-hidden="true" /> Кредитные каникулы
+            <HiOutlinePause size={14} aria-hidden="true" /> {KANIKULY_COPY.label}
           </span>
           <p className="mt-2.5 pr-6 font-display text-lg font-bold leading-snug text-white">
-            Стоп: вы точно хотите платить банку проценты <span className="text-[#ffc857]">впустую?</span>
+            {KANIKULY_COPY.headlineLead}
+            <span className="text-[#ffc857]">{KANIKULY_COPY.headlineAccent}</span>
           </p>
           <p className="mt-1.5 text-sm leading-relaxed text-white/90">
-            Не платите лишнего, пока не узнали про отсрочку: на каникулах проценты не начисляются.
+            {KANIKULY_COPY.text}
           </p>
           <Link
             to={KANIKULY_PATH}
             onClick={open}
             className="mt-3.5 inline-flex w-full items-center justify-center rounded-full bg-[#ffc857] px-5 py-2.5 text-sm font-bold text-[#2b2260] shadow-lg shadow-black/20 transition-colors hover:bg-[#ffd77f]"
           >
-            Узнать, подойдут ли мне каникулы
+            {KANIKULY_COPY.cta}
           </Link>
           <p className="mt-2 text-center text-[0.7rem] leading-snug text-white/65">
-            Для физлиц, без ареста счетов приставами. Условия индивидуальны.
+            {KANIKULY_COPY.note}
           </p>
         </motion.aside>
       )}

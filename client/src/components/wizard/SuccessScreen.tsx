@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { HiOutlineCheckCircle } from "react-icons/hi";
+import { HiOutlineCheckCircle, HiOutlinePause } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import { reachGoal } from "@/lib/metrika";
-import { GOALS, KANIKULY_PATH, hidePromoForVisit } from "@/lib/kanikuly";
+import { GOALS, KANIKULY_COPY, KANIKULY_PATH, hidePromoForVisit } from "@/lib/kanikuly";
 
 interface SuccessScreenProps {
   onReset: () => void;
@@ -36,19 +36,23 @@ export function SuccessScreen({ onReset, offerKanikuly = false }: SuccessScreenP
       </p>
 
       {offerKanikuly && (
-        <div className="mt-8 w-full max-w-md rounded-2xl border border-white/10 p-5 text-left">
-          <p className="font-display text-lg font-bold text-silver">Платите по кредитам, и это тяжело?</p>
-          <p className="mt-2 text-[0.95rem] leading-relaxed text-metal">
-            Пока ждёте ответ: кредитные каникулы. В период отсрочки проценты не начисляются, а долг можно гасить в
-            удобном графике. Услуга для физических лиц, при условии что на счетах нет ареста судебных приставов.
+        <div className="mt-8 w-full max-w-md rounded-2xl bg-gradient-to-br from-[#3f37c9] to-[#6c5ce7] p-5 text-left text-white shadow-2xl shadow-[#3f37c9]/30">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-white">
+            <HiOutlinePause size={14} aria-hidden="true" /> {KANIKULY_COPY.label}
+          </span>
+          <p className="mt-3 font-display text-xl font-bold leading-snug text-white">
+            {KANIKULY_COPY.headlineLead}
+            <span className="text-[#ffc857]">{KANIKULY_COPY.headlineAccent}</span>
           </p>
+          <p className="mt-2 text-[0.95rem] leading-relaxed text-white/90">{KANIKULY_COPY.text}</p>
           <Link
             to={KANIKULY_PATH}
             onClick={() => reachGoal(GOALS.offerClick)}
-            className="metal-border mt-4 inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-semibold text-silver transition-colors hover:border-gold/60 hover:text-gold"
+            className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#ffc857] px-5 py-3 text-sm font-bold text-[#2b2260] shadow-lg shadow-black/20 transition-colors hover:bg-[#ffd77f]"
           >
-            Ознакомиться с условиями
+            {KANIKULY_COPY.cta}
           </Link>
+          <p className="mt-2.5 text-center text-xs leading-snug text-white/70">{KANIKULY_COPY.note}</p>
         </div>
       )}
 
