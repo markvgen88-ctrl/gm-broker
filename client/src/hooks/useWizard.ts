@@ -1,14 +1,22 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { questionnaireGraph, START_NODE_ID } from "@/data/questionnaire";
 import { buildDistanceToFinalMap } from "@/lib/wizardEngine";
+import { clearWizard, loadWizard, saveWizard } from "@/lib/wizardStorage";
 import type { AnswerValue, AnswersState, FieldKey } from "@/types/questionnaire";
 
 const distanceToFinal = buildDistanceToFinalMap(questionnaireGraph);
 
 export function useWizard() {
-  const [nodeIds, setNodeIds] = useState<string[]>([START_NODE_ID]);
-  const [answers, setAnswers] = useState<AnswersState>({});
+  // Прогресс переживает обновление страницы (см. lib/wizardStorage.ts).
+  const [saved] = useState(loadWizard);
+  const [nodeIds, setNodeIds] = useState<string[]>(saved?.nodeIds ?? [START_NODE_ID]);
+  const [answers, setAnswers] = useState<AnswersState>(saved?.answers ?? {});
   const [direction, setDirection] = useState<1 | -1>(1);
+  const persist = useRef(true);
+
+  useEffect(() => {
+    if (persist.current) saveWizard(nodeIds, answers);
+  }, [nodeIds, answers]);
 
   const currentNodeId = nodeIds[nodeIds.length - 1];
   const currentNode = questionnaireGraph[currentNodeId];
@@ -48,7 +56,14 @@ export function useWizard() {
     });
   }, []);
 
+  /** После успешной отправки: очищаем сохранённый прогресс и больше его не пишем. */
+  const clearSaved = useCallback(() => {
+    persist.current = false;
+    clearWizard();
+  }, []);
+
   const reset = useCallback(() => {
+    persist.current = true;
     setDirection(1);
     setNodeIds([START_NODE_ID]);
     setAnswers({});
@@ -71,6 +86,7 @@ export function useWizard() {
     goBack,
     reset,
     setFinalAnswers,
+    clearSaved,
   };
 }
 

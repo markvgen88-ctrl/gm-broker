@@ -50,6 +50,7 @@ export function Wizard() {
         contactInfo: values.contactInfo,
         ...(telegram ? { telegram } : {}),
       });
+      wizard.clearSaved();
       setSubmitted(true);
     } catch (error) {
       setSubmitError(
