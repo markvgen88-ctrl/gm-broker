@@ -3,7 +3,14 @@
  * {name} подставляется именем из заявки; перед отправкой текст можно править.
  * Подпись внизу — в каждом шаблоне, чтобы её можно было поменять в одном месте.
  */
-const SIGNATURE = "С уважением,\nГеннадий Марков\nG.M. Broker";
+const SIGNATURE = `С уважением Марков Геннадий.
+Наш сайт: https://gm-broker.ru
+
+Дополнительные контакты:
+
+Мессенджер Макс: https://max.ru/u/f9LHodD0cOLf0DaK41yuBK5G-7WbU4J2rcJfJbEssLazoa3r6cCKWwIuDzA
+
+Телеграмм: https://t.me/GM_Broker`;
 
 export interface EmailTemplate {
   id: string;

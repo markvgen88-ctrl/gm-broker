@@ -60,13 +60,22 @@ function escapeHtml(text: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Делает ссылки в уже экранированном тексте кликабельными (в простом тексте письма они и так видны). */
+function linkify(escaped: string): string {
+  return escaped.replace(/https?:\/\/[^\s<]+/g, (url) => {
+    const trailing = url.match(/[.,:!?)]+$/)?.[0] ?? "";
+    const clean = trailing ? url.slice(0, -trailing.length) : url;
+    return `<a href="${clean}" style="color:#1a5fb4">${clean}</a>${trailing}`;
+  });
+}
+
 /** Простой текст → аккуратный HTML: пустая строка делит абзацы, перенос строки — <br>. */
 export function textToHtml(text: string): string {
   const paragraphs = text
     .replace(/\r\n/g, "\n")
     .trim()
     .split(/\n{2,}/)
-    .map((p) => `<p style="margin:0 0 14px 0">${escapeHtml(p).replace(/\n/g, "<br>")}</p>`)
+    .map((p) => `<p style="margin:0 0 14px 0">${linkify(escapeHtml(p)).replace(/\n/g, "<br>")}</p>`)
     .join("");
   return `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#1a1a1a">${paragraphs}</div>`;
 }
