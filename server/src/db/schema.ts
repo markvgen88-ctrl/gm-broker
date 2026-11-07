@@ -1,4 +1,5 @@
 import { pool, isDatabaseConfigured } from "./pool.js";
+import { seedEmailDefaults } from "./emailTemplates.js";
 
 /**
  * Создаёт таблицы CRM при старте сервера, если их ещё нет. Не требует
@@ -112,7 +113,23 @@ export async function ensureSchema(): Promise<void> {
 
       CREATE INDEX IF NOT EXISTS idx_application_messages_application_id
         ON application_messages (application_id);
+
+      -- Шаблоны писем клиенту и общие настройки писем (подпись). Редактируются в CRM.
+      CREATE TABLE IF NOT EXISTS email_templates (
+        id SERIAL PRIMARY KEY,
+        label TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        body TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      );
+
+      CREATE TABLE IF NOT EXISTS email_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
     `);
+    await seedEmailDefaults();
     console.log("[db] Схема CRM проверена/создана.");
   } catch (err) {
     console.error("[db] Не удалось создать/проверить схему CRM:", err);

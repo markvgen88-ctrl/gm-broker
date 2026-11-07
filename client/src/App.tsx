@@ -16,6 +16,7 @@ import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import { AdminApplicationPage } from "@/pages/admin/AdminApplicationPage";
 import { AdminServiceRequestsPage } from "@/pages/admin/AdminServiceRequestsPage";
 import { AdminServiceRequestPage } from "@/pages/admin/AdminServiceRequestPage";
+import { AdminEmailTemplatesPage } from "@/pages/admin/AdminEmailTemplatesPage";
 
 function AppShell() {
   // Внутренняя CRM-панель не должна показывать публичные шапку/футер сайта.
@@ -46,6 +47,7 @@ function AppShell() {
             <Route path="applications/:id" element={<AdminApplicationPage />} />
             <Route path="service-requests" element={<AdminServiceRequestsPage />} />
             <Route path="service-requests/:id" element={<AdminServiceRequestPage />} />
+            <Route path="email-templates" element={<AdminEmailTemplatesPage />} />
           </Route>
         </Routes>
         {!isAdminRoute && <Footer />}

@@ -37,8 +37,9 @@ export function AdminLayout() {
     navigate("/admin/login", { replace: true });
   };
 
-  // Два раздела CRM: анкеты на кредитование и заявки по услугам.
+  // Разделы CRM: анкеты на кредитование, заявки по услугам и шаблоны писем.
   const onServices = location.pathname.startsWith("/admin/service-requests");
+  const onTemplates = location.pathname.startsWith("/admin/email-templates");
 
   if (authState === "checking") {
     return (
@@ -64,11 +65,14 @@ export function AdminLayout() {
           </Button>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-2 px-4 pb-3 sm:px-6">
-          <SectionTab to="/admin" active={!onServices}>
+          <SectionTab to="/admin" active={!onServices && !onTemplates}>
             Кредитование
           </SectionTab>
           <SectionTab to="/admin/service-requests" active={onServices}>
             Услуги
+          </SectionTab>
+          <SectionTab to="/admin/email-templates" active={onTemplates}>
+            Шаблоны писем
           </SectionTab>
         </nav>
       </header>

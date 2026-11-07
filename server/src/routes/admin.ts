@@ -20,6 +20,14 @@ import { buildApplicationsWorkbook, moscowDateStamp } from "../lib/applicationsE
 import { generateContractDocx } from "../lib/contractTemplate.js";
 import { getApplicationContact, insertMessage } from "../db/applicationMessages.js";
 import type { MessageAttachmentInfo } from "../db/applicationMessages.js";
+import {
+  createEmailTemplate,
+  deleteEmailTemplate,
+  getEmailSignature,
+  listEmailTemplates,
+  setEmailSignature,
+  updateEmailTemplate,
+} from "../db/emailTemplates.js";
 import { sendEmailToClient } from "../services/email.js";
 import type { ClientEmailAttachment } from "../services/email.js";
 import {
@@ -322,6 +330,75 @@ adminRouter.post(
     res.json({ success: true, sentMessage: saved });
   }
 );
+
+// ---------------------------------------------------------------------------
+// Шаблоны писем клиенту и подпись: редактируются в CRM («Шаблоны писем»).
+// ---------------------------------------------------------------------------
+
+const emailTemplateSchema = z.object({
+  label: z.string().trim().min(1, "Укажите название шаблона").max(100, "Название шаблона слишком длинное"),
+  subject: z.string().trim().min(1, "Укажите тему письма").max(200, "Тема письма слишком длинная"),
+  body: z.string().max(20000, "Текст шаблона слишком длинный").transform((v) => v.replace(/\r\n/g, "\n")),
+});
+
+adminRouter.get("/email-templates", async (_req: Request, res: Response) => {
+  const [templates, signature] = await Promise.all([listEmailTemplates(), getEmailSignature()]);
+  res.json({ success: true, templates, signature });
+});
+
+adminRouter.post("/email-templates", async (req: Request, res: Response) => {
+  const parsed = emailTemplateSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: parsed.error.issues[0]?.message ?? "Проверьте поля шаблона" });
+    return;
+  }
+  const template = await createEmailTemplate(parsed.data);
+  res.status(201).json({ success: true, template });
+});
+
+adminRouter.put("/email-templates/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  const parsed = emailTemplateSchema.safeParse(req.body);
+  if (!Number.isInteger(id) || !parsed.success) {
+    res.status(400).json({
+      success: false,
+      message: (!parsed.success && parsed.error.issues[0]?.message) || "Проверьте поля шаблона",
+    });
+    return;
+  }
+  const template = await updateEmailTemplate(id, parsed.data);
+  if (!template) {
+    res.status(404).json({ success: false, message: "Шаблон не найден" });
+    return;
+  }
+  res.json({ success: true, template });
+});
+
+adminRouter.delete("/email-templates/:id", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id шаблона" });
+    return;
+  }
+  const deleted = await deleteEmailTemplate(id);
+  if (!deleted) {
+    res.status(404).json({ success: false, message: "Шаблон не найден" });
+    return;
+  }
+  res.json({ success: true });
+});
+
+adminRouter.put("/email-signature", async (req: Request, res: Response) => {
+  const parsed = z
+    .object({ signature: z.string().max(2000, "Подпись слишком длинная").transform((v) => v.replace(/\r\n/g, "\n").trim()) })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: parsed.error.issues[0]?.message ?? "Проверьте подпись" });
+    return;
+  }
+  await setEmailSignature(parsed.data.signature);
+  res.json({ success: true, signature: parsed.data.signature });
+});
 
 adminRouter.post("/applications/:id/contracts", async (req: Request, res: Response) => {
   const id = Number(req.params.id);

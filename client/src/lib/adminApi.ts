@@ -182,6 +182,49 @@ export async function sendApplicationMessage(
   return data?.sentMessage ?? null;
 }
 
+/** Шаблон письма клиенту (редактируется в разделе «Шаблоны писем»). */
+export interface EmailTemplate {
+  id: number;
+  label: string;
+  subject: string;
+  body: string;
+}
+
+export async function fetchEmailTemplates(): Promise<{ templates: EmailTemplate[]; signature: string }> {
+  const data = await adminFetch<{ templates: EmailTemplate[]; signature: string }>("/email-templates", {
+    cache: "no-store",
+  });
+  return { templates: data.templates, signature: data.signature };
+}
+
+export async function createEmailTemplate(payload: Omit<EmailTemplate, "id">): Promise<EmailTemplate> {
+  const data = await adminFetch<{ template: EmailTemplate }>("/email-templates", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data.template;
+}
+
+export async function updateEmailTemplate(id: number, payload: Omit<EmailTemplate, "id">): Promise<EmailTemplate> {
+  const data = await adminFetch<{ template: EmailTemplate }>(`/email-templates/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+  return data.template;
+}
+
+export async function deleteEmailTemplate(id: number): Promise<void> {
+  await adminFetch(`/email-templates/${id}`, { method: "DELETE" });
+}
+
+export async function saveEmailSignature(signature: string): Promise<string> {
+  const data = await adminFetch<{ signature: string }>("/email-signature", {
+    method: "PUT",
+    body: JSON.stringify({ signature }),
+  });
+  return data.signature;
+}
+
 export async function deleteApplication(id: number): Promise<void> {
   await adminFetch(`/applications/${id}`, { method: "DELETE" });
 }

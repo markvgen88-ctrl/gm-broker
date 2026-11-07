@@ -1,10 +1,10 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/Button";
-import { sendApplicationMessage } from "@/lib/adminApi";
-import type { ApplicationMessage, ContractSummary } from "@/lib/adminApi";
-import { EMAIL_TEMPLATES, fillTemplate } from "@/data/emailTemplates";
+import { fetchEmailTemplates, sendApplicationMessage } from "@/lib/adminApi";
+import type { ApplicationMessage, ContractSummary, EmailTemplate } from "@/lib/adminApi";
+import { fillTemplate } from "@/data/emailTemplates";
 
 const MAX_FILES = 5;
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024;
@@ -36,6 +36,9 @@ export function ClientMessageModal({
   onClose,
   onSent,
 }: ClientMessageModalProps) {
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [signature, setSignature] = useState("");
+  const [templatesFailed, setTemplatesFailed] = useState(false);
   const [templateId, setTemplateId] = useState("");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -46,6 +49,25 @@ export function ClientMessageModal({
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Шаблоны и подпись редактируются в отдельной вкладке («Шаблоны писем»), поэтому
+  // перечитываем их при возврате в это окно, чтобы правки были видны сразу.
+  const loadTemplates = useCallback(async () => {
+    try {
+      const data = await fetchEmailTemplates();
+      setTemplates(data.templates);
+      setSignature(data.signature);
+      setTemplatesFailed(false);
+    } catch {
+      setTemplatesFailed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadTemplates();
+    window.addEventListener("focus", loadTemplates);
+    return () => window.removeEventListener("focus", loadTemplates);
+  }, [loadTemplates]);
+
   const emailOk = isPlausibleEmail(clientEmail);
   const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   const canSend = emailOk && subject.trim() !== "" && body.trim() !== "" && !sending;
@@ -53,11 +75,18 @@ export function ClientMessageModal({
   const handleTemplate = (id: string) => {
     if (id !== "" && bodyEdited && !window.confirm("Заменить уже написанный текст шаблоном?")) return;
     setTemplateId(id);
-    const tpl = EMAIL_TEMPLATES.find((t) => t.id === id);
+    const tpl = templates.find((t) => String(t.id) === id);
     if (!tpl) return;
+    const text = fillTemplate(tpl.body, clientName).trimEnd();
     setSubject(fillTemplate(tpl.subject, clientName));
-    setBody(fillTemplate(tpl.body, clientName));
+    setBody(signature ? `${text}\n\n${signature}` : text);
     setBodyEdited(false);
+  };
+
+  const handleInsertSignature = () => {
+    if (!signature) return;
+    setBody((prev) => (prev.trim() === "" ? signature : `${prev.trimEnd()}\n\n${signature}`));
+    setBodyEdited(true);
   };
 
   const handlePickFiles = (e: ChangeEvent<HTMLInputElement>) => {
@@ -134,9 +163,19 @@ export function ClientMessageModal({
           </div>
 
           <div>
-            <label htmlFor="msg-template" className="mb-1 block text-xs text-metal">
-              Шаблон (необязательно)
-            </label>
+            <div className="mb-1 flex items-center justify-between gap-3">
+              <label htmlFor="msg-template" className="block text-xs text-metal">
+                Шаблон (необязательно)
+              </label>
+              <a
+                href="/admin/email-templates"
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-gold underline-offset-4 hover:underline"
+              >
+                Редактировать шаблоны
+              </a>
+            </div>
             <select
               id="msg-template"
               value={templateId}
@@ -144,12 +183,15 @@ export function ClientMessageModal({
               className="w-full rounded-lg border border-white/10 bg-black/30 px-3 py-2 text-sm text-silver outline-none focus:border-gold/60"
             >
               <option value="">Без шаблона</option>
-              {EMAIL_TEMPLATES.map((t) => (
-                <option key={t.id} value={t.id}>
+              {templates.map((t) => (
+                <option key={t.id} value={String(t.id)}>
                   {t.label}
                 </option>
               ))}
             </select>
+            {templatesFailed && (
+              <p className="mt-1 text-xs text-rose-400">Не удалось загрузить шаблоны, текст можно написать вручную.</p>
+            )}
           </div>
 
           <div>
@@ -167,9 +209,20 @@ export function ClientMessageModal({
           </div>
 
           <div>
-            <label htmlFor="msg-body" className="mb-1 block text-xs text-metal">
-              Текст письма
-            </label>
+            <div className="mb-1 flex items-center justify-between gap-3">
+              <label htmlFor="msg-body" className="block text-xs text-metal">
+                Текст письма
+              </label>
+              {signature && !body.includes(signature) && (
+                <button
+                  type="button"
+                  onClick={handleInsertSignature}
+                  className="text-xs text-gold underline-offset-4 hover:underline"
+                >
+                  Вставить подпись
+                </button>
+              )}
+            </div>
             <textarea
               id="msg-body"
               value={body}
