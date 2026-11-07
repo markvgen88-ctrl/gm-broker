@@ -2,7 +2,7 @@
  * Предложение «Кредитные каникулы»: общие константы и память «не показывать».
  *
  * Где показывается:
- *  - плашка в углу экрана (components/layout/KanikulyPromo.tsx) — через минуту
+ *  - плашка в углу экрана (components/layout/KanikulyPromo.tsx) — через 10 секунд
  *    на сайте при каждом заходе (даже если её закрывали раньше); внутри одного
  *    захода после закрытия повторно не показывается;
  *  - карточка на экране «Анкета отправлена» — только физлицам с действующими
@@ -17,7 +17,7 @@ export const KANIKULY_SLUG = "zamorozka-kreditnogo-dogovora";
 export const KANIKULY_PATH = `/services/${KANIKULY_SLUG}`;
 
 /** Сколько секунд на сайте до показа плашки. */
-export const PROMO_DELAY_SECONDS = 60;
+export const PROMO_DELAY_SECONDS = 10;
 /** Через сколько секунд после появления плашки показывается крестик «Закрыть». */
 export const PROMO_CLOSE_DELAY_SECONDS = 15;
 
