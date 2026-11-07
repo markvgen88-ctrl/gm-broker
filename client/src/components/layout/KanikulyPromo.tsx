@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { HiX } from "react-icons/hi";
+import { HiOutlinePause, HiX } from "react-icons/hi";
 import { reachGoal } from "@/lib/metrika";
 import {
   GOALS,
@@ -114,18 +114,69 @@ export function KanikulyPromo() {
               <HiX size={18} />
             </motion.button>
           )}
-          <p className="pr-8 font-display text-lg font-bold leading-snug text-white">
-            Платите по кредитам, и это тяжело?
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-white">
+            <HiOutlinePause size={14} aria-hidden="true" /> Кредитные каникулы
+          </span>
+          <p className="mt-3 pr-6 font-display text-xl font-bold leading-snug text-white">
+            Сколько вы отдаёте банкам <span className="text-[#ffc857]">просто так?</span>
           </p>
           <p className="mt-2 text-[0.95rem] leading-relaxed text-white/90">
-            Кредитные каникулы: проценты в период отсрочки не начисляются, а долг можно гасить в удобном графике.
+            В период отсрочки проценты не начисляются, а долг можно гасить в удобном графике.
           </p>
-          <p className="mt-2 text-xs leading-relaxed text-white/70">
-            Для физических лиц. Условия зависят от вашей ситуации.
-          </p>
-          <Link to={KANIKULY_PATH} onClick={open} className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#ffc857] px-4 py-2.5 text-sm font-semibold text-[#2b2260] transition-colors hover:bg-[#ffd77f] sm:w-auto">
-            Ознакомиться с условиями
+
+          <div className="mt-4 rounded-xl bg-black/20 p-3" aria-label="Пример: платёж 80 000 ₽ в месяц">
+            <p className="text-[0.7rem] font-medium uppercase tracking-wider text-white/70">
+              Пример: платёж 80 000 ₽ в месяц
+            </p>
+            <div className="mt-2.5">
+              <div className="flex justify-between gap-2 text-xs text-white/85">
+                <span>Сейчас</span>
+                <span>≈ 40 000 ₽ уходит на проценты</span>
+              </div>
+              <div className="mt-1 flex h-2.5 overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+                <motion.div
+                  className="h-full bg-[#ff8a8a]"
+                  initial={{ width: 0 }}
+                  animate={{ width: "50%" }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                />
+                <motion.div
+                  className="h-full bg-white/70"
+                  initial={{ width: 0 }}
+                  animate={{ width: "50%" }}
+                  transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
+            </div>
+            <div className="mt-2.5">
+              <div className="flex justify-between gap-2 text-xs text-white/85">
+                <span>На каникулах</span>
+                <span className="font-semibold text-[#ffc857]">0 ₽ на проценты</span>
+              </div>
+              <div className="mt-1 flex h-2.5 overflow-hidden rounded-full bg-white/15" aria-hidden="true">
+                <motion.div
+                  className="h-full bg-[#ffc857]"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.9, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
+            </div>
+            <p className="mt-2 text-[0.7rem] leading-snug text-white/60">
+              Красное: проценты, светлое и жёлтое: гашение основного долга.
+            </p>
+          </div>
+
+          <Link
+            to={KANIKULY_PATH}
+            onClick={open}
+            className="mt-4 inline-flex w-full items-center justify-center rounded-full bg-[#ffc857] px-5 py-3 text-sm font-bold text-[#2b2260] shadow-lg shadow-black/20 transition-colors hover:bg-[#ffd77f]"
+          >
+            Узнать, подойдут ли мне каникулы
           </Link>
+          <p className="mt-2.5 text-center text-xs leading-relaxed text-white/70">
+            Для физлиц, на счетах нет ареста приставов. Условия зависят от вашей ситуации.
+          </p>
         </motion.aside>
       )}
     </AnimatePresence>
