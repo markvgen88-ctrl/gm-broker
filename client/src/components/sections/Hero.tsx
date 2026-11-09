@@ -1,11 +1,14 @@
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
+import { loanRangeText, useSurveySettings } from "@/lib/surveySettings";
 
 const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия от 7 до 18% (зависит от сложности ситуации) только после поступления денег"];
 
 export function Hero() {
   const goToSection = useSectionNavigate();
+  // Нижняя граница суммы берётся из настроек опроса в CRM.
+  const { minLoanAmount } = useSurveySettings();
 
   return (
     <section id="top" className="pt-[4.25rem]">
@@ -15,7 +18,7 @@ export function Hero() {
             Профессиональные <span className="text-pine">кредитно-правовые решения</span> для частных лиц и бизнеса
           </h1>
           <p className="measure mt-6 text-lg leading-relaxed text-muted">
-            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 1 000 000 ₽ до 1,5 млрд ₽.
+            Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — {loanRangeText(minLoanAmount)}.
             Финансирование для тех, кому «должны одобрять», но банки отказывают или дают меньшую сумму.
           </p>
 

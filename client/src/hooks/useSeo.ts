@@ -58,7 +58,12 @@ export function useSeo({ title, description, canonicalPath, jsonLd }: SeoOptions
     } else if (ldScript) {
       ldScript.remove();
     }
-
-    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, [title, description, canonicalPath, jsonLd]);
+
+  // Прокрутка вверх только при смене страницы. Раньше она была в эффекте выше и
+  // срабатывала при любой смене описания — теперь, когда описание на главной
+  // подтягивает минимальную сумму из CRM, это бы «подбрасывало» страницу наверх.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [canonicalPath]);
 }

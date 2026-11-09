@@ -11,6 +11,7 @@ import { Wizard } from "@/components/wizard/Wizard";
 import { FAQ } from "@/components/sections/FAQ";
 import { FAQ_ITEMS } from "@/data/faq";
 import { useSeo } from "@/hooks/useSeo";
+import { loanRangeText, useSurveySettings } from "@/lib/surveySettings";
 
 const faqJsonLd = {
   "@context": "https://schema.org",
@@ -27,11 +28,12 @@ const faqJsonLd = {
 
 export function HomePage() {
   const location = useLocation();
+  const { minLoanAmount } = useSurveySettings();
 
   useSeo({
     title: "G.M. Broker — кредитный брокер для частных лиц и бизнеса",
     description:
-      "Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — от 1 000 000 ₽ до 1,5 млрд ₽. Индивидуальный подбор банка, работа по договору, оплата только после результата.",
+      `Помощь в одобрении кредитов для физлиц, ИП и ООО по всей России — ${loanRangeText(minLoanAmount)}. Индивидуальный подбор банка, работа по договору, оплата только после результата.`,
     canonicalPath: "/",
     jsonLd: faqJsonLd,
   });
