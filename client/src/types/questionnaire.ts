@@ -95,7 +95,13 @@ export interface InputNode extends BaseNode {
    * value, ответ принимается, но анкета переходит на next (обычно экран отказа),
    * а не показывает ошибку под полем.
    */
-  belowMin?: { value: number; next: string };
+  belowMin?: {
+    /** Значение по умолчанию; при заданном setting подменяется настройкой из CRM. */
+    value: number;
+    /** Название настройки опроса из CRM (lib/surveySettings.ts), от которой зависит граница. */
+    setting?: "minLoanAmount";
+    next: string;
+  };
   /** Следующий узел в обычном сценарии. */
   next: string;
   /**

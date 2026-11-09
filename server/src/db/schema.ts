@@ -128,6 +128,12 @@ export async function ensureSchema(): Promise<void> {
         key TEXT PRIMARY KEY,
         value TEXT NOT NULL
       );
+
+      -- Настройки опроса на сайте (минимальная сумма кредита и т. п.), редактируются в CRM.
+      CREATE TABLE IF NOT EXISTS survey_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      );
     `);
     await seedEmailDefaults();
     console.log("[db] Схема CRM проверена/создана.");

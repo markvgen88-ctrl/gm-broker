@@ -225,6 +225,25 @@ export async function saveEmailSignature(signature: string): Promise<string> {
   return data.signature;
 }
 
+/** Настройки опроса на сайте (вкладка «Настройки опроса»). */
+export interface SurveySettings {
+  /** Минимальная сумма кредита, ₽. 0 — без ограничения. */
+  minLoanAmount: number;
+}
+
+export async function fetchAdminSurveySettings(): Promise<SurveySettings> {
+  const data = await adminFetch<{ settings: SurveySettings }>("/survey-settings", { cache: "no-store" });
+  return data.settings;
+}
+
+export async function saveMinLoanAmount(minLoanAmount: number): Promise<SurveySettings> {
+  const data = await adminFetch<{ settings: SurveySettings }>("/survey-settings", {
+    method: "PUT",
+    body: JSON.stringify({ minLoanAmount }),
+  });
+  return data.settings;
+}
+
 export async function deleteApplication(id: number): Promise<void> {
   await adminFetch(`/applications/${id}`, { method: "DELETE" });
 }

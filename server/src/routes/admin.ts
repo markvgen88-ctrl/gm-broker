@@ -28,6 +28,7 @@ import {
   setEmailSignature,
   updateEmailTemplate,
 } from "../db/emailTemplates.js";
+import { MAX_LOAN_AMOUNT_SETTING, getSurveySettings, setMinLoanAmount } from "../db/surveySettings.js";
 import { sendEmailToClient } from "../services/email.js";
 import type { ClientEmailAttachment } from "../services/email.js";
 import {
@@ -398,6 +399,32 @@ adminRouter.put("/email-signature", async (req: Request, res: Response) => {
   }
   await setEmailSignature(parsed.data.signature);
   res.json({ success: true, signature: parsed.data.signature });
+});
+
+// ---------------------------------------------------------------------------
+// Настройки опроса («Настройки опроса» в CRM): минимальная сумма кредита.
+// ---------------------------------------------------------------------------
+
+adminRouter.get("/survey-settings", async (_req: Request, res: Response) => {
+  res.json({ success: true, settings: await getSurveySettings() });
+});
+
+adminRouter.put("/survey-settings", async (req: Request, res: Response) => {
+  const parsed = z
+    .object({
+      minLoanAmount: z
+        .number({ error: "Введите число" })
+        .int("Сумма должна быть целым числом")
+        .min(0, "Сумма не может быть отрицательной")
+        .max(MAX_LOAN_AMOUNT_SETTING, "Слишком большая сумма"),
+    })
+    .safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ success: false, message: parsed.error.issues[0]?.message ?? "Проверьте значение" });
+    return;
+  }
+  await setMinLoanAmount(parsed.data.minLoanAmount);
+  res.json({ success: true, settings: await getSurveySettings() });
 });
 
 adminRouter.post("/applications/:id/contracts", async (req: Request, res: Response) => {

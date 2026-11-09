@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HiOutlineClock, HiOutlineLockClosed } from "react-icons/hi";
 import { ProgressBar } from "@/components/wizard/ProgressBar";
@@ -10,6 +10,8 @@ import { DeclineStep } from "@/components/wizard/DeclineStep";
 import { SuccessScreen } from "@/components/wizard/SuccessScreen";
 import { useWizard } from "@/hooks/useWizard";
 import { submitApplication } from "@/lib/api";
+import { DEFAULT_SURVEY_SETTINGS, applySurveySettings, fetchSurveySettings } from "@/lib/surveySettings";
+import type { SurveySettings } from "@/lib/surveySettings";
 import type { AnswersState } from "@/types/questionnaire";
 import { normalizeTelegram } from "@/lib/telegram";
 
@@ -21,6 +23,17 @@ const slideVariants = {
 
 export function Wizard() {
   const wizard = useWizard();
+  // Минимальная сумма и т. п. задаются в CRM; до ответа сервера действуют значения по умолчанию.
+  const [surveySettings, setSurveySettings] = useState<SurveySettings>(DEFAULT_SURVEY_SETTINGS);
+  useEffect(() => {
+    let cancelled = false;
+    fetchSurveySettings().then((s) => {
+      if (!cancelled) setSurveySettings(s);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -88,7 +101,7 @@ export function Wizard() {
                 <ProgressBar progress={wizard.progress} stepIndex={wizard.stepIndex} />
                 <AnimatePresence mode="wait" custom={wizard.direction} initial={false}>
                   {(() => {
-                    const currentNode = wizard.currentNode;
+                    const currentNode = applySurveySettings(wizard.currentNode, surveySettings);
                     return (
                       <motion.div
                         key={currentNode.id}

@@ -40,6 +40,7 @@ export function AdminLayout() {
   // Разделы CRM: анкеты на кредитование, заявки по услугам и шаблоны писем.
   const onServices = location.pathname.startsWith("/admin/service-requests");
   const onTemplates = location.pathname.startsWith("/admin/email-templates");
+  const onSettings = location.pathname.startsWith("/admin/survey-settings");
 
   if (authState === "checking") {
     return (
@@ -65,7 +66,7 @@ export function AdminLayout() {
           </Button>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-2 px-4 pb-3 sm:px-6">
-          <SectionTab to="/admin" active={!onServices && !onTemplates}>
+          <SectionTab to="/admin" active={!onServices && !onTemplates && !onSettings}>
             Кредитование
           </SectionTab>
           <SectionTab to="/admin/service-requests" active={onServices}>
@@ -73,6 +74,9 @@ export function AdminLayout() {
           </SectionTab>
           <SectionTab to="/admin/email-templates" active={onTemplates}>
             Шаблоны писем
+          </SectionTab>
+          <SectionTab to="/admin/survey-settings" active={onSettings}>
+            Настройки опроса
           </SectionTab>
         </nav>
       </header>
