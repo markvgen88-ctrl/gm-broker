@@ -19,7 +19,12 @@ export interface SavedWizard {
 
 function nextIdsOf(node: QuestionNode): string[] {
   if (node.kind === "choice") return node.options.map((o) => o.next);
-  if (node.kind === "input") return node.dateBranch ? [node.next, node.dateBranch.belowNext] : [node.next];
+  if (node.kind === "input") {
+    const ids = [node.next];
+    if (node.dateBranch) ids.push(node.dateBranch.belowNext);
+    if (node.belowMin) ids.push(node.belowMin.next);
+    return ids;
+  }
   if (node.kind === "agreement") return [node.next];
   return [];
 }

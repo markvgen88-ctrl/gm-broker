@@ -90,6 +90,12 @@ export interface InputNode extends BaseNode {
   suffix?: string;
   min?: number;
   max?: number;
+  /**
+   * Мягкая нижняя граница для числовых вопросов: если введено значение меньше
+   * value, ответ принимается, но анкета переходит на next (обычно экран отказа),
+   * а не показывает ошибку под полем.
+   */
+  belowMin?: { value: number; next: string };
   /** Следующий узел в обычном сценарии. */
   next: string;
   /**
@@ -131,6 +137,8 @@ export interface DeclineNode {
   message: string;
   /** Рекомендация клиенту (необязательно). */
   hint?: string;
+  /** Показывать ссылку «Если нужна юридическая помощь…» (по умолчанию да). */
+  showLegalLink?: boolean;
 }
 
 export type QuestionNode = ChoiceNode | InputNode | FinalNode | AgreementNode | DeclineNode;

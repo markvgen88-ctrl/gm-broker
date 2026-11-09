@@ -44,13 +44,15 @@ export function DeclineStep({ node, onBack, onReset, canGoBack }: DeclineStepPro
           Пройти опрос заново
         </Button>
       </div>
-      <button
-        type="button"
-        onClick={() => goToSection("debts")}
-        className="mt-6 text-sm font-medium text-silver underline underline-offset-4 hover:text-gold"
-      >
-        Если нужна юридическая помощь, смотрите раздел ниже
-      </button>
+      {node.showLegalLink !== false && (
+        <button
+          type="button"
+          onClick={() => goToSection("debts")}
+          className="mt-6 text-sm font-medium text-silver underline underline-offset-4 hover:text-gold"
+        >
+          Если нужна юридическая помощь, смотрите раздел ниже
+        </button>
+      )}
     </motion.div>
   );
 }

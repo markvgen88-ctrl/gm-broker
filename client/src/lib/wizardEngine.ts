@@ -26,6 +26,8 @@ export function buildDistanceToFinalMap(graph: QuestionnaireGraph): Record<strin
     if (node.kind === "choice") nextIds = node.options.map((o) => o.next);
     if (node.kind === "input") {
       nextIds = node.dateBranch ? [node.next, node.dateBranch.belowNext] : [node.next];
+      // belowMin (экран отказа при слишком маленькой сумме) намеренно не учитываем:
+      // это редкий выход, иначе на вопросе о сумме прогресс-бар показывал бы «почти конец».
     }
     if (node.kind === "agreement") nextIds = [node.next];
 

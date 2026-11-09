@@ -19,6 +19,12 @@ interface InputStepProps {
   canGoBack: boolean;
 }
 
+/** 1000000 → «1 000 000 ₽» для сообщений о границах. */
+function formatLimit(value: number | undefined, suffix?: string): string {
+  const text = (value ?? 0).toLocaleString("ru-RU");
+  return suffix ? `${text} ${suffix}` : text;
+}
+
 function buildSchema(node: InputNode) {
   if (node.field === "inn") {
     const length = expectedInnLength(node.id);
@@ -41,8 +47,14 @@ function buildSchema(node: InputNode) {
         .min(1, "Заполните поле")
         .refine((v) => !Number.isNaN(toNumber(v)), "Введите число")
         .refine((v) => toNumber(v) >= 0, "Значение не может быть отрицательным")
-        .refine((v) => node.min === undefined || toNumber(v) >= node.min, `Минимум — ${node.min}`)
-        .refine((v) => node.max === undefined || toNumber(v) <= node.max, `Максимум — ${node.max}`),
+        .refine(
+          (v) => node.min === undefined || toNumber(v) >= node.min,
+          `Минимум — ${formatLimit(node.min, node.suffix)}`
+        )
+        .refine(
+          (v) => node.max === undefined || toNumber(v) <= node.max,
+          `Максимум — ${formatLimit(node.max, node.suffix)}`
+        ),
     });
   }
 
@@ -85,6 +97,9 @@ export function InputStep({ node, defaultValue, onAnswer, onBack, canGoBack }: I
     const raw = node.inputType === "number" ? Number(data.value.replace(/\s/g, "")) : data.value.trim();
 
     let nextId = node.next;
+    if (node.belowMin && node.inputType === "number" && Number(raw) < node.belowMin.value) {
+      nextId = node.belowMin.next;
+    }
     if (node.dateBranch && node.inputType === "date") {
       const monthsPassed = fullMonthsSince(data.value);
       if (monthsPassed < node.dateBranch.minMonths) {
