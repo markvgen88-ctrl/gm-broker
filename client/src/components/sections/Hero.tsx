@@ -1,6 +1,7 @@
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { useSectionNavigate } from "@/hooks/useSectionNavigate";
+import { StopFactors } from "@/components/sections/StopFactors";
 import { loanRangeText, useSurveySettings } from "@/lib/surveySettings";
 
 const FACTS = ["Без предоплаты", "Работа по договору", "Комиссия от 7 до 18% (зависит от сложности ситуации) только после поступления денег"];
@@ -31,9 +32,7 @@ export function Hero() {
             ))}
           </ul>
 
-          <p className="mt-8 max-w-lg text-base font-bold leading-relaxed text-[#c62828]">
-            Клиентам с действующей просроченной задолженностью доступно только залоговое кредитование от 20% годовых.
-          </p>
+          <StopFactors />
 
           {/* Только на мобильном: на компьютере кнопка «Юридическая помощь» есть в шапке */}
           <div className="mt-6 lg:hidden">
