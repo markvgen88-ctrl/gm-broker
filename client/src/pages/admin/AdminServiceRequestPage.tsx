@@ -152,6 +152,20 @@ export function AdminServiceRequestPage() {
           <p className="mt-1.5 text-xl font-extrabold text-silver sm:text-2xl">{item.serviceTitle}</p>
         </section>
 
+        {item.answers.length > 0 && (
+          <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-5">
+            <h2 className="mb-3 text-[11px] font-bold tracking-wider text-gold uppercase">Ответы опроса</h2>
+            <dl className="divide-y divide-white/10">
+              {item.answers.map((a, i) => (
+                <div key={i} className="py-2.5 first:pt-0 last:pb-0">
+                  <dt className="text-xs text-metal">{a.question}</dt>
+                  <dd className="mt-0.5 text-sm font-semibold text-silver">{a.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
+
         <section className="rounded-2xl border border-white/10 bg-graphite/40 p-4 sm:p-5">
           <h2 className="mb-3 text-[11px] font-bold tracking-wider text-gold uppercase">Комментарий клиента</h2>
           {item.clientComment ? (

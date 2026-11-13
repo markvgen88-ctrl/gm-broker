@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { ContactNotice } from "@/components/ui/ContactNotice";
 import { normalizeTelegram, TELEGRAM_ERROR } from "@/lib/telegram";
 import { submitServiceRequest } from "@/lib/api";
+import type { SurveyAnswer } from "@/lib/api";
 import type { Service } from "@/data/services";
 
 // Тот же формат телефона и те же правила, что в анкете (FinalStep).
@@ -46,7 +47,17 @@ const DEFAULT_PLACEHOLDER = "Коротко опишите ситуацию (п�
  * опроса (FinalStep), плюс необязательный комментарий. Рассчитана на тёмный
  * фон со скином `.wizard-skin`.
  */
-export function ServiceRequestForm({ service }: { service: Service }) {
+export function ServiceRequestForm({
+  service,
+  answers,
+  onSubmitted,
+}: {
+  service: Service;
+  answers?: SurveyAnswer[];
+  onSubmitted?: () => void;
+}) {
+  // Если перед формой был мини-опрос, комментарий не нужен: всё главное в ответах.
+  const hasSurvey = answers !== undefined && answers.length > 0;
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -69,10 +80,12 @@ export function ServiceRequestForm({ service }: { service: Service }) {
         email: values.email,
         telegram: normalizeTelegram(values.telegram) || undefined,
         comment: values.comment || undefined,
+        answers: hasSurvey ? answers : undefined,
         consent: true,
         website: values.website,
       });
       setSubmitted(true);
+      onSubmitted?.();
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : "Не удалось отправить заявку. Попробуйте ещё раз.");
     }
@@ -82,7 +95,9 @@ export function ServiceRequestForm({ service }: { service: Service }) {
     return (
       <div className="rounded-3xl border border-white/10 bg-graphite p-8 text-center md:p-10" role="status">
         <HiOutlineCheckCircle className="mx-auto text-gold" size={48} />
-        <h3 className="mt-4 font-display text-2xl font-semibold text-silver">Заявка отправлена</h3>
+        <h3 className="mt-4 font-display text-2xl font-semibold text-silver">
+          {hasSurvey ? "Ваша анкета отправлена!" : "Заявка отправлена"}
+        </h3>
         <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-metal">
           {service.requestSuccess ?? DEFAULT_SUCCESS}
         </p>
@@ -161,19 +176,21 @@ export function ServiceRequestForm({ service }: { service: Service }) {
           {errors.telegram && <p className={errCls}>{errors.telegram.message}</p>}
         </div>
 
-        <div>
-          <label htmlFor="fr-comment" className={labelCls}>
-            Комментарий
-          </label>
-          <textarea
-            id="fr-comment"
-            rows={4}
-            placeholder={service.requestPlaceholder ?? DEFAULT_PLACEHOLDER}
-            className={inputCls}
-            {...register("comment")}
-          />
-          {errors.comment && <p className={errCls}>{errors.comment.message}</p>}
-        </div>
+        {!hasSurvey && (
+          <div>
+            <label htmlFor="fr-comment" className={labelCls}>
+              Комментарий
+            </label>
+            <textarea
+              id="fr-comment"
+              rows={4}
+              placeholder={service.requestPlaceholder ?? DEFAULT_PLACEHOLDER}
+              className={inputCls}
+              {...register("comment")}
+            />
+            {errors.comment && <p className={errCls}>{errors.comment.message}</p>}
+          </div>
+        )}
 
         {/* Ловушка для ботов: скрыта от людей и от скринридеров */}
         <div aria-hidden="true" className="absolute -left-[9999px] h-0 w-0 overflow-hidden">

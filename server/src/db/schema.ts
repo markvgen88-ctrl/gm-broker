@@ -56,6 +56,9 @@ export async function ensureSchema(): Promise<void> {
         ADD COLUMN IF NOT EXISTS service TEXT NOT NULL DEFAULT 'zamorozka-kreditnogo-dogovora';
       ALTER TABLE freeze_requests
         ADD COLUMN IF NOT EXISTS telegram TEXT;
+      -- Ответы мини-опроса перед заявкой (кредитные каникулы): [{question, answer}].
+      ALTER TABLE freeze_requests
+        ADD COLUMN IF NOT EXISTS answers JSONB;
 
       -- Заявки по услугам ведутся в CRM (раздел «Услуги») отдельно от анкет
       -- на кредитование: свой статус и свои комментарии. Статус по умолчанию

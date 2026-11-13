@@ -25,6 +25,7 @@ export function buildServiceRequestReport(data: ServiceRequestInput, receivedAt:
     ["Телефон", data.phone],
     ["E-mail", data.email],
     ...(data.telegram ? ([["Telegram", data.telegram]] as [string, string][]) : []),
+    ...(data.answers ?? []).map((a): [string, string] => [a.question, a.answer]),
     ["Комментарий", data.comment || "не указан"],
     ["Получена", `${when} (МСК)`],
   ];

@@ -74,6 +74,8 @@ export interface ServiceRequestListItem {
   /** Комментарий клиента из формы на сайте */
   clientComment: string | null;
   status: string;
+  /** Ответы мини-опроса (кредитные каникулы); у других услуг — пусто */
+  answers: { question: string; answer: string }[];
   lastComment: { text: string; createdAt: string } | null;
 }
 

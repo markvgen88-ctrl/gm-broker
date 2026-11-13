@@ -21,8 +21,16 @@ export async function saveServiceRequest(data: ServiceRequestInput): Promise<Ser
   }
   try {
     await pool.query(
-      `INSERT INTO freeze_requests (service, name, phone, email, telegram, comment) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [data.service, data.name, data.phone, data.email, data.telegram || null, data.comment || null]
+      `INSERT INTO freeze_requests (service, name, phone, email, telegram, comment, answers) VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        data.service,
+        data.name,
+        data.phone,
+        data.email,
+        data.telegram || null,
+        data.comment || null,
+        data.answers && data.answers.length > 0 ? JSON.stringify(data.answers) : null,
+      ]
     );
     return { ok: true };
   } catch (error) {
@@ -54,6 +62,8 @@ export interface ServiceRequestListItem {
   /** Комментарий, который клиент оставил в форме на сайте */
   clientComment: string | null;
   status: string;
+  /** Ответы мини-опроса (кредитные каникулы); у остальных заявок — пустой список */
+  answers: { question: string; answer: string }[];
   /** Последний комментарий брокера в CRM */
   lastComment: { text: string; createdAt: string } | null;
 }
@@ -80,6 +90,7 @@ function toListItem(row: any): ServiceRequestListItem {
     telegram: row.telegram ?? null,
     clientComment: row.comment ?? null,
     status: row.status,
+    answers: Array.isArray(row.answers) ? row.answers : [],
     lastComment:
       row.last_comment_text !== undefined && row.last_comment_text !== null
         ? { text: row.last_comment_text, createdAt: row.last_comment_created_at }
@@ -90,7 +101,7 @@ function toListItem(row: any): ServiceRequestListItem {
 // LATERAL-подзапрос подтягивает только самый свежий комментарий на заявку —
 // для маленькой иконки с последним комментарием в списке.
 const LIST_QUERY = `
-  SELECT r.id, r.created_at, r.service, r.name, r.phone, r.email, r.telegram, r.comment, r.status,
+  SELECT r.id, r.created_at, r.service, r.name, r.phone, r.email, r.telegram, r.comment, r.status, r.answers,
          c.text AS last_comment_text, c.created_at AS last_comment_created_at
   FROM freeze_requests r
   LEFT JOIN LATERAL (
@@ -113,7 +124,7 @@ export async function listServiceRequests(): Promise<ServiceRequestListItem[]> {
 /** Карточка заявки по услуге: данные клиента + комментарии брокера. */
 export async function getServiceRequestById(id: number): Promise<ServiceRequestDetail | null> {
   const reqResult = await pool.query(
-    `SELECT id, created_at, service, name, phone, email, telegram, comment, status
+    `SELECT id, created_at, service, name, phone, email, telegram, comment, status, answers
      FROM freeze_requests WHERE id = $1`,
     [id]
   );

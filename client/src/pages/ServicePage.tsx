@@ -6,6 +6,7 @@ import { CaseStudyBlock } from "@/components/sections/CaseStudyBlock";
 import { KanikulyChart } from "@/components/sections/KanikulyChart";
 import { KANIKULY_SLUG } from "@/lib/kanikuly";
 import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
+import { KanikulySurvey } from "@/components/forms/KanikulySurvey";
 import { GROUP_TITLES, SERVICES, getServiceBySlug } from "@/data/services";
 import { useSeo } from "@/hooks/useSeo";
 
@@ -49,6 +50,7 @@ export function ServicePage() {
   if (!service) return <Navigate to="/#services" replace />;
 
   const isLegal = service.group === "legal";
+  const isKanikuly = service.slug === KANIKULY_SLUG;
   // Внутри юридической помощи показываем только её услуги, иначе — остальные виды кредитования.
   const others = SERVICES.filter((s) => s.slug !== service.slug && (s.group === "legal") === isLegal);
   const lists = [
@@ -159,14 +161,16 @@ export function ServicePage() {
           <div className="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
               <h2 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
-                Оставьте заявку
+                {isKanikuly ? "Узнайте, можно ли оформить каникулы" : "Оставьте заявку"}
               </h2>
               <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
-                {service.requestText ??
-                  "Расскажите о своей ситуации. Мы свяжемся с вами и подскажем, подойдёт ли вам эта услуга."}
+                {isKanikuly
+                  ? "Ответьте на несколько вопросов и оставьте контакты — мы изучим вашу анкету и ответим в течение 24 часов."
+                  : (service.requestText ??
+                    "Расскажите о своей ситуации. Мы свяжемся с вами и подскажем, подойдёт ли вам эта услуга.")}
               </p>
             </div>
-            <ServiceRequestForm service={service} />
+            {isKanikuly ? <KanikulySurvey service={service} /> : <ServiceRequestForm service={service} />}
           </div>
         </section>
       ) : (

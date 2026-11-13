@@ -34,6 +34,11 @@ export async function submitApplication(payload: SubmissionPayload): Promise<Sub
   return data ?? { success: true };
 }
 
+export interface SurveyAnswer {
+  question: string;
+  answer: string;
+}
+
 export interface ServiceRequestPayload {
   /** slug услуги (/services/:slug), на которую оставлена заявка. */
   service: string;
@@ -42,6 +47,8 @@ export interface ServiceRequestPayload {
   email: string;
   telegram?: string;
   comment?: string;
+  /** Ответы мини-опроса перед заявкой (кредитные каникулы). */
+  answers?: SurveyAnswer[];
   consent: true;
   /** Поле-ловушка для ботов, человек его не заполняет. */
   website?: string;

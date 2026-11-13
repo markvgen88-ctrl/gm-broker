@@ -26,6 +26,19 @@ export const serviceRequestSchema = z.object({
     .transform((v) => normalizeTelegram(v) ?? "")
     .optional(),
   comment: z.string().trim().max(2000, "Комментарий слишком длинный (до 2000 символов)").optional(),
+  /**
+   * Ответы мини-опроса перед заявкой (сейчас — «Кредитные каникулы»):
+   * список «вопрос — ответ» в том порядке, в котором клиент проходил опрос.
+   */
+  answers: z
+    .array(
+      z.object({
+        question: z.string().trim().min(1).max(300),
+        answer: z.string().trim().min(1).max(300),
+      })
+    )
+    .max(20)
+    .optional(),
   consent: z.literal(true, { message: "Нужно согласие на обработку персональных данных" }),
   website: z.string().max(200).optional(),
 });
