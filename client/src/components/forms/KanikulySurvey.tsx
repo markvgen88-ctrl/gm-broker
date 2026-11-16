@@ -11,7 +11,7 @@ import type { Service } from "@/data/services";
  * Мини-опрос перед заявкой на «Кредитные каникулы» (по XMind-карте
  * «Опрос по кредитным каникулам»):
  *
- *   старт → просрочка (да/нет — путь один) → арест счетов (да → отказ)
+ *   старт → возраст (от 20 лет) → просрочка (да/нет — путь один) → арест счетов (да → отказ)
  *         → платежи в месяц → количество кредитов → условия услуги
  *         → (принимаю) контакты → заявка уходит как обычная заявка по услуге
  *
@@ -22,9 +22,10 @@ import type { Service } from "@/data/services";
  * отправляется — как у экранов отказа основной анкеты.
  */
 
-type Step = "start" | "overdue" | "arrest" | "payments" | "count" | "terms" | "arrestDecline" | "termsDecline" | "contacts";
+type Step = "start" | "age" | "overdue" | "arrest" | "payments" | "count" | "terms" | "arrestDecline" | "termsDecline" | "contacts";
 
 const Q = {
+  age: "Возраст",
   overdue: "Есть ли в данный момент действующая просрочка по платежам?",
   arrest: "Наложен ли арест на банковские счета судебным приставом?",
   payments: "Общая сумма платежей в месяц по кредитам",
@@ -32,8 +33,9 @@ const Q = {
   terms: "Условия услуги (предоплата, гарантия возврата, срок до 10 дней)",
 } as const;
 
-const TOTAL_STEPS = 5;
-const STEP_NUMBER: Partial<Record<Step, number>> = { overdue: 1, arrest: 2, payments: 3, count: 4, terms: 5 };
+const MIN_AGE = 20;
+const TOTAL_STEPS = 6;
+const STEP_NUMBER: Partial<Record<Step, number>> = { age: 1, overdue: 2, arrest: 3, payments: 4, count: 5, terms: 6 };
 
 const card = "rounded-3xl border border-white/10 bg-graphite p-6 md:p-10";
 const title = "font-display text-xl font-semibold leading-snug text-silver md:text-2xl";
@@ -78,6 +80,7 @@ function NumberStep({
   integer,
   min,
   max,
+  minMessage,
   onSubmit,
   onBack,
 }: {
@@ -89,6 +92,7 @@ function NumberStep({
   integer?: boolean;
   min: number;
   max: number;
+  minMessage?: string;
   onSubmit: (value: number) => void;
   onBack: () => void;
 }) {
@@ -100,7 +104,7 @@ function NumberStep({
     const n = Number(value.replace(/\s/g, "").replace(",", "."));
     if (value.trim() === "" || Number.isNaN(n)) return setError("Введите число");
     if (integer && !Number.isInteger(n)) return setError("Введите целое число");
-    if (n < min) return setError(`Минимум — ${min.toLocaleString("ru-RU")} ${suffix}`);
+    if (n < min) return setError(minMessage ?? `Минимум — ${min.toLocaleString("ru-RU")} ${suffix}`);
     if (n > max) return setError(`Максимум — ${max.toLocaleString("ru-RU")} ${suffix}`);
     onSubmit(n);
   };
@@ -142,6 +146,7 @@ function NumberStep({
 export function KanikulySurvey({ service }: { service: Service }) {
   const [step, setStep] = useState<Step>("start");
   const [history, setHistory] = useState<Step[]>([]);
+  const [age, setAge] = useState<number | null>(null);
   const [overdue, setOverdue] = useState<boolean | null>(null);
   const [payments, setPayments] = useState<number | null>(null);
   const [count, setCount] = useState<number | null>(null);
@@ -160,12 +165,14 @@ export function KanikulySurvey({ service }: { service: Service }) {
   const restart = () => {
     setHistory([]);
     setStep("start");
+    setAge(null);
     setOverdue(null);
     setPayments(null);
     setCount(null);
   };
 
   const answers: SurveyAnswer[] = [
+    { question: Q.age, answer: `${age ?? 0} лет` },
     { question: Q.overdue, answer: overdue ? "Да" : "Нет" },
     { question: Q.arrest, answer: "Нет" },
     { question: Q.payments, answer: `${(payments ?? 0).toLocaleString("ru-RU")} ₽` },
@@ -184,12 +191,33 @@ export function KanikulySurvey({ service }: { service: Service }) {
           <h3 className={title}>Узнайте, можно ли для вас оформить кредитные каникулы.</h3>
           <p className={hintCls}>Пройдите небольшой опрос — это займёт около минуты.</p>
           <div className="mt-8">
-            <Button size="lg" onClick={() => goTo("overdue")}>
+            <Button size="lg" onClick={() => goTo("age")}>
               Начать
               <HiOutlineArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
           </div>
         </div>
+      );
+      break;
+
+    case "age":
+      body = (
+        <NumberStep
+          question="Укажите ваш возраст."
+          hint={`Минимальный возраст — ${MIN_AGE} лет.`}
+          suffix="лет"
+          placeholder="Например, 35"
+          initial={age !== null ? String(age) : ""}
+          integer
+          min={MIN_AGE}
+          max={100}
+          minMessage={`Минимальный возраст — ${MIN_AGE} лет`}
+          onSubmit={(n) => {
+            setAge(n);
+            goTo("overdue");
+          }}
+          onBack={goBack}
+        />
       );
       break;
 
