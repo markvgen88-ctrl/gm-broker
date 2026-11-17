@@ -34,7 +34,7 @@ export function Wizard() {
 
     const telegram = normalizeTelegram(values.telegram) ?? "";
     const finalAnswers: AnswersState = {
-      ...wizard.answers,
+      ...wizard.routeAnswers,
       name: values.name,
       phone: values.phone,
       contactInfo: values.contactInfo,

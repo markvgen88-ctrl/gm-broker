@@ -36,7 +36,7 @@ const ONLY_YES_IS_GOOD = new Set(["hasCar"]);
  * Свободный текст («Например: нет, или 50 000 ₽»): «нет» / «0» — хорошо,
  * любой другой непустой ответ — негативный фактор.
  */
-const FREE_TEXT_NEGATIVE = new Set(["taxDebt", "block115", "bailiffBlock"]);
+const FREE_TEXT_NEGATIVE = new Set(["taxDebt", "block115", "bailiffBlock", "overdueAmount", "arrestAmount"]);
 
 function isNegativeAnswer(text: string): boolean {
   const t = text.trim().toLowerCase().replace(/[.!\s]+$/g, "");

@@ -29,6 +29,24 @@ export function useWizard() {
     return total === 0 ? 0 : Math.min(stepsTaken / total, 0.96);
   }, [stepsTaken, remaining, currentNode]);
 
+  /**
+   * Ответы только на те вопросы, которые клиент реально прошёл по текущему
+   * маршруту. Нужны для отправки: если клиент ответил, вернулся назад и выбрал
+   * другой вариант, введённые на «отброшенной» ветке значения в заявку не попадают.
+   */
+  const routeAnswers = useMemo(() => {
+    const fields = new Set<string>();
+    for (const id of nodeIds) {
+      const node = questionnaireGraph[id];
+      if (node && "field" in node) fields.add(node.field);
+    }
+    const result: AnswersState = {};
+    for (const [key, value] of Object.entries(answers)) {
+      if (fields.has(key)) (result as Record<string, AnswerValue>)[key] = value as AnswerValue;
+    }
+    return result;
+  }, [nodeIds, answers]);
+
   const goNext = useCallback((field: FieldKey, value: AnswerValue, nextId: string) => {
     setDirection(1);
     setAnswers((prev) => ({ ...prev, [field]: value }));
@@ -76,6 +94,7 @@ export function useWizard() {
   return {
     currentNode,
     answers,
+    routeAnswers,
     direction,
     progress,
     stepIndex: stepsTaken + 1,

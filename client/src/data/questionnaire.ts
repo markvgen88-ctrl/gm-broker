@@ -90,6 +90,18 @@ import type { QuestionnaireGraph } from "@/types/questionnaire";
  * недвижимостью?» (f_arrest_5, поле hasArrest, оба ответа → сумма кредита).
  * Вопроса про автомобиль в этой цепочке по-прежнему нет.
  *
+ * Правка 17.11.2026 (обновлённая карта «Схема сайта без отказов по физикам»,
+ * добавлены вопросы по веткам физлица): (1) после «У вас сейчас есть действующая
+ * просроченная задолженность? — Да» задаётся «Укажите сумму просроченной
+ * задолженности» (поле overdueAmount; f_overdue_sum_1 — ветка «официально
+ * трудоустроен», f_overdue_sum_2 — «не трудоустроен»), затем прежний вопрос про
+ * МФО; (2) после «Наложен ли арест на регистрационные действия с
+ * недвижимостью? — Да» задаётся «Укажите сумму задолженности по аресту на
+ * регистрационные действия» (поле arrestAmount; f_arrest_sum_1…5 — по одному на
+ * каждый из пяти вопросов об аресте: f_arrest_5, f_arrest_1, f_arrest_2,
+ * f_arrest_3, f_arrest_4), затем прежний следующий шаг (сумма кредита).
+ * Ветки ИП и ООО в этой версии карты не менялись.
+ *
  * id узлов — смысловые (для читаемости кода): {ветка}_{вопрос}[_{номер}],
  * номер добавляется, только если в ветке несколько экземпляров одного и
  * того же вопроса (как в исходной карте).
@@ -233,8 +245,19 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "У вас сейчас есть действующая просроченная задолженность?",
     options: [
       { label: "Нет", value: "no", next: "f_overdue_12m_1" },
-      { label: "Да", value: "yes", next: "f_mfo_5" },
+      { label: "Да", value: "yes", next: "f_overdue_sum_1" },
     ],
+  },
+
+  f_overdue_sum_1: {
+    id: "f_overdue_sum_1",
+    kind: "input",
+    field: "overdueAmount",
+    inputType: "number",
+    question: "Укажите сумму просроченной задолженности",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_mfo_5",
   },
 
   f_overdue_12m_1: {
@@ -363,8 +386,19 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Наложен ли арест на регистрационные действия с недвижимостью?",
     options: [
       { label: "Нет", value: "no", next: "f_loan_amount_1" },
-      { label: "Да", value: "yes", next: "f_loan_amount_1" },
+      { label: "Да", value: "yes", next: "f_arrest_sum_1" },
     ],
+  },
+
+  f_arrest_sum_1: {
+    id: "f_arrest_sum_1",
+    kind: "input",
+    field: "arrestAmount",
+    inputType: "number",
+    question: "Укажите сумму задолженности по аресту на регистрационные действия",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_loan_amount_1",
   },
 
   f_loan_amount_1: {
@@ -568,8 +602,19 @@ export const questionnaireGraph: QuestionnaireGraph = {
     question: "Наложен ли арест на регистрационные действия с недвижимостью?",
     options: [
       { label: "Нет", value: "no", next: "f_car_1" },
-      { label: "Да", value: "yes", next: "f_loan_amount_2" },
+      { label: "Да", value: "yes", next: "f_arrest_sum_2" },
     ],
+  },
+
+  f_arrest_sum_2: {
+    id: "f_arrest_sum_2",
+    kind: "input",
+    field: "arrestAmount",
+    inputType: "number",
+    question: "Укажите сумму задолженности по аресту на регистрационные действия",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_loan_amount_2",
   },
 
   f_car_1: {
@@ -703,9 +748,20 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "hasCurrentOverdue",
     question: "У вас сейчас есть действующая просроченная задолженность?",
     options: [
-      { label: "Да", value: "yes", next: "f_mfo_3" },
+      { label: "Да", value: "yes", next: "f_overdue_sum_2" },
       { label: "Нет", value: "no", next: "f_overdue_12m_3" },
     ],
+  },
+
+  f_overdue_sum_2: {
+    id: "f_overdue_sum_2",
+    kind: "input",
+    field: "overdueAmount",
+    inputType: "number",
+    question: "Укажите сумму просроченной задолженности",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_mfo_3",
   },
 
   f_mfo_3: {
@@ -914,9 +970,20 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "hasArrest",
     question: "Наложен ли арест на регистрационные действия с недвижимостью?",
     options: [
-      { label: "Да", value: "yes", next: "f_loan_amount_3" },
+      { label: "Да", value: "yes", next: "f_arrest_sum_3" },
       { label: "Нет", value: "no", next: "f_car_4" },
     ],
+  },
+
+  f_arrest_sum_3: {
+    id: "f_arrest_sum_3",
+    kind: "input",
+    field: "arrestAmount",
+    inputType: "number",
+    question: "Укажите сумму задолженности по аресту на регистрационные действия",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_loan_amount_3",
   },
 
   f_overdue_12m_3: {
@@ -1136,9 +1203,20 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "hasArrest",
     question: "Наложен ли арест на регистрационные действия с недвижимостью?",
     options: [
-      { label: "Да", value: "yes", next: "f_loan_amount_4" },
+      { label: "Да", value: "yes", next: "f_arrest_sum_4" },
       { label: "Нет", value: "no", next: "f_car_6" },
     ],
+  },
+
+  f_arrest_sum_4: {
+    id: "f_arrest_sum_4",
+    kind: "input",
+    field: "arrestAmount",
+    inputType: "number",
+    question: "Укажите сумму задолженности по аресту на регистрационные действия",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_loan_amount_4",
   },
 
   f_overdue_12m_4: {
@@ -1325,9 +1403,20 @@ export const questionnaireGraph: QuestionnaireGraph = {
     field: "hasArrest",
     question: "Наложен ли арест на регистрационные действия с недвижимостью?",
     options: [
-      { label: "Да", value: "yes", next: "f_loan_amount_5" },
+      { label: "Да", value: "yes", next: "f_arrest_sum_5" },
       { label: "Нет", value: "no", next: "f_car_8" },
     ],
+  },
+
+  f_arrest_sum_5: {
+    id: "f_arrest_sum_5",
+    kind: "input",
+    field: "arrestAmount",
+    inputType: "number",
+    question: "Укажите сумму задолженности по аресту на регистрационные действия",
+    placeholder: "Сумма в рублях",
+    suffix: "₽",
+    next: "f_loan_amount_5",
   },
 
   f_bankruptcy_term: {
@@ -1745,6 +1834,7 @@ export const FIELD_LABELS: Record<string, string> = {
   bankruptcyTermPassed: "Срок с момента завершения процедуры БФЛ",
   registrationCity: "Город проживания по прописке",
   hasCurrentOverdue: "Действующая просроченная задолженность",
+  overdueAmount: "Сумма просроченной задолженности",
   hadOverdue12m: "Просрочка за последние 12 месяцев",
   isEmployed: "Официальное трудоустройство",
   officialIncome: "Официальный ежемесячный доход",
@@ -1760,6 +1850,7 @@ export const FIELD_LABELS: Record<string, string> = {
   isPledged: "Недвижимость в залоге у банка",
   hasMinorOwners: "Несовершеннолетние собственники в долях",
   hasArrest: "Арест на регистрационные действия",
+  arrestAmount: "Сумма задолженности по аресту на регистрационные действия",
   closeRelativesPledgeConsent: "Готовность близких дать залог",
   hasCar: "Автомобиль в собственности",
   loanAmount: "Интересующая сумма кредита",

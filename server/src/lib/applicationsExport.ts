@@ -32,6 +32,8 @@ const MONEY_FIELDS = new Set([
   "loanBalance",
   "monthlyPayments",
   "biggestPaidLoan",
+  "overdueAmount",
+  "arrestAmount",
   "loanAmount",
   "ipTurnover",
   "orgTurnover",
