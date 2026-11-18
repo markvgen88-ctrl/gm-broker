@@ -1,0 +1,27 @@
+/* Калькулятор кредитных каникул. Стили изолированы классом .kcalc (светлая тема сайта). */
+.kcalc{--paper:#f1f4ef;--ink:#1a2b25;--muted:#62726b;--pine:#0d6150;--bright:#6fc4a8;--hero:#0d6150;--herotext:#fff;--herosoft:#b9e3d4;--card:#fafbf9;--line:#dbe3de;--bad:#b7a9a0;--err:#c62828;
+  width:100%;max-width:230px;color:var(--ink);font:14px/1.35 Onest,system-ui,-apple-system,"Segoe UI",sans-serif}
+.kcalc *{box-sizing:border-box}
+.kcalc .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px}
+.kcalc .fields{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.kcalc label{display:block;font-weight:600;font-size:12px;margin:0 0 2px}
+.kcalc .inp{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:10px;background:var(--paper);padding:0 7px;transition:border-color .15s}
+.kcalc .inp:focus-within{border-color:var(--pine);box-shadow:0 0 0 3px color-mix(in srgb,var(--bright) 35%,transparent)}
+.kcalc .inp.bad{border-color:var(--err)}
+.kcalc .inp input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;font-weight:600;color:inherit;padding:5px 0;outline:0}
+.kcalc .inp span{color:var(--muted);margin-left:3px;font-size:11px;white-space:nowrap}
+.kcalc input[type=range]{width:100%;margin:2px 0 0;accent-color:var(--pine)}
+.kcalc .out{margin-top:8px}
+.kcalc .hero{background:var(--hero);color:var(--herotext);border-radius:12px;padding:7px 12px;overflow:hidden}
+.kcalc .hero small{font-size:12.5px;color:var(--herosoft);display:block}
+.kcalc .hero .big{font-size:22px;font-weight:800;line-height:1.1;margin:0;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.kcalc .hero .big.pulse{animation:kcp .35s ease}
+.kcalc .stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.kcalc .stat{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:5px 9px}
+.kcalc .stat small{display:block;color:var(--muted);font-size:11px;line-height:1.15}
+.kcalc .stat b{display:block;font-size:13px;font-weight:700;margin-top:1px;font-variant-numeric:tabular-nums}
+.kcalc .stat.acc b{color:var(--pine)}
+.kcalc .fine{font-size:10.5px;color:var(--muted);margin:4px 2px 0;line-height:1.25}
+.kcalc .empty{color:var(--muted);text-align:center;padding:26px 12px;background:var(--card);border:1px dashed var(--line);border-radius:18px}
+@keyframes kcp{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.kcalc .hero .big.pulse{animation:none}}

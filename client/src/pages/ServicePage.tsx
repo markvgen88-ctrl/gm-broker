@@ -3,7 +3,7 @@ import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-ico
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { CaseStudyBlock } from "@/components/sections/CaseStudyBlock";
-import { KanikulyChart } from "@/components/sections/KanikulyChart";
+import { KanikulyCalculatorBlock } from "@/components/sections/KanikulyCalculatorBlock";
 import { KANIKULY_SLUG } from "@/lib/kanikuly";
 import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
 import { KanikulySurvey } from "@/components/forms/KanikulySurvey";
@@ -106,8 +106,8 @@ export function ServicePage() {
                 {s.paragraphs?.map((p, i) => (
                   <div key={p}>
                     <p className="mt-4 text-base leading-relaxed text-ink/85">{p}</p>
-                    {/* Наглядный пример — после абзаца с цифрами, в первом разделе «Кредитных каникул». */}
-                    {service.slug === KANIKULY_SLUG && sectionIndex === 0 && i === 0 && <KanikulyChart />}
+                    {/* Калькулятор — после абзаца с цифрами, в первом разделе «Кредитных каникул». */}
+                    {service.slug === KANIKULY_SLUG && sectionIndex === 0 && i === 0 && <KanikulyCalculatorBlock />}
                   </div>
                 ))}
                 {s.list && (
