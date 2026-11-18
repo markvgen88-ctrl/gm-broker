@@ -1,4 +1,3 @@
-import { HiArrowRight } from "react-icons/hi";
 import { KanikulyCalculator } from "@/components/sections/KanikulyCalculator";
 
 /**
@@ -19,11 +18,11 @@ export function KanikulyCalculatorBlock() {
       >
         Посчитайте, что дадут каникулы именно вам
       </h3>
-      <p className="mt-3 text-[0.95rem] leading-relaxed text-ink/85">
+      <p className="mt-3 max-w-3xl text-[0.95rem] leading-relaxed text-ink/85">
         Введите данные своего кредита и сумму, которую готовы вносить в месяц на
         каникулах (можно 0 ₽). Калькулятор сразу покажет результат.
       </p>
-      <div className="mt-5 grid items-start gap-6 md:grid-cols-2 md:gap-10">
+      <div className="mt-5 grid items-start gap-6 md:grid-cols-2 md:gap-12 lg:gap-16">
         <div className="order-1 md:order-2">
           <KanikulyCalculator />
         </div>
@@ -70,12 +69,6 @@ export function KanikulyCalculatorBlock() {
             Расчёт ориентировочный: равные платежи, без страховок и комиссий.
             Точные цифры зависят от вашего договора и количества кредитов.
           </p>
-          <a
-            href="#request"
-            className="mt-5 inline-flex items-center gap-2 rounded-full bg-pine px-5 py-2.5 text-sm font-semibold text-white hover:bg-pine-deep"
-          >
-            Узнать, подойдут ли мне каникулы <HiArrowRight />
-          </a>
         </div>
       </div>
     </section>

@@ -28,3 +28,4 @@
 .kcalc .empty{color:var(--muted);text-align:center;padding:28px 14px;background:var(--card);border:1px dashed var(--line);border-radius:18px}
 @keyframes kcp{from{opacity:.4;transform:translateY(3px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.kcalc .hero .big.pulse{animation:none}}
+@media(min-width:768px){.kcalc{max-width:none}}

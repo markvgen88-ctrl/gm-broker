@@ -1,5 +1,9 @@
 import { Link, Navigate, useParams } from "react-router-dom";
-import { HiArrowLeft, HiArrowRight, HiOutlineInformationCircle } from "react-icons/hi";
+import {
+  HiArrowLeft,
+  HiArrowRight,
+  HiOutlineInformationCircle,
+} from "react-icons/hi";
 import { cta } from "@/lib/cta";
 import { SurveyLink } from "@/components/ui/SurveyLink";
 import { CaseStudyBlock } from "@/components/sections/CaseStudyBlock";
@@ -14,10 +18,15 @@ function List({ title, items }: { title: string; items: string[] }) {
   if (items.length === 0) return null;
   return (
     <div>
-      <h2 className="font-display text-xl font-bold tracking-tight text-ink">{title}</h2>
+      <h2 className="font-display text-xl font-bold tracking-tight text-ink">
+        {title}
+      </h2>
       <ul className="mt-4 flex flex-col gap-3">
         {items.map((i) => (
-          <li key={i} className="flex gap-3 text-base leading-relaxed text-ink/85">
+          <li
+            key={i}
+            className="flex gap-3 text-base leading-relaxed text-ink/85"
+          >
             <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
             {i}
           </li>
@@ -41,7 +50,11 @@ export function ServicePage() {
           "@type": "Service",
           name: service.title,
           description: service.lead,
-          provider: { "@type": "FinancialService", name: "G.M. Broker", url: "https://gm-broker.ru/" },
+          provider: {
+            "@type": "FinancialService",
+            name: "G.M. Broker",
+            url: "https://gm-broker.ru/",
+          },
           areaServed: { "@type": "Country", name: "Россия" },
         }
       : undefined,
@@ -51,12 +64,22 @@ export function ServicePage() {
 
   const isLegal = service.group === "legal";
   const isKanikuly = service.slug === KANIKULY_SLUG;
+  // Блок с калькулятором — первый раздел «Кредитных каникул»: ему нужна вся ширина страницы.
+  const hasCalc = (idx: number) => isKanikuly && idx === 0;
   // Внутри юридической помощи показываем только её услуги, иначе — остальные виды кредитования.
-  const others = SERVICES.filter((s) => s.slug !== service.slug && (s.group === "legal") === isLegal);
+  const others = SERVICES.filter(
+    (s) => s.slug !== service.slug && (s.group === "legal") === isLegal,
+  );
   const lists = [
-    { title: service.listTitles?.[0] ?? "Кому подходит", items: service.forWhom },
+    {
+      title: service.listTitles?.[0] ?? "Кому подходит",
+      items: service.forWhom,
+    },
     { title: service.listTitles?.[1] ?? "Что я делаю", items: service.whatIDo },
-    { title: service.listTitles?.[2] ?? "Что понадобится", items: service.prepare },
+    {
+      title: service.listTitles?.[2] ?? "Что понадобится",
+      items: service.prepare,
+    },
   ].filter((l) => l.items.length > 0);
 
   return (
@@ -66,15 +89,20 @@ export function ServicePage() {
           to={isLegal ? "/#debts" : "/#services"}
           className="glass inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-muted hover:text-pine"
         >
-          <HiArrowLeft /> {isLegal ? "Вся юридическая помощь" : "Все виды кредитования"}
+          <HiArrowLeft />{" "}
+          {isLegal ? "Вся юридическая помощь" : "Все виды кредитования"}
         </Link>
 
         <div className="glass mt-6 rounded-3xl p-6 md:p-10">
-          <p className="text-sm font-semibold text-pine">{GROUP_TITLES[service.group]}</p>
+          <p className="text-sm font-semibold text-pine">
+            {GROUP_TITLES[service.group]}
+          </p>
           <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-ink md:text-6xl">
             {service.title}
           </h1>
-          <p className="measure mt-6 text-lg leading-relaxed text-muted">{service.lead}</p>
+          <p className="measure mt-6 text-lg leading-relaxed text-muted">
+            {service.lead}
+          </p>
           {service.caseStudy && (
             <a
               href="#case"
@@ -92,7 +120,9 @@ export function ServicePage() {
       </div>
 
       <section className="glass-band py-14 md:py-20">
-        <div className={`container-page grid gap-12 ${lists.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+        <div
+          className={`container-page grid gap-12 ${lists.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}
+        >
           {lists.map((l) => (
             <List key={l.title} title={l.title} items={l.items} />
           ))}
@@ -101,19 +131,35 @@ export function ServicePage() {
         {service.sections && service.sections.length > 0 && (
           <div className="container-page mt-14 grid gap-x-12 gap-y-10 border-t border-line pt-12 md:grid-cols-2">
             {service.sections.map((s, sectionIndex) => (
-              <div key={s.heading} className={s.wide ? "md:col-span-2 md:max-w-3xl" : undefined}>
-                <h2 className="font-display text-xl font-bold tracking-tight text-ink">{s.heading}</h2>
+              <div
+                key={s.heading}
+                className={
+                  s.wide
+                    ? hasCalc(sectionIndex)
+                      ? "md:col-span-2"
+                      : "md:col-span-2 md:max-w-3xl"
+                    : undefined
+                }
+              >
+                <h2 className="font-display text-xl font-bold tracking-tight text-ink">
+                  {s.heading}
+                </h2>
                 {/* Калькулятор — сразу под заголовком первого раздела «Кредитных каникул». */}
-                {service.slug === KANIKULY_SLUG && sectionIndex === 0 && <KanikulyCalculatorBlock />}
+                {hasCalc(sectionIndex) && <KanikulyCalculatorBlock />}
                 {s.paragraphs?.map((p) => (
                   <div key={p}>
-                    <p className="mt-4 text-base leading-relaxed text-ink/85">{p}</p>
+                    <p className="mt-4 text-base leading-relaxed text-ink/85">
+                      {p}
+                    </p>
                   </div>
                 ))}
                 {s.list && (
                   <ul className="mt-4 flex flex-col gap-3">
                     {s.list.map((i) => (
-                      <li key={i} className="flex gap-3 text-base leading-relaxed text-ink/85">
+                      <li
+                        key={i}
+                        className="flex gap-3 text-base leading-relaxed text-ink/85"
+                      >
                         <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
                         {i}
                       </li>
@@ -121,7 +167,10 @@ export function ServicePage() {
                   </ul>
                 )}
                 {s.afterList?.map((p) => (
-                  <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
+                  <p
+                    key={p}
+                    className={`mt-4 text-base leading-relaxed text-ink/85${hasCalc(sectionIndex) ? " md:max-w-3xl" : ""}`}
+                  >
                     {p}
                   </p>
                 ))}
@@ -134,7 +183,10 @@ export function ServicePage() {
           <div className="container-page mt-12 grid gap-4 md:grid-cols-2">
             {service.note && (
               <div className="flex gap-3 rounded-2xl bg-mint p-5 text-[0.95rem] leading-relaxed text-ink">
-                <HiOutlineInformationCircle className="mt-0.5 shrink-0 text-pine" size={22} />
+                <HiOutlineInformationCircle
+                  className="mt-0.5 shrink-0 text-pine"
+                  size={22}
+                />
                 {service.note}
               </div>
             )}
@@ -144,7 +196,9 @@ export function ServicePage() {
                 className="group flex items-center justify-between gap-4 rounded-2xl border border-line p-5 font-medium text-ink hover:border-pine"
               >
                 <span>
-                  <span className="block text-sm font-normal text-muted">Статья по теме</span>
+                  <span className="block text-sm font-normal text-muted">
+                    Статья по теме
+                  </span>
                   {service.article.label}
                 </span>
                 <HiArrowRight className="shrink-0 text-pine transition-transform group-hover:translate-x-1" />
@@ -157,11 +211,16 @@ export function ServicePage() {
       {service.caseStudy && <CaseStudyBlock data={service.caseStudy} />}
 
       {service.requestForm ? (
-        <section id="request" className="wizard-skin scroll-mt-16 bg-ink py-16 text-white md:py-20">
+        <section
+          id="request"
+          className="wizard-skin scroll-mt-16 bg-ink py-16 text-white md:py-20"
+        >
           <div className="container-page grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
               <h2 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
-                {isKanikuly ? "Узнайте, можно ли оформить каникулы" : "Оставьте заявку"}
+                {isKanikuly
+                  ? "Узнайте, можно ли оформить каникулы"
+                  : "Оставьте заявку"}
               </h2>
               <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
                 {isKanikuly
@@ -170,49 +229,56 @@ export function ServicePage() {
                     "Расскажите о своей ситуации. Мы свяжемся с вами и подскажем, подойдёт ли вам эта услуга.")}
               </p>
             </div>
-            {isKanikuly ? <KanikulySurvey service={service} /> : <ServiceRequestForm service={service} />}
+            {isKanikuly ? (
+              <KanikulySurvey service={service} />
+            ) : (
+              <ServiceRequestForm service={service} />
+            )}
           </div>
         </section>
       ) : (
-      <section className="wizard-skin bg-ink py-16 text-white md:py-20">
-        <div className="container-page grid items-center gap-8 md:grid-cols-[1.4fr_1fr]">
-          <div>
-            <h2 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
-              Узнайте, подойдёт ли вам этот вариант
-            </h2>
-            <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
-              Ответьте на несколько вопросов. Я изучу вашу ситуацию, свяжусь в течение 24 часов и честно скажу о
-              шансах. Если помочь не смогу, дам бесплатную рекомендацию.
-            </p>
+        <section className="wizard-skin bg-ink py-16 text-white md:py-20">
+          <div className="container-page grid items-center gap-8 md:grid-cols-[1.4fr_1fr]">
+            <div>
+              <h2 className="font-display text-3xl font-bold leading-tight tracking-tight md:text-4xl">
+                Узнайте, подойдёт ли вам этот вариант
+              </h2>
+              <p className="measure mt-4 text-base leading-relaxed text-white/70 md:text-lg">
+                Ответьте на несколько вопросов. Я изучу вашу ситуацию, свяжусь в
+                течение 24 часов и честно скажу о шансах. Если помочь не смогу,
+                дам бесплатную рекомендацию.
+              </p>
+            </div>
+            <div className="md:justify-self-end">
+              <SurveyLink className={cta("bright", "lg")}>
+                Пройти опрос <HiArrowRight />
+              </SurveyLink>
+            </div>
           </div>
-          <div className="md:justify-self-end">
-            <SurveyLink className={cta("bright", "lg")}>
-              Пройти опрос <HiArrowRight />
-            </SurveyLink>
-          </div>
-        </div>
-      </section>
+        </section>
       )}
 
       <section className="py-14 md:py-20">
         <div className="container-page">
-         <div className="glass rounded-3xl p-6 md:p-8">
-          <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
-            {isLegal ? "Другие услуги юридической помощи" : "Другие виды кредитования"}
-          </h2>
-          <ul className="mt-6 flex flex-wrap gap-2.5">
-            {others.map((s) => (
-              <li key={s.slug}>
-                <Link
-                  to={`/services/${s.slug}`}
-                  className="inline-flex rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:border-pine hover:bg-mint"
-                >
-                  {s.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-         </div>
+          <div className="glass rounded-3xl p-6 md:p-8">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-ink">
+              {isLegal
+                ? "Другие услуги юридической помощи"
+                : "Другие виды кредитования"}
+            </h2>
+            <ul className="mt-6 flex flex-wrap gap-2.5">
+              {others.map((s) => (
+                <li key={s.slug}>
+                  <Link
+                    to={`/services/${s.slug}`}
+                    className="inline-flex rounded-full border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:border-pine hover:bg-mint"
+                  >
+                    {s.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
     </main>
