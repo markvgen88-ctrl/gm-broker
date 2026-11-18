@@ -103,11 +103,11 @@ export function ServicePage() {
             {service.sections.map((s, sectionIndex) => (
               <div key={s.heading} className={s.wide ? "md:col-span-2 md:max-w-3xl" : undefined}>
                 <h2 className="font-display text-xl font-bold tracking-tight text-ink">{s.heading}</h2>
-                {s.paragraphs?.map((p, i) => (
+                {/* Калькулятор — сразу под заголовком первого раздела «Кредитных каникул». */}
+                {service.slug === KANIKULY_SLUG && sectionIndex === 0 && <KanikulyCalculatorBlock />}
+                {s.paragraphs?.map((p) => (
                   <div key={p}>
                     <p className="mt-4 text-base leading-relaxed text-ink/85">{p}</p>
-                    {/* Калькулятор — после абзаца с цифрами, в первом разделе «Кредитных каникул». */}
-                    {service.slug === KANIKULY_SLUG && sectionIndex === 0 && i === 0 && <KanikulyCalculatorBlock />}
                   </div>
                 ))}
                 {s.list && (
