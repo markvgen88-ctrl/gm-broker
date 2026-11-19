@@ -14,11 +14,11 @@ export function KanikulyCalculatorBlock() {
     >
       <h3
         id="kanikuly-calc-title"
-        className="font-display text-lg font-bold tracking-tight text-ink"
+        className="font-display text-xl font-bold tracking-tight text-ink"
       >
         Посчитайте, что дадут каникулы именно вам
       </h3>
-      <p className="mt-3 max-w-3xl text-[0.95rem] leading-relaxed text-ink/85">
+      <p className="mt-3 max-w-3xl text-base leading-relaxed text-ink/85">
         Введите данные своего кредита и сумму, которую готовы вносить в месяц на
         каникулах (можно 0 ₽). Калькулятор сразу покажет результат.
       </p>
@@ -28,7 +28,7 @@ export function KanikulyCalculatorBlock() {
         </div>
         <div className="order-2 md:order-1">
           <ul className="flex flex-col gap-3">
-            <li className="flex gap-3 text-[0.95rem] leading-relaxed text-ink/85">
+            <li className="flex gap-3 text-base leading-relaxed text-ink/85">
               <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
               <span>
                 <b className="font-semibold text-ink">
@@ -38,7 +38,7 @@ export function KanikulyCalculatorBlock() {
                 месяцев, а вы видите, сколько не отдаёте банку за это время.
               </span>
             </li>
-            <li className="flex gap-3 text-[0.95rem] leading-relaxed text-ink/85">
+            <li className="flex gap-3 text-base leading-relaxed text-ink/85">
               <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-pine" />
               <span>
                 <b className="font-semibold text-ink">Вносите часть долга</b> —
@@ -49,17 +49,21 @@ export function KanikulyCalculatorBlock() {
               </span>
             </li>
           </ul>
-          <h4 className="mt-5 text-[0.95rem] font-semibold text-ink">
+          <p className="mt-4 text-base leading-relaxed text-ink/85">
+            Каникулы подходят и физическим лицам, и индивидуальным
+            предпринимателям.
+          </p>
+          <h4 className="mt-6 font-display text-lg font-semibold tracking-tight text-ink">
             Как считаются проценты на каникулах
           </h4>
-          <p className="mt-2 text-sm leading-relaxed text-ink/85">
+          <p className="mt-2 text-base leading-relaxed text-ink/85">
             <b className="font-semibold text-ink">Кроме ипотеки:</b> проценты
             начисляются по ставке 2/3 от среднерыночной ПСК, но не выше ставки
             по договору. После каникул государство компенсирует банку 50% этих
             процентов, остальные 50% банк списывает — вам платить ничего не
             нужно.
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-ink/85">
+          <p className="mt-2 text-base leading-relaxed text-ink/85">
             <b className="font-semibold text-ink">Ипотека:</b> проценты
             считаются по прежней ставке, но так, чтобы общий долг за время
             каникул не увеличивался. Пропущенные платежи, включая проценты,

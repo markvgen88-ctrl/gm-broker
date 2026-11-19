@@ -1,6 +1,6 @@
 /* Калькулятор кредитных каникул. Стили изолированы классом .kcalc (светлая тема сайта).
-   Одна колонка: поля, затем результат; занимает всю ширину своего контейнера (до 480 px). */
-.kcalc{--paper:#f1f4ef;--ink:#1a2b25;--muted:#62726b;--pine:#0d6150;--bright:#6fc4a8;--hero:#0d6150;--herotext:#fff;--herosoft:#b9e3d4;--card:#fafbf9;--line:#dbe3de;--err:#c62828;
+   Одна колонка: поля, затем результат; занимает всю ширину своего контейнера (на телефоне до 480 px). */
+.kcalc{--paper:#f1f4ef;--ink:#1a2b25;--muted:#62726b;--pine:#0d6150;--bright:#6fc4a8;--hero:#0d6150;--herotext:#ffffff;--herosoft:#b9e3d4;--card:#fafbf9;--line:#dbe3de;--err:#c62828;
   width:100%;max-width:480px;color:var(--ink);font:15px/1.35 Onest,system-ui,-apple-system,"Segoe UI",sans-serif}
 .kcalc *{box-sizing:border-box}
 .kcalc .fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px 10px}
