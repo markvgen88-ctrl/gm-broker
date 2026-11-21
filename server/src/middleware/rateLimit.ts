@@ -15,6 +15,18 @@ export const submitRateLimiter = rateLimit({
   },
 });
 
+/** Лимит на предварительную проверку перед согласием (кнопка «Согласен»): 20 проверок за 10 минут с одного IP. */
+export const checkRepeatRateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Слишком много проверок с вашего IP. Попробуйте позже.",
+  },
+});
+
 /** Лимит на заявки на услуги (заморозка, банкротство и др.): не больше 5 за 10 минут с одного IP. */
 export const serviceRequestRateLimiter = rateLimit({
   windowMs: 10 * 60 * 1000,

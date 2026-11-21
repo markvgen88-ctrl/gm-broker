@@ -1,10 +1,12 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "react-router-dom";
-import { HiArrowLeft } from "react-icons/hi";
+import { HiArrowLeft, HiCheck } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import { ContactNotice } from "@/components/ui/ContactNotice";
+import { checkRepeatApplication } from "@/lib/api";
 import { normalizeTelegram, TELEGRAM_ERROR } from "@/lib/telegram";
 import type { FinalNode } from "@/types/questionnaire";
 
@@ -28,6 +30,8 @@ const finalSchema = z.object({
 
 export type FinalFormValues = z.infer<typeof finalSchema>;
 
+const makeContactsKey = (phone: string, email: string) => `${phone.trim()}|${email.trim().toLowerCase()}`;
+
 interface FinalStepProps {
   node: FinalNode;
   onSubmit: (values: FinalFormValues) => void;
@@ -40,11 +44,57 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
+    getValues,
+    trigger,
     formState: { errors },
   } = useForm<FinalFormValues>({
     resolver: zodResolver(finalSchema),
     defaultValues: { name: "", phone: "", contactInfo: "", telegram: "", consent: false },
   });
+
+  // Согласие даётся кнопкой «Согласен»: она проверяет, можно ли этому клиенту
+  // сейчас подать заявку. Сам чекбокс скрыт и ставится программно.
+  const [checking, setChecking] = useState(false);
+  const [consentProblem, setConsentProblem] = useState<string | null>(null);
+  const [checkedKey, setCheckedKey] = useState<string | null>(null);
+
+  const consent = watch("consent");
+  const contactsKey = makeContactsKey(watch("phone"), watch("contactInfo"));
+
+  // Если после проверки клиент поправил телефон или e-mail — согласие сбрасывается,
+  // и проверку нужно пройти заново.
+  useEffect(() => {
+    if (checkedKey === contactsKey) return;
+    if (getValues("consent")) setValue("consent", false);
+    setCheckedKey(null);
+    setConsentProblem(null);
+  }, [contactsKey, checkedKey, getValues, setValue]);
+
+  const handleConsentClick = async () => {
+    setConsentProblem(null);
+    const contactsValid = await trigger(["phone", "contactInfo"]);
+    if (!contactsValid) return;
+
+    const startedKey = makeContactsKey(getValues("phone"), getValues("contactInfo"));
+    setChecking(true);
+    try {
+      const result = await checkRepeatApplication(getValues("phone").trim(), getValues("contactInfo").trim());
+      // Пока шла проверка, клиент мог изменить контакты — тогда результат не годится.
+      if (makeContactsKey(getValues("phone"), getValues("contactInfo")) !== startedKey) return;
+      if (!result.allowed) {
+        setConsentProblem(result.message ?? "Заявку с этими контактными данными сейчас подать нельзя.");
+        return;
+      }
+      setCheckedKey(startedKey);
+      setValue("consent", true, { shouldValidate: true });
+    } catch (error) {
+      setConsentProblem(error instanceof Error ? error.message : "Не удалось выполнить проверку. Попробуйте ещё раз.");
+    } finally {
+      setChecking(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -119,12 +169,20 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
         </div>
 
         <div>
-          <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-metal">
-            <input
-              type="checkbox"
-              className="mt-0.5 h-4 w-4 shrink-0 accent-gold"
-              {...register("consent")}
-            />
+          <div className="flex items-start gap-3 text-sm leading-relaxed text-metal">
+            {/* Настоящий чекбокс скрыт: его ставит кнопка «Согласен» после успешной проверки. */}
+            <input type="checkbox" tabIndex={-1} aria-hidden="true" className="sr-only" {...register("consent")} />
+            <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center" aria-live="polite">
+              {consent && (
+                <span
+                  className="flex h-5 w-5 items-center justify-center rounded bg-gold text-[#1a1400]"
+                  role="img"
+                  aria-label="Согласие дано"
+                >
+                  <HiCheck className="h-4 w-4" />
+                </span>
+              )}
+            </span>
             <span>
               Я даю согласие на обработку персональных данных в соответствии с{" "}
               <Link
@@ -132,13 +190,26 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gold underline underline-offset-2 hover:text-gold-deep"
-                onClick={(e) => e.stopPropagation()}
               >
                 Политикой конфиденциальности
               </Link>
             </span>
-          </label>
-          {errors.consent && <p className="mt-2 text-sm text-[#e5a3a3]">{errors.consent.message}</p>}
+          </div>
+          {!consent && (
+            <div className="mt-3 pl-8">
+              <Button type="button" variant="secondary" size="sm" onClick={handleConsentClick} disabled={checking}>
+                {checking ? "Проверяем…" : "Согласен"}
+              </Button>
+            </div>
+          )}
+          {consentProblem && (
+            <p className="mt-3 rounded-lg border border-[#e5a3a3]/30 bg-[#e5a3a3]/10 px-4 py-3 text-sm text-[#e5a3a3]">
+              {consentProblem}
+            </p>
+          )}
+          {errors.consent && !consentProblem && (
+            <p className="mt-2 text-sm text-[#e5a3a3]">Нажмите «Согласен», чтобы продолжить</p>
+          )}
         </div>
       </div>
 
@@ -156,7 +227,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
         >
           <HiArrowLeft /> Назад
         </button>
-        <Button type="submit" size="lg" disabled={isSubmitting}>
+        <Button type="submit" size="lg" disabled={isSubmitting || !consent}>
           {isSubmitting ? "Отправляем…" : "Отправить заявку"}
         </Button>
       </div>

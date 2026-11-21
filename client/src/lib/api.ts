@@ -34,6 +34,37 @@ export async function submitApplication(payload: SubmissionPayload): Promise<Sub
   return data ?? { success: true };
 }
 
+export interface RepeatCheckResult {
+  allowed: boolean;
+  message?: string;
+}
+
+/** Проверка перед согласием: не подавал ли клиент заявку слишком недавно (по телефону или e-mail). */
+export async function checkRepeatApplication(phone: string, contactInfo: string): Promise<RepeatCheckResult> {
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/check-repeat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, contactInfo }),
+    });
+  } catch {
+    throw new Error("Не удалось выполнить проверку. Проверьте интернет и попробуйте ещё раз.");
+  }
+
+  let data: { allowed?: boolean; message?: string } | null = null;
+  try {
+    data = await response.json();
+  } catch {
+    // тело ответа может отсутствовать
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.message ?? "Не удалось выполнить проверку. Попробуйте ещё раз.");
+  }
+  return { allowed: data?.allowed !== false, message: data?.message };
+}
+
 export interface SurveyAnswer {
   question: string;
   answer: string;
