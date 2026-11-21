@@ -223,6 +223,49 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
 }
 
 // ---------------------------------------------------------------------------
+// Ограничение: повторную заявку можно подать не чаще, чем раз в N дней.
+// ---------------------------------------------------------------------------
+
+/** Через сколько дней после предыдущей заявки клиент может подать новую (по умолчанию 30, меняется переменной окружения). */
+export const REPEAT_APPLICATION_DAYS = (() => {
+  const value = Number(process.env.REPEAT_APPLICATION_DAYS);
+  return Number.isInteger(value) && value >= 0 ? value : 30;
+})();
+
+function normalizePhoneKey(raw: unknown): string | null {
+  const digits = String(raw ?? "").replace(/\D/g, "");
+  return digits.length >= 10 ? digits.slice(-10) : null;
+}
+
+function normalizeEmailKey(raw: unknown): string | null {
+  const value = String(raw ?? "").trim().toLowerCase();
+  return value && value !== "—" ? value : null;
+}
+
+/**
+ * Ищет самую свежую заявку этого же клиента (совпал телефон ИЛИ e-mail — как в
+ * блоке «Клиент уже обращался»), поданную меньше REPEAT_APPLICATION_DAYS дней
+ * назад. Считаем по календарным дням по Москве. Возвращает дату (ГГГГ-ММ-ДД), с
+ * которой клиент снова сможет подать заявку, или null, если ограничения нет.
+ */
+export async function getRepeatApplicationAvailableFrom(phone: unknown, email: unknown): Promise<string | null> {
+  const phoneK = normalizePhoneKey(phone);
+  const emailK = normalizeEmailKey(email);
+  if (!phoneK && !emailK) return null;
+
+  const result = await pool.query<{ available_from: string }>(
+    `SELECT to_char(((a.created_at AT TIME ZONE 'Europe/Moscow')::date + $3::int), 'YYYY-MM-DD') AS available_from
+     FROM applications a
+     WHERE (a.created_at AT TIME ZONE 'Europe/Moscow')::date + $3::int > (now() AT TIME ZONE 'Europe/Moscow')::date
+       AND (($1::text IS NOT NULL AND ${phoneKey("a")} = $1) OR ($2::text IS NOT NULL AND ${emailKey("a")} = $2))
+     ORDER BY a.created_at DESC
+     LIMIT 1`,
+    [phoneK, emailK, REPEAT_APPLICATION_DAYS]
+  );
+  return result.rows[0]?.available_from ?? null;
+}
+
+// ---------------------------------------------------------------------------
 // Сравнение ответов повторных заявок одного клиента (от старой к новой).
 // ---------------------------------------------------------------------------
 
