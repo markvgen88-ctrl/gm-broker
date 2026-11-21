@@ -222,6 +222,84 @@ export async function getApplicationById(id: number): Promise<ApplicationDetail 
   };
 }
 
+// ---------------------------------------------------------------------------
+// Сравнение ответов повторных заявок одного клиента (от старой к новой).
+// ---------------------------------------------------------------------------
+
+export interface ComparisonColumn {
+  id: number;
+  createdAt: string;
+  clientTypeLabel: string;
+  loanAmount: string | null;
+  status: string;
+}
+
+export interface ComparisonCell {
+  value: string;
+  tone: FieldTone;
+}
+
+export interface ComparisonRow {
+  key: string;
+  label: string;
+  /** Ответ по каждой заявке (в том же порядке, что и columns); null — на этот вопрос клиент не отвечал. */
+  cells: (ComparisonCell | null)[];
+  /** Ответы различаются между заявками (в том числе вопрос появился или пропал). */
+  changed: boolean;
+}
+
+export interface ApplicationComparison {
+  /** Заявка, из карточки которой открыли сравнение. */
+  currentId: number;
+  clientName: string;
+  /** Заявки клиента от самой старой к самой новой. */
+  columns: ComparisonColumn[];
+  rows: ComparisonRow[];
+}
+
+/**
+ * Собирает таблицу «вопрос × заявки» по всем заявкам клиента (телефон/e-mail
+ * как в блоке «Клиент уже обращался»). Колонки идут от старой заявки к новой.
+ * Строки — объединение всех вопросов, в обычном порядке анкеты. Возвращает
+ * null, если заявки нет; если повторных нет — в columns будет одна колонка.
+ */
+export async function getApplicationComparison(id: number): Promise<ApplicationComparison | null> {
+  const result = await pool.query(
+    `SELECT b.id, b.created_at, b.client_type, b.name, b.loan_amount, b.status, b.answers
+     FROM applications a
+     JOIN applications b ON b.id = a.id OR (b.id <> a.id AND ${sameClient("a", "b")})
+     WHERE a.id = $1
+     ORDER BY b.created_at ASC, b.id ASC`,
+    [id]
+  );
+  if (result.rows.length === 0) return null;
+
+  const rowsData = result.rows as any[];
+  const columns: ComparisonColumn[] = rowsData.map((r) => ({
+    id: r.id,
+    createdAt: r.created_at,
+    clientTypeLabel: formatFieldValue("clientType", r.client_type),
+    loanAmount: r.loan_amount,
+    status: r.status,
+  }));
+
+  const answersList = rowsData.map((r) => r.answers as Record<string, string | number>);
+  const has = (answers: Record<string, string | number>, key: string) =>
+    answers[key] !== undefined && answers[key] !== "";
+
+  const rows: ComparisonRow[] = FIELD_ORDER.filter((key) => answersList.some((a) => has(a, key))).map((key) => {
+    const cells = answersList.map((a) =>
+      has(a, key) ? { value: formatFieldValue(key, a[key]), tone: getFieldTone(key, a[key]) } : null
+    );
+    const first = cells[0]?.value ?? null;
+    const changed = cells.some((c) => (c?.value ?? null) !== first);
+    return { key, label: FIELD_LABELS[key] ?? key, cells, changed };
+  });
+
+  const current = rowsData.find((r) => r.id === id);
+  return { currentId: id, clientName: current?.name ?? rowsData[rowsData.length - 1].name, columns, rows };
+}
+
 /** Меняет статус заявки. Возвращает false, если заявка с таким id не найдена. */
 export async function updateApplicationStatus(id: number, status: string): Promise<boolean> {
   const result = await pool.query(`UPDATE applications SET status = $1, updated_at = now() WHERE id = $2`, [

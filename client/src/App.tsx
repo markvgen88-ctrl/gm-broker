@@ -14,6 +14,7 @@ import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminLoginPage } from "@/pages/admin/AdminLoginPage";
 import { AdminDashboardPage } from "@/pages/admin/AdminDashboardPage";
 import { AdminApplicationPage } from "@/pages/admin/AdminApplicationPage";
+import { AdminApplicationComparePage } from "@/pages/admin/AdminApplicationComparePage";
 import { AdminServiceRequestsPage } from "@/pages/admin/AdminServiceRequestsPage";
 import { AdminServiceRequestPage } from "@/pages/admin/AdminServiceRequestPage";
 import { AdminEmailTemplatesPage } from "@/pages/admin/AdminEmailTemplatesPage";
@@ -46,6 +47,7 @@ function AppShell() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="applications/:id" element={<AdminApplicationPage />} />
+            <Route path="applications/:id/compare" element={<AdminApplicationComparePage />} />
             <Route path="service-requests" element={<AdminServiceRequestsPage />} />
             <Route path="service-requests/:id" element={<AdminServiceRequestPage />} />
             <Route path="email-templates" element={<AdminEmailTemplatesPage />} />

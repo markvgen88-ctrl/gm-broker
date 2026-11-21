@@ -209,6 +209,12 @@ export function AdminApplicationPage() {
             <p className="mt-1 mb-3 text-xs text-metal">
               Другие заявки с тем же телефоном или e-mail ({item.related.length}). Всего обращений — {item.related.length + 1}.
             </p>
+            <Link
+              to={`/admin/applications/${item.id}/compare`}
+              className="mb-3 inline-flex items-center gap-2 rounded-lg border border-amber-400/50 bg-amber-500/15 px-3 py-2 text-sm font-semibold text-amber-200 transition-colors hover:bg-amber-500/25"
+            >
+              Сравнить ответы по заявкам →
+            </Link>
             <ul className="space-y-2">
               {item.related.map((r) => {
                 const matched = [r.sameBy.phone && "телефон", r.sameBy.email && "e-mail"].filter(Boolean).join(" и ");

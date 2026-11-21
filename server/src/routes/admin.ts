@@ -9,6 +9,7 @@ import {
   addComment,
   deleteApplication,
   getApplicationById,
+  getApplicationComparison,
   listApplications,
   listApplicationsForExport,
   updateApplicationStatus,
@@ -140,6 +141,21 @@ adminRouter.get("/applications/:id", async (req: Request, res: Response) => {
     return;
   }
   res.json({ success: true, item });
+});
+
+/** Сравнение ответов всех заявок одного клиента, от старой к новой. */
+adminRouter.get("/applications/:id/compare", async (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id)) {
+    res.status(400).json({ success: false, message: "Некорректный id заявки" });
+    return;
+  }
+  const comparison = await getApplicationComparison(id);
+  if (!comparison) {
+    res.status(404).json({ success: false, message: "Заявка не найдена" });
+    return;
+  }
+  res.json({ success: true, comparison });
 });
 
 adminRouter.delete("/applications/:id", async (req: Request, res: Response) => {

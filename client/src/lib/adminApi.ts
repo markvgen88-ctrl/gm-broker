@@ -61,6 +61,35 @@ export interface ApplicationDetail extends ApplicationListItem {
   related: RelatedApplication[];
 }
 
+/** Сравнение ответов всех заявок одного клиента (колонки — от старой к новой). */
+export interface ComparisonColumn {
+  id: number;
+  createdAt: string;
+  clientTypeLabel: string;
+  loanAmount: string | null;
+  status: string;
+}
+
+export interface ComparisonCell {
+  value: string;
+  tone: "good" | "bad" | "neutral";
+}
+
+export interface ComparisonRow {
+  key: string;
+  label: string;
+  /** По одной ячейке на заявку; null — на этот вопрос клиент не отвечал. */
+  cells: (ComparisonCell | null)[];
+  changed: boolean;
+}
+
+export interface ApplicationComparison {
+  currentId: number;
+  clientName: string;
+  columns: ComparisonColumn[];
+  rows: ComparisonRow[];
+}
+
 /** Заявка по услуге (заморозка, банкротство и т. д.) — отдельный раздел CRM. */
 export interface ServiceRequestListItem {
   id: number;
@@ -134,6 +163,11 @@ export async function fetchApplications(status?: string): Promise<ApplicationLis
 export async function fetchApplication(id: number): Promise<ApplicationDetail> {
   const data = await adminFetch<{ item: ApplicationDetail }>(`/applications/${id}`);
   return data.item;
+}
+
+export async function fetchApplicationComparison(id: number): Promise<ApplicationComparison> {
+  const data = await adminFetch<{ comparison: ApplicationComparison }>(`/applications/${id}/compare`);
+  return data.comparison;
 }
 
 export async function updateApplicationStatus(id: number, status: string): Promise<void> {
