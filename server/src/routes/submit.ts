@@ -6,7 +6,7 @@ import { sendTelegramMessage } from "../services/telegram.js";
 import { sendEmailReport } from "../services/email.js";
 import {
   REPEAT_APPLICATION_DAYS,
-  getRepeatApplicationAvailableFrom,
+  getRepeatApplicationBlock,
   saveApplicationForCrm,
 } from "../db/applications.js";
 import { isDatabaseConfigured } from "../db/pool.js";
@@ -31,17 +31,18 @@ function formatRuDate(isoDate: string): string {
  */
 async function checkRepeatLimit(phone: unknown, email: unknown): Promise<string | null> {
   if (REPEAT_APPLICATION_DAYS <= 0 || !isDatabaseConfigured()) return null;
-  const availableFrom = await withTimeout(
-    getRepeatApplicationAvailableFrom(phone, email).catch((err) => {
+  const block = await withTimeout(
+    getRepeatApplicationBlock(phone, email).catch((err) => {
       console.error("[submit] repeat check failed:", err instanceof Error ? err.message : err);
       return null;
     }),
     3000,
     null
   );
-  if (!availableFrom) return null;
+  if (!block) return null;
   return (
-    `Заявка с этими контактными данными уже отправлена, повторную можно подать с ${formatRuDate(availableFrom)}. ` +
+    `Заявка от ${formatRuDate(block.lastApplicationDate)} с вашими контактными данными уже есть в системе, ` +
+    `повторную можно подать с ${formatRuDate(block.availableFrom)}. ` +
     `Если вы ещё не получили ответ, напишите на почту ${CONTACT_EMAIL} с запросом статуса вашей заявки.`
   );
 }

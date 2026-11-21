@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { HiArrowLeft, HiCheck } from "react-icons/hi";
 import { Button } from "@/components/ui/Button";
 import { ContactNotice } from "@/components/ui/ContactNotice";
+import { CONTACT_EMAIL } from "@/data/contact";
 import { checkRepeatApplication } from "@/lib/api";
 import { normalizeTelegram, TELEGRAM_ERROR } from "@/lib/telegram";
 import type { FinalNode } from "@/types/questionnaire";
@@ -29,6 +30,28 @@ const finalSchema = z.object({
 });
 
 export type FinalFormValues = z.infer<typeof finalSchema>;
+
+/** Текст сообщения, в котором адрес почты превращён в ссылку — чтобы можно было сразу нажать и написать письмо. */
+function MessageWithEmailLink({ text }: { text: string }) {
+  const parts = text.split(CONTACT_EMAIL);
+  return (
+    <>
+      {parts.map((part, i) => (
+        <Fragment key={i}>
+          {i > 0 && (
+            <a
+              href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Запрос статуса заявки")}`}
+              className="font-medium underline underline-offset-2 hover:text-white"
+            >
+              {CONTACT_EMAIL}
+            </a>
+          )}
+          {part}
+        </Fragment>
+      ))}
+    </>
+  );
+}
 
 const makeContactsKey = (phone: string, email: string) => `${phone.trim()}|${email.trim().toLowerCase()}`;
 
@@ -204,7 +227,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
           )}
           {consentProblem && (
             <p className="mt-3 rounded-lg border border-[#e5a3a3]/30 bg-[#e5a3a3]/10 px-4 py-3 text-sm text-[#e5a3a3]">
-              {consentProblem}
+              <MessageWithEmailLink text={consentProblem} />
             </p>
           )}
           {errors.consent && !consentProblem && (
@@ -215,7 +238,7 @@ export function FinalStep({ node, onSubmit, onBack, isSubmitting, submitError }:
 
       {submitError && (
         <p className="mt-5 rounded-lg border border-[#e5a3a3]/30 bg-[#e5a3a3]/10 px-4 py-3 text-sm text-[#e5a3a3]">
-          {submitError}
+          <MessageWithEmailLink text={submitError} />
         </p>
       )}
 

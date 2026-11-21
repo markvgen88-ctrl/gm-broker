@@ -242,19 +242,27 @@ function normalizeEmailKey(raw: unknown): string | null {
   return value && value !== "—" ? value : null;
 }
 
+export interface RepeatApplicationBlock {
+  /** Дата последней заявки клиента (ГГГГ-ММ-ДД, по Москве). */
+  lastApplicationDate: string;
+  /** Дата, с которой клиент снова сможет подать заявку (ГГГГ-ММ-ДД). */
+  availableFrom: string;
+}
+
 /**
  * Ищет самую свежую заявку этого же клиента (совпал телефон ИЛИ e-mail — как в
  * блоке «Клиент уже обращался»), поданную меньше REPEAT_APPLICATION_DAYS дней
- * назад. Считаем по календарным дням по Москве. Возвращает дату (ГГГГ-ММ-ДД), с
- * которой клиент снова сможет подать заявку, или null, если ограничения нет.
+ * назад. Считаем по календарным дням по Москве. Возвращает даты прошлой заявки
+ * и следующей возможной подачи, или null, если ограничения нет.
  */
-export async function getRepeatApplicationAvailableFrom(phone: unknown, email: unknown): Promise<string | null> {
+export async function getRepeatApplicationBlock(phone: unknown, email: unknown): Promise<RepeatApplicationBlock | null> {
   const phoneK = normalizePhoneKey(phone);
   const emailK = normalizeEmailKey(email);
   if (!phoneK && !emailK) return null;
 
-  const result = await pool.query<{ available_from: string }>(
-    `SELECT to_char(((a.created_at AT TIME ZONE 'Europe/Moscow')::date + $3::int), 'YYYY-MM-DD') AS available_from
+  const result = await pool.query<{ last_date: string; available_from: string }>(
+    `SELECT to_char((a.created_at AT TIME ZONE 'Europe/Moscow')::date, 'YYYY-MM-DD') AS last_date,
+            to_char(((a.created_at AT TIME ZONE 'Europe/Moscow')::date + $3::int), 'YYYY-MM-DD') AS available_from
      FROM applications a
      WHERE (a.created_at AT TIME ZONE 'Europe/Moscow')::date + $3::int > (now() AT TIME ZONE 'Europe/Moscow')::date
        AND (($1::text IS NOT NULL AND ${phoneKey("a")} = $1) OR ($2::text IS NOT NULL AND ${emailKey("a")} = $2))
@@ -262,7 +270,8 @@ export async function getRepeatApplicationAvailableFrom(phone: unknown, email: u
      LIMIT 1`,
     [phoneK, emailK, REPEAT_APPLICATION_DAYS]
   );
-  return result.rows[0]?.available_from ?? null;
+  const row = result.rows[0];
+  return row ? { lastApplicationDate: row.last_date, availableFrom: row.available_from } : null;
 }
 
 // ---------------------------------------------------------------------------
