@@ -10,6 +10,7 @@ import { DeclineStep } from "@/components/wizard/DeclineStep";
 import { SuccessScreen } from "@/components/wizard/SuccessScreen";
 import { useWizard } from "@/hooks/useWizard";
 import { submitApplication } from "@/lib/api";
+import { isKanikulyAgeOk } from "@/lib/kanikuly";
 import { applySurveySettings, useSurveySettings } from "@/lib/surveySettings";
 import type { AnswersState } from "@/types/questionnaire";
 import { normalizeTelegram } from "@/lib/telegram";
@@ -84,7 +85,13 @@ export function Wizard() {
             {submitted ? (
               <SuccessScreen
                 onReset={handleReset}
-                offerKanikuly={wizard.answers.clientType === "individual" && wizard.answers.hasActiveLoans === "yes"}
+                offerKanikuly={
+                  ((wizard.answers.clientType === "individual" && wizard.answers.hasActiveLoans === "yes") ||
+                    // ИП про действующие кредиты в опросе не спрашиваем — предложение показываем всем ИП
+                    wizard.answers.clientType === "entrepreneur") &&
+                  // по возрасту: старше 60 лет услуга не подходит никому, предложение не показываем
+                  isKanikulyAgeOk(wizard.answers.age)
+                }
               />
             ) : (
               <>

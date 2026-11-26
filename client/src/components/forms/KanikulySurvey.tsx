@@ -6,25 +6,28 @@ import { Button } from "@/components/ui/Button";
 import { ServiceRequestForm } from "@/components/forms/ServiceRequestForm";
 import type { SurveyAnswer } from "@/lib/api";
 import type { Service } from "@/data/services";
+import { isKanikulyAgeOk, KANIKULY_MAX_AGE } from "@/lib/kanikuly";
 
 /**
  * Мини-опрос перед заявкой на «Кредитные каникулы» (по XMind-карте
  * «Опрос по кредитным каникулам»):
  *
- *   старт → возраст (от 20 лет) → просрочка (да/нет — путь один) → арест счетов (да → отказ)
- *         → платежи в месяц → количество кредитов → условия услуги
+ *   старт → пол → возраст (от 20 лет) → просрочка (да/нет — путь один) → арест счетов (да → отказ)
+ *         → платежи в месяц → количество кредитов
+ *         → итог: по полу и возрасту (женщины до 50, мужчины до 60 лет) — либо условия услуги, либо отказ
  *         → (принимаю) контакты → заявка уходит как обычная заявка по услуге
  *
  * Ответы уходят вместе с заявкой в поле `answers` и попадают в письмо,
  * Telegram и CRM (раздел «Услуги»). Тексты вопросов ниже — ровно те, что
  * увидит брокер в заявке, поэтому правьте их здесь.
- * Если клиент упёрся в арест счетов или не принял условия, заявка не
+ * Если клиент упёрся в арест счетов, не подошёл по возрасту или не принял условия, заявка не
  * отправляется — как у экранов отказа основной анкеты.
  */
 
-type Step = "start" | "age" | "overdue" | "arrest" | "payments" | "count" | "terms" | "arrestDecline" | "termsDecline" | "contacts";
+type Step = "start" | "gender" | "age" | "overdue" | "arrest" | "payments" | "count" | "terms" | "arrestDecline" | "ageDecline" | "termsDecline" | "contacts";
 
 const Q = {
+  gender: "Пол",
   age: "Возраст",
   overdue: "Есть ли в данный момент действующая просрочка по платежам?",
   arrest: "Наложен ли арест на банковские счета судебным приставом?",
@@ -34,8 +37,8 @@ const Q = {
 } as const;
 
 const MIN_AGE = 20;
-const TOTAL_STEPS = 6;
-const STEP_NUMBER: Partial<Record<Step, number>> = { age: 1, overdue: 2, arrest: 3, payments: 4, count: 5, terms: 6 };
+const TOTAL_STEPS = 7;
+const STEP_NUMBER: Partial<Record<Step, number>> = { gender: 1, age: 2, overdue: 3, arrest: 4, payments: 5, count: 6, terms: 7 };
 
 const card = "rounded-3xl border border-white/10 bg-graphite p-6 md:p-10";
 const title = "font-display text-xl font-semibold leading-snug text-silver md:text-2xl";
@@ -146,6 +149,7 @@ function NumberStep({
 export function KanikulySurvey({ service }: { service: Service }) {
   const [step, setStep] = useState<Step>("start");
   const [history, setHistory] = useState<Step[]>([]);
+  const [gender, setGender] = useState<"male" | "female" | null>(null);
   const [age, setAge] = useState<number | null>(null);
   const [overdue, setOverdue] = useState<boolean | null>(null);
   const [payments, setPayments] = useState<number | null>(null);
@@ -165,6 +169,7 @@ export function KanikulySurvey({ service }: { service: Service }) {
   const restart = () => {
     setHistory([]);
     setStep("start");
+    setGender(null);
     setAge(null);
     setOverdue(null);
     setPayments(null);
@@ -172,6 +177,7 @@ export function KanikulySurvey({ service }: { service: Service }) {
   };
 
   const answers: SurveyAnswer[] = [
+    { question: Q.gender, answer: gender === "female" ? "Женский" : "Мужской" },
     { question: Q.age, answer: `${age ?? 0} лет` },
     { question: Q.overdue, answer: overdue ? "Да" : "Нет" },
     { question: Q.arrest, answer: "Нет" },
@@ -191,10 +197,42 @@ export function KanikulySurvey({ service }: { service: Service }) {
           <h3 className={title}>Узнайте, можно ли для вас оформить кредитные каникулы.</h3>
           <p className={hintCls}>Пройдите небольшой опрос — это займёт около минуты.</p>
           <div className="mt-8">
-            <Button size="lg" onClick={() => goTo("age")}>
+            <Button size="lg" onClick={() => goTo("gender")}>
               Начать
               <HiOutlineArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
             </Button>
+          </div>
+        </div>
+      );
+      break;
+
+    case "gender":
+      body = (
+        <div>
+          <h3 className={title}>Укажите ваш пол.</h3>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                { label: "Мужской", value: "male" },
+                { label: "Женский", value: "female" },
+              ] as const
+            ).map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => {
+                  setGender(o.value);
+                  goTo("age");
+                }}
+                className={optionCls}
+              >
+                {o.label}
+                <HiOutlineArrowRight className="shrink-0 text-metal transition-all duration-250 group-hover:translate-x-1 group-hover:text-gold" />
+              </button>
+            ))}
+          </div>
+          <div className="mt-8">
+            <BackButton onClick={goBack} />
           </div>
         </div>
       );
@@ -282,7 +320,7 @@ export function KanikulySurvey({ service }: { service: Service }) {
           max={99}
           onSubmit={(n) => {
             setCount(n);
-            goTo("terms");
+            goTo(isKanikulyAgeOk(age, gender) ? "terms" : "ageDecline");
           }}
           onBack={goBack}
         />
@@ -327,6 +365,7 @@ export function KanikulySurvey({ service }: { service: Service }) {
       break;
 
     case "arrestDecline":
+    case "ageDecline":
     case "termsDecline":
       body = (
         <div className="flex flex-col items-center py-4 text-center">
@@ -336,7 +375,9 @@ export function KanikulySurvey({ service }: { service: Service }) {
           <h3 className={title}>
             {step === "arrestDecline"
               ? "К сожалению, для вас каникулы открыть сможем только после снятия ареста по счетам."
-              : "Спасибо, что прошли опрос! Если захотите вернуться к этому вопросу, мы будем рады помочь."}
+              : step === "ageDecline"
+                ? `К сожалению, по возрасту оформить кредитные каникулы не получится: услуга доступна женщинам до ${KANIKULY_MAX_AGE.female} лет и мужчинам до ${KANIKULY_MAX_AGE.male} лет.`
+                : "Спасибо, что прошли опрос! Если захотите вернуться к этому вопросу, мы будем рады помочь."}
           </h3>
           <div className="mt-8 flex items-center gap-4">
             <BackButton onClick={goBack} />
