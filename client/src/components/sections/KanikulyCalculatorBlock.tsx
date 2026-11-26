@@ -53,6 +53,10 @@ export function KanikulyCalculatorBlock() {
             Каникулы подходят и физическим лицам, и индивидуальным
             предпринимателям.
           </p>
+          <p className="mt-2 text-base leading-relaxed text-ink/85">
+            Возрастное ограничение: для женщин — до 50 лет, для мужчин — до 60
+            лет.
+          </p>
           <h4 className="mt-6 font-display text-lg font-semibold tracking-tight text-ink">
             Как считаются проценты на каникулах
           </h4>
