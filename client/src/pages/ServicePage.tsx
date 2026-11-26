@@ -145,7 +145,12 @@ export function ServicePage() {
                   {s.heading}
                 </h2>
                 {/* Калькулятор — сразу под заголовком первого раздела «Кредитных каникул». */}
-                {hasCalc(sectionIndex) && <KanikulyCalculatorBlock />}
+                {hasCalc(sectionIndex) && (
+                  <KanikulyCalculatorBlock
+                    afterList={s.afterList}
+                    note={service.note}
+                  />
+                )}
                 {s.paragraphs?.map((p) => (
                   <div key={p}>
                     <p className="mt-4 text-base leading-relaxed text-ink/85">
@@ -166,22 +171,23 @@ export function ServicePage() {
                     ))}
                   </ul>
                 )}
-                {s.afterList?.map((p) => (
-                  <p
-                    key={p}
-                    className={`mt-4 text-base leading-relaxed text-ink/85${hasCalc(sectionIndex) ? " md:max-w-3xl" : ""}`}
-                  >
-                    {p}
-                  </p>
-                ))}
+                {!hasCalc(sectionIndex) &&
+                  s.afterList?.map((p) => (
+                    <p
+                      key={p}
+                      className={`mt-4 text-base leading-relaxed text-ink/85${hasCalc(sectionIndex) ? " md:max-w-3xl" : ""}`}
+                    >
+                      {p}
+                    </p>
+                  ))}
               </div>
             ))}
           </div>
         )}
 
-        {(service.note || service.article) && (
+        {((service.note && !isKanikuly) || service.article) && (
           <div className="container-page mt-12 grid gap-4 md:grid-cols-2">
-            {service.note && (
+            {service.note && !isKanikuly && (
               <div className="flex gap-3 rounded-2xl bg-mint p-5 text-[0.95rem] leading-relaxed text-ink">
                 <HiOutlineInformationCircle
                   className="mt-0.5 shrink-0 text-pine"

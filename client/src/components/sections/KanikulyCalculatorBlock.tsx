@@ -1,3 +1,4 @@
+import { HiOutlineInformationCircle } from "react-icons/hi";
 import { KanikulyCalculator } from "@/components/sections/KanikulyCalculator";
 
 /**
@@ -5,7 +6,15 @@ import { KanikulyCalculator } from "@/components/sections/KanikulyCalculator";
  * вводный текст; ниже на компьютере — пояснения слева и калькулятор справа, на телефоне — калькулятор, затем пояснения.
  * Подключается в pages/ServicePage.tsx под заголовком первого раздела.
  */
-export function KanikulyCalculatorBlock() {
+export function KanikulyCalculatorBlock({
+  afterList,
+  note,
+}: {
+  /** Абзацы раздела, которые идут после блока (текст «Поэтому сравнивать стоит два сценария…»). */
+  afterList?: string[];
+  /** Плашка «Каждая ситуация рассматривается индивидуально…». */
+  note?: string;
+}) {
   return (
     <section
       id="calculator"
@@ -49,6 +58,20 @@ export function KanikulyCalculatorBlock() {
               </span>
             </li>
           </ul>
+          {afterList?.map((p) => (
+            <p key={p} className="mt-4 text-base leading-relaxed text-ink/85">
+              {p}
+            </p>
+          ))}
+          {note && (
+            <div className="mt-6 flex gap-3 rounded-2xl bg-mint p-5 text-[0.95rem] leading-relaxed text-ink">
+              <HiOutlineInformationCircle
+                className="mt-0.5 shrink-0 text-pine"
+                size={22}
+              />
+              {note}
+            </div>
+          )}
         </div>
       </div>
     </section>
