@@ -49,34 +49,6 @@ export function KanikulyCalculatorBlock() {
               </span>
             </li>
           </ul>
-          <p className="mt-4 text-base leading-relaxed text-ink/85">
-            Каникулы подходят и физическим лицам, и индивидуальным
-            предпринимателям.
-          </p>
-          <p className="mt-2 text-base leading-relaxed text-ink/85">
-            Возрастное ограничение: для женщин — до 50 лет, для мужчин — до 60
-            лет.
-          </p>
-          <h4 className="mt-6 font-display text-lg font-semibold tracking-tight text-ink">
-            Как считаются проценты на каникулах
-          </h4>
-          <p className="mt-2 text-base leading-relaxed text-ink/85">
-            <b className="font-semibold text-ink">Кроме ипотеки:</b> проценты
-            начисляются по ставке 2/3 от среднерыночной ПСК, но не выше ставки
-            по договору. После каникул государство компенсирует банку 50% этих
-            процентов, остальные 50% банк списывает — вам платить ничего не
-            нужно.
-          </p>
-          <p className="mt-2 text-base leading-relaxed text-ink/85">
-            <b className="font-semibold text-ink">Ипотека:</b> проценты
-            считаются по прежней ставке, но так, чтобы общий долг за время
-            каникул не увеличивался. Пропущенные платежи, включая проценты,
-            переносятся на конец первоначального графика.
-          </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted">
-            Расчёт ориентировочный: равные платежи, без страховок и комиссий.
-            Точные цифры зависят от вашего договора и количества кредитов.
-          </p>
         </div>
       </div>
     </section>
