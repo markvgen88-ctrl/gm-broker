@@ -147,7 +147,7 @@ function Field({
   return (
     <div className={`field${wide ? " wide" : ""}`}>
       <label htmlFor={`kc-${id}`}>{label}</label>
-      <div className={`inp${bad ? " bad" : ""}`}>
+      <div className={`inp${bad && value.trim() !== "" ? " bad" : ""}`}>
         <input
           id={`kc-${id}`}
           inputMode={mode}
@@ -163,13 +163,14 @@ function Field({
 }
 
 export function KanikulyCalculator() {
+  // Поля пустые: цифр по умолчанию нет, расчёт появляется после ввода данных.
   const [v, setV] = useState<Vals>({
-    loan: "3 900 000",
-    term: "60",
-    rate: "35",
-    pay: "138 400",
-    paid: "6",
-    own: "10 000",
+    loan: "",
+    term: "",
+    rate: "",
+    pay: "",
+    paid: "",
+    own: "",
   });
   const set = (k: keyof Vals) => (val: string) =>
     setV((p) => ({ ...p, [k]: val }));
